@@ -8,7 +8,7 @@ const caps = require('ssb-caps')
 const classic = require('ssb-classic/format')
 const p = require('util').promisify
 
-const DIR = path.join(os.tmpdir(), 'ssb-memdb-add')
+const DIR = path.join(os.tmpdir(), 'ppppp-db-add')
 rimraf.sync(DIR)
 
 test('add() classic', async (t) => {

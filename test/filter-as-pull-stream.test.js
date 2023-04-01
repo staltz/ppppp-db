@@ -8,7 +8,7 @@ const caps = require('ssb-caps')
 const pull = require('pull-stream')
 const p = require('util').promisify
 
-const DIR = path.join(os.tmpdir(), 'ssb-memdb-filter-as-pull-stream')
+const DIR = path.join(os.tmpdir(), 'ppppp-db-filter-as-pull-stream')
 rimraf.sync(DIR)
 
 test('filterAsPullStream', async (t) => {

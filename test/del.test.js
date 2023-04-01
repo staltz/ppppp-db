@@ -9,7 +9,7 @@ const push = require('push-stream')
 const caps = require('ssb-caps')
 const p = require('util').promisify
 
-const DIR = path.join(os.tmpdir(), 'ssb-memdb-del')
+const DIR = path.join(os.tmpdir(), 'ppppp-db-del')
 rimraf.sync(DIR)
 
 test('del', async (t) => {

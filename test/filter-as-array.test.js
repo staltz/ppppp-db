@@ -7,7 +7,7 @@ const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const p = require('util').promisify
 
-const DIR = path.join(os.tmpdir(), 'ssb-memdb-filter-as-array')
+const DIR = path.join(os.tmpdir(), 'ppppp-db-filter-as-array')
 rimraf.sync(DIR)
 
 test('filterAsArray', async (t) => {

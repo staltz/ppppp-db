@@ -7,7 +7,7 @@ const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const p = require('util').promisify
 
-const DIR = path.join(os.tmpdir(), 'ssb-memdb-on-msg-added')
+const DIR = path.join(os.tmpdir(), 'ppppp-db-on-msg-added')
 rimraf.sync(DIR)
 
 test('onMsgAdded', async (t) => {

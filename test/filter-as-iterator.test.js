@@ -7,7 +7,7 @@ const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const p = require('util').promisify
 
-const DIR = path.join(os.tmpdir(), 'ssb-memdb-filter-as-iterator')
+const DIR = path.join(os.tmpdir(), 'ppppp-db-filter-as-iterator')
 rimraf.sync(DIR)
 
 test('filterAsIterator', async (t) => {

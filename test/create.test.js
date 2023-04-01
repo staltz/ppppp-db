@@ -7,7 +7,7 @@ const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const p = require('util').promisify
 
-const DIR = path.join(os.tmpdir(), 'ssb-memdb-create');
+const DIR = path.join(os.tmpdir(), 'ppppp-db-create');
 rimraf.sync(DIR)
 
 let ssb

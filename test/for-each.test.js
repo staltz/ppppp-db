@@ -7,7 +7,7 @@ const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const p = require('util').promisify
 
-const DIR = path.join(os.tmpdir(), 'ssb-memdb-for-each')
+const DIR = path.join(os.tmpdir(), 'ppppp-db-for-each')
 rimraf.sync(DIR)
 
 test('forEach', async (t) => {
