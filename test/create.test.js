@@ -1,57 +1,92 @@
 const test = require('tape')
-const ssbKeys = require('ssb-keys')
 const path = require('path')
 const os = require('os')
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const p = require('util').promisify
+const FeedV1 = require('../lib/feed-v1')
+const { generateKeypair } = require('./util')
 
-const DIR = path.join(os.tmpdir(), 'ppppp-db-create');
+const DIR = path.join(os.tmpdir(), 'ppppp-db-create')
 rimraf.sync(DIR)
 
-let ssb
+const keys = generateKeypair('alice')
+let peer
 test('setup', async (t) => {
-  ssb = SecretStack({ appKey: caps.shs })
+  peer = SecretStack({ appKey: caps.shs })
     .use(require('../'))
-    .use(require('ssb-classic'))
     .use(require('ssb-box'))
-    .call(null, {
-      keys: ssbKeys.generate('ed25519', 'alice'),
-      path: DIR,
-    })
+    .call(null, { keys, path: DIR })
 
-  await ssb.db.loaded()
+  await peer.db.loaded()
 })
 
-test('create() classic', async (t) => {
-  const msg1 = await p(ssb.db.create)({
-    feedFormat: 'classic',
-    content: { type: 'post', text: 'I am hungry' },
+let msgHash1
+let rec1
+let msgHash2
+test('create()', async (t) => {
+  rec1 = await p(peer.db.create)({
+    type: 'post',
+    content: { text: 'I am 1st post' },
   })
-  t.equal(msg1.value.content.text, 'I am hungry', 'msg1 text correct')
+  t.equal(rec1.msg.content.text, 'I am 1st post', 'msg1 text correct')
+  msgHash1 = FeedV1.getMsgHash(rec1.msg)
 
-  const msg2 = await p(ssb.db.create)({
-    content: { type: 'post', text: 'I am hungry 2' },
-    feedFormat: 'classic',
+  const rec2 = await p(peer.db.create)({
+    type: 'post',
+    content: { text: 'I am 2nd post' },
   })
-  t.equal(msg2.value.content.text, 'I am hungry 2', 'msg2 text correct')
-  t.equal(msg2.value.previous, msg1.key, 'msg2 previous correct')
+  t.equal(rec2.msg.content.text, 'I am 2nd post', 'msg2 text correct')
+  t.deepEquals(rec2.msg.metadata.prev, [msgHash1], 'msg2 prev correct')
+  msgHash2 = FeedV1.getMsgHash(rec2.msg)
 })
 
-test('create() classic box', async (t) => {
-  const msgBoxed = await p(ssb.db.create)({
-    feedFormat: 'classic',
-    content: { type: 'post', text: 'I am chewing food', recps: [ssb.id] },
+test('add() forked then create() merged', async (t) => {
+  const msg3 = FeedV1.create({
+    keys,
+    when: Date.now(),
+    type: 'post',
+    content: { text: '3rd post forked from 1st' },
+    prev: [rec1.msg],
+  })
+
+  const rec3 = await p(peer.db.add)(msg3)
+  const msgHash3 = FeedV1.getMsgHash(rec3.msg)
+
+  const rec4 = await p(peer.db.create)({
+    type: 'post',
+    content: { text: 'I am 4th post' },
+  })
+  t.ok(rec4, '4th post created')
+  t.deepEquals(
+    rec4.msg.metadata.prev,
+    [msgHash2, msgHash3],
+    'msg4 prev is msg2 and msg3'
+  )
+  const msgHash4 = FeedV1.getMsgHash(rec4.msg)
+
+  const rec5 = await p(peer.db.create)({
+    type: 'post',
+    content: { text: 'I am 5th post' },
+  })
+  t.ok(rec5, '5th post created')
+  t.deepEquals(rec5.msg.metadata.prev, [msgHash4], 'msg5 prev is msg4')
+})
+
+test('create() encrypted with box', async (t) => {
+  const recEncrypted = await p(peer.db.create)({
+    type: 'post',
+    content: { text: 'I am chewing food', recps: [peer.id] },
     encryptionFormat: 'box',
   })
-  t.equal(typeof msgBoxed.value.content, 'string')
-  t.true(msgBoxed.value.content.endsWith('.box'), '.box')
+  t.equal(typeof recEncrypted.msg.content, 'string')
+  t.true(recEncrypted.msg.content.endsWith('.box'), '.box')
 
-  const msgVal = ssb.db.get(msgBoxed.key)
-  t.equals(msgVal.content.text, 'I am chewing food')
+  const msgDecrypted = peer.db.get(recEncrypted.id)
+  t.equals(msgDecrypted.content.text, 'I am chewing food')
 })
 
 test('teardown', (t) => {
-  ssb.close(t.end)
+  peer.close(t.end)
 })

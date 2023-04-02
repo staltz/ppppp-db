@@ -1,5 +1,4 @@
 const test = require('tape')
-const ssbKeys = require('ssb-keys')
 const path = require('path')
 const os = require('os')
 const rimraf = require('rimraf')
@@ -8,47 +7,47 @@ const AAOL = require('async-append-only-log')
 const push = require('push-stream')
 const caps = require('ssb-caps')
 const p = require('util').promisify
+const { generateKeypair } = require('./util')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-del')
 rimraf.sync(DIR)
 
 test('del', async (t) => {
-  const ssb = SecretStack({ appKey: caps.shs })
+  const keys = generateKeypair('alice')
+  const peer = SecretStack({ appKey: caps.shs })
     .use(require('../'))
-    .use(require('ssb-classic'))
-    .call(null, {
-      keys: ssbKeys.generate('ed25519', 'alice'),
-      path: DIR,
-    })
+    .call(null, { keys, path: DIR })
 
-  await ssb.db.loaded()
+  await peer.db.loaded()
 
   const msgIDs = []
   for (let i = 0; i < 5; i++) {
-    const msg = await p(ssb.db.create)({
-      feedFormat: 'classic',
-      content: { type: 'post', text: 'm' + i },
+    const rec = await p(peer.db.create)({
+      type: 'post',
+      content: { text: 'm' + i },
     })
-    msgIDs.push(msg.key)
+    msgIDs.push(rec.id)
   }
 
-  const before = ssb.db
-    .filterAsArray(() => true)
-    .map((msg) => msg.value.content.text)
+  const before = []
+  for (const msg of peer.db.msgs()) {
+    before.push(msg.content.text)
+  }
 
   t.deepEqual(before, ['m0', 'm1', 'm2', 'm3', 'm4'], 'msgs before the delete')
 
-  await p(ssb.db.del)(msgIDs[2])
+  await p(peer.db.del)(msgIDs[2])
 
-  const after = ssb.db
-    .filterAsArray(() => true)
-    .map((msg) => msg?.value.content.text ?? null)
+  const after = []
+  for (const msg of peer.db.msgs()) {
+    after.push(msg.content.text)
+  }
 
-  t.deepEqual(after, ['m0', 'm1', null, 'm3', 'm4'], 'msgs after the delete')
+  t.deepEqual(after, ['m0', 'm1', 'm3', 'm4'], 'msgs after the delete')
 
-  await p(ssb.close)(true)
+  await p(peer.close)(true)
 
-  const log = AAOL(path.join(DIR, 'memdb-log.bin'), {
+  const log = AAOL(path.join(DIR, 'db.bin'), {
     cacheSize: 1,
     blockSize: 64 * 1024,
     codec: {
@@ -66,10 +65,8 @@ test('del', async (t) => {
     log.stream({ offsets: true, values: true, sizes: true }).pipe(
       push.drain(
         function drainEach({ offset, value, size }) {
-          if (!value) {
-            persistedMsgs.push(null)
-          } else {
-            persistedMsgs.push(value)
+          if (value) {
+            persistedMsgs.push(value.msg)
           }
         },
         function drainEnd(err) {
@@ -81,8 +78,8 @@ test('del', async (t) => {
   })
 
   t.deepEqual(
-    persistedMsgs.map((msg) => msg?.value.content.text ?? null),
-    ['m0', 'm1', null, 'm3', 'm4'],
+    persistedMsgs.map((msg) => msg.content.text),
+    ['m0', 'm1', 'm3', 'm4'],
     'msgs in disk after the delete'
   )
 })

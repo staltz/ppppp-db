@@ -1,91 +1,82 @@
 const tape = require('tape')
-const dagfeed = require('../lib/feed-v1')
+const FeedV1 = require('../lib/feed-v1')
 const { generateKeypair } = require('./util')
 
 tape('encode/decode works', (t) => {
   const keys = generateKeypair('alice')
-  const hmacKey = null
   const content = { text: 'Hello world!' }
-  const timestamp = 1652037377204
+  const when = 1652037377204
 
-  const nmsg1 = dagfeed.newNativeMsg({
+  const msg1 = FeedV1.create({
     keys,
     content,
     type: 'post',
-    previous: [],
-    timestamp,
-    hmacKey,
+    prev: [],
+    when,
   })
+  t.deepEquals(
+    Object.keys(msg1.metadata),
+    ['depth', 'prev', 'proof', 'size', 'type', 'who', 'when'],
+    'metadata fields'
+  )
   t.equals(
-    nmsg1.metadata.author,
+    msg1.metadata.who,
     '4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW',
-    'metadata.author is correct'
+    'metadata.who'
   )
-  t.equals(nmsg1.metadata.type, 'post', 'metadata.type is correct')
-  t.deepEquals(nmsg1.metadata.previous, [], 'metadata.previous is correct')
-  console.log(nmsg1)
+  t.equals(msg1.metadata.type, 'post', 'metadata.type')
+  t.equals(msg1.metadata.depth, 0, 'metadata.depth')
+  t.deepEquals(msg1.metadata.prev, [], 'metadata.prev')
+  t.deepEquals(msg1.metadata.proof, '9R7XmBhHF5ooPg34j9TQcz', 'metadata.proof')
+  t.deepEquals(msg1.metadata.size, 23, 'metadata.size')
+  t.equals(typeof msg1.metadata.when, 'number', 'metadata.when')
+  t.deepEqual(msg1.content, content, 'content is correct')
 
-  const jsonMsg = {
-    key: dagfeed.getMsgId(nmsg1),
-    value: dagfeed.fromNativeMsg(nmsg1),
-    timestamp: Date.now(),
-  }
+  console.log(msg1)
 
-  const msgHash1 = 'HEzse89DSDWUXVPyav35GC'
-  const msgKey1 =
-    'ssb:message/dag/4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW/post/' +
-    msgHash1
+  const msgHash = '9cYegpVpddoMSdvSf53dTH'
 
-  t.deepEqual(jsonMsg.key, msgKey1, 'key is correct')
-  t.deepEqual(
-    jsonMsg.value.author,
-    'ssb:feed/dag/4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW/post',
-    'author is correct'
+  t.equals(
+    FeedV1.getMsgId(msg1),
+    'ppppp:message/v1/4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW/post/' +
+      msgHash,
+    'getMsgId'
   )
-  t.deepEqual(jsonMsg.value.type, 'post', 'correct type')
-  t.equals(typeof jsonMsg.value.timestamp, 'number', 'has timestamp')
-  t.deepEqual(jsonMsg.value.previous, [], 'correct previous')
-  t.deepEqual(jsonMsg.value.content, content, 'content is the same')
 
-  const reconstructedNMsg1 = dagfeed.toNativeMsg(jsonMsg.value)
-  t.deepEqual(reconstructedNMsg1, nmsg1, 'can reconstruct')
+  const content2 = { text: 'Ola mundo!' }
 
-  const content2 = { text: 'Hello butty world!' }
-
-  const nmsg2 = dagfeed.newNativeMsg({
+  const msg2 = FeedV1.create({
     keys,
     content: content2,
     type: 'post',
-    previous: [msgHash1],
-    timestamp: timestamp + 1,
-    hmacKey,
+    prev: [msg1],
+    when: when + 1,
   })
-  console.log(nmsg2)
+  t.deepEquals(
+    Object.keys(msg2.metadata),
+    ['depth', 'prev', 'proof', 'size', 'type', 'who', 'when'],
+    'metadata keys'
+  )
+  t.equals(
+    msg2.metadata.who,
+    '4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW',
+    'metadata.who'
+  )
+  t.equals(msg2.metadata.type, 'post', 'metadata.type')
+  t.equals(msg2.metadata.depth, 1, 'metadata.depth')
+  t.deepEquals(msg2.metadata.prev, [msgHash], 'metadata.prev')
+  t.deepEquals(msg2.metadata.proof, 'XuZEzH1Dhy1yuRMcviBBcN', 'metadata.proof')
+  t.deepEquals(msg2.metadata.size, 21, 'metadata.size')
+  t.equals(typeof msg2.metadata.when, 'number', 'metadata.when')
+  t.deepEqual(msg2.content, content2, 'content is correct')
 
-  const jsonMsg2 = {
-    key: dagfeed.getMsgId(nmsg2),
-    value: dagfeed.fromNativeMsg(nmsg2),
-    timestamp: Date.now(),
-  }
+  console.log(msg2)
 
   t.deepEqual(
-    jsonMsg2.key,
-    'ssb:message/dag/4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW/post/U5n4v1m7gFzrtrdK84gGsV',
-    'key is correct'
+    FeedV1.getMsgId(msg2),
+    'ppppp:message/v1/4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW/post/LEH1JVENvJgSpBBrVUwJx6',
+    'getMsgId'
   )
-  t.deepEqual(
-    jsonMsg2.value.author,
-    'ssb:feed/dag/4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW/post',
-    'author is correct'
-  )
-  t.deepEqual(jsonMsg2.value.type, 'post', 'correct type')
-  t.equals(typeof jsonMsg2.value.timestamp, 'number', 'has timestamp')
-  t.deepEqual(jsonMsg2.value.previous, [msgKey1], 'correct previous')
-  t.deepEqual(jsonMsg2.value.content, content2, 'content is the same')
-
-  // test slow version as well
-  const reconstructedNMsg2 = dagfeed.toNativeMsg(jsonMsg2.value)
-  t.deepEqual(reconstructedNMsg2, nmsg2, 'can reconstruct')
 
   t.end()
 })

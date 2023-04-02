@@ -25,7 +25,8 @@
     "fast-json-stable-stringify": "^2.1.0",
     "obz": "^1.1.0",
     "promisify-4loc": "^1.0.0",
-    "push-stream": "^11.2.0"
+    "push-stream": "^11.2.0",
+    "ssb-uri2": "^2.4.1"
   },
   "devDependencies": {
     "c8": "^7.11.0",

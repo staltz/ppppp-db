@@ -1,35 +1,39 @@
 const test = require('tape')
 const path = require('path')
-const os = require('os')
 const rimraf = require('rimraf')
+const os = require('os')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
-const FeedV1 = require('../lib/feed-v1')
 const p = require('util').promisify
 const { generateKeypair } = require('./util')
 
-const DIR = path.join(os.tmpdir(), 'ppppp-db-add')
+const DIR = path.join(os.tmpdir(), 'ppppp-db-on-msg-added')
 rimraf.sync(DIR)
 
-test('add()', async (t) => {
+test('onRecordAdded', async (t) => {
   const keys = generateKeypair('alice')
   const peer = SecretStack({ appKey: caps.shs })
     .use(require('../'))
-    .use(require('ssb-box'))
     .call(null, { keys, path: DIR })
 
   await peer.db.loaded()
 
-  const inputMsg = FeedV1.create({
-    keys,
-    when: 1514517067954,
-    type: 'post',
-    content: { text: 'This is the first post!' },
-    prev: [],
+  const listened = []
+  var remove = peer.db.onRecordAdded((ev) => {
+    listened.push(ev)
   })
 
-  const rec = await p(peer.db.add)(inputMsg)
-  t.equal(rec.msg.content.text, 'This is the first post!')
+  const rec1 = await p(peer.db.create)({
+    type: 'post',
+    content: { text: 'I am hungry' },
+  })
+  t.equal(rec1.msg.content.text, 'I am hungry', 'msg1 text correct')
 
+  await p(setTimeout)(500)
+
+  t.equal(listened.length, 1)
+  t.deepEquals(listened, [rec1])
+
+  remove()
   await p(peer.close)(true)
 })
