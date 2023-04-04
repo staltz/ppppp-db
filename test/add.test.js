@@ -25,7 +25,8 @@ test('add()', async (t) => {
     when: 1514517067954,
     type: 'post',
     content: { text: 'This is the first post!' },
-    prev: [],
+    existing: [],
+    tips: [],
   })
 
   const rec = await p(peer.db.add)(inputMsg)

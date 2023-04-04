@@ -11,7 +11,8 @@ tape('encode/decode works', (t) => {
     keys,
     content,
     type: 'post',
-    prev: [],
+    existing: [],
+    tips: [],
     when,
   })
   t.deepEquals(
@@ -34,12 +35,12 @@ tape('encode/decode works', (t) => {
 
   console.log(msg1)
 
-  const msgHash = '9cYegpVpddoMSdvSf53dTH'
+  const msgHash1 = '9cYegpVpddoMSdvSf53dTH'
 
   t.equals(
     FeedV1.getMsgId(msg1),
     'ppppp:message/v1/4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW/post/' +
-      msgHash,
+      msgHash1,
     'getMsgId'
   )
 
@@ -49,7 +50,8 @@ tape('encode/decode works', (t) => {
     keys,
     content: content2,
     type: 'post',
-    prev: [msg1],
+    existing: new Map([[msgHash1, msg1]]),
+    tips: new Map([[msgHash1, msg1]]),
     when: when + 1,
   })
   t.deepEquals(
@@ -64,7 +66,7 @@ tape('encode/decode works', (t) => {
   )
   t.equals(msg2.metadata.type, 'post', 'metadata.type')
   t.equals(msg2.metadata.depth, 1, 'metadata.depth')
-  t.deepEquals(msg2.metadata.prev, [msgHash], 'metadata.prev')
+  t.deepEquals(msg2.metadata.prev, [msgHash1], 'metadata.prev')
   t.deepEquals(msg2.metadata.proof, 'XuZEzH1Dhy1yuRMcviBBcN', 'metadata.proof')
   t.deepEquals(msg2.metadata.size, 21, 'metadata.size')
   t.equals(typeof msg2.metadata.when, 'number', 'metadata.when')

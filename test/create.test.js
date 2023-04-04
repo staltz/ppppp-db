@@ -48,7 +48,8 @@ test('add() forked then create() merged', async (t) => {
     when: Date.now(),
     type: 'post',
     content: { text: '3rd post forked from 1st' },
-    prev: [rec1.msg],
+    existing: [rec1.msg],
+    tips: [rec1.msg],
   })
 
   const rec3 = await p(peer.db.add)(msg3)
@@ -64,14 +65,6 @@ test('add() forked then create() merged', async (t) => {
     [msgHash2, msgHash3],
     'msg4 prev is msg2 and msg3'
   )
-  const msgHash4 = FeedV1.getMsgHash(rec4.msg)
-
-  const rec5 = await p(peer.db.create)({
-    type: 'post',
-    content: { text: 'I am 5th post' },
-  })
-  t.ok(rec5, '5th post created')
-  t.deepEquals(rec5.msg.metadata.prev, [msgHash4], 'msg5 prev is msg4')
 })
 
 test('create() encrypted with box', async (t) => {

@@ -10,7 +10,8 @@ tape('invalid 1st msg with non-empty prev', (t) => {
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
-    prev: [{ metadata: { depth: 10 }, sig: 'fake' }],
+    existing: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
+    tips: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
     when: 1652030001000,
   })
 
@@ -32,7 +33,8 @@ tape('invalid 1st msg with non-array prev', (t) => {
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
-    prev: [],
+    existing: new Map(),
+    tips: new Map(),
     when: 1652030001000,
   })
   msg.metadata.prev = null
@@ -51,7 +53,8 @@ tape('invalid msg with non-array prev', (t) => {
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
-    prev: [],
+    existing: new Map(),
+    tips: new Map(),
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
@@ -60,7 +63,8 @@ tape('invalid msg with non-array prev', (t) => {
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
-    prev: [{ metadata: { depth: 10 }, sig: 'fake' }],
+    existing: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
+    tips: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
     when: 1652030002000,
   })
   msg2.metadata.prev = null
@@ -85,16 +89,18 @@ tape('invalid msg with bad prev', (t) => {
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
-    prev: [],
+    existing: new Map(),
+    tips: new Map(),
     when: 1652030001000,
   })
-const msgHash1 = FeedV1.getMsgHash(msg1)
+  const msgHash1 = FeedV1.getMsgHash(msg1)
 
   const msg2 = FeedV1.create({
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
-    prev: [{ metadata: { depth: 10 }, sig: 'fake' }],
+    existing: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
+    tips: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
     when: 1652030002000,
   })
   msg2.metadata.prev = [1234]
@@ -119,7 +125,8 @@ tape('invalid msg with URI in prev', (t) => {
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
-    prev: [],
+    existing: new Map(),
+    tips: new Map(),
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
@@ -128,7 +135,8 @@ tape('invalid msg with URI in prev', (t) => {
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
-    prev: [{ metadata: { depth: 10 }, sig: 'fake' }],
+    existing: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
+    tips: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
     when: 1652030002000,
   })
   const randBuf = Buffer.alloc(16).fill(16)
@@ -155,7 +163,8 @@ tape('invalid msg with unknown prev', (t) => {
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
-    prev: [],
+    existing: new Map(),
+    tips: new Map(),
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
@@ -164,54 +173,23 @@ tape('invalid msg with unknown prev', (t) => {
     keys,
     content: { text: 'Alien' },
     type: 'post',
-    prev: [],
+    existing: new Map(),
+    tips: new Map(),
     when: 1652030001000,
   })
+  const unknownMsgHash = FeedV1.getMsgHash(unknownMsg)
 
   const msg2 = FeedV1.create({
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
-    prev: [unknownMsg],
+    existing: new Map([[unknownMsgHash, unknownMsg]]),
+    tips: new Map([[unknownMsgHash, unknownMsg]]),
     when: 1652030002000,
   })
 
   const existing = new Map()
   existing.set(msgHash1, msg1)
-  FeedV1.validate(msg2, existing, (err) => {
-    t.ok(err, 'invalid 2nd msg throws')
-    t.match(
-      err.message,
-      /prev .+ is not locally known/,
-      'invalid 2nd msg description'
-    )
-    t.end()
-  })
-})
-
-tape('invalid msg with unknown prev in a Set', (t) => {
-  const keys = generateKeypair('alice')
-
-  const msg1 = FeedV1.create({
-    keys,
-    content: { text: 'Hello world!' },
-    type: 'post',
-    prev: [],
-    when: 1652030001000,
-  })
-
-  const msg2 = FeedV1.create({
-    keys,
-    content: { text: 'Hello world!' },
-    type: 'post',
-    prev: [{ metadata: { depth: 10 }, sig: 'fake' }],
-    when: 1652030002000,
-  })
-  const fakeMsgKey1 = base58.encode(Buffer.alloc(16).fill(42))
-  msg2.metadata.prev = [fakeMsgKey1]
-
-  const existing = new Set([msg1])
-
   FeedV1.validate(msg2, existing, (err) => {
     t.ok(err, 'invalid 2nd msg throws')
     t.match(
