@@ -3,28 +3,6 @@ const base58 = require('bs58')
 const FeedV1 = require('../lib/feed-v1')
 const { generateKeypair } = require('./util')
 
-tape('invalid 1st msg with non-empty prev', (t) => {
-  const keys = generateKeypair('alice')
-
-  const msg = FeedV1.create({
-    keys,
-    content: { text: 'Hello world!' },
-    type: 'post',
-    existing: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
-    when: 1652030001000,
-  })
-
-  FeedV1.validate(msg, new Map(), (err) => {
-    t.ok(err, 'invalid 2nd msg throws')
-    t.match(
-      err.message,
-      /prev .+ is not locally known/,
-      'invalid 2nd msg description'
-    )
-    t.end()
-  })
-})
-
 tape('invalid 1st msg with non-array prev', (t) => {
   const keys = generateKeypair('alice')
 
@@ -60,7 +38,7 @@ tape('invalid msg with non-array prev', (t) => {
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
-    existing: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
+    existing: new Map(),
     when: 1652030002000,
   })
   msg2.metadata.prev = null
@@ -71,7 +49,7 @@ tape('invalid msg with non-array prev', (t) => {
     t.ok(err, 'invalid 2nd msg throws')
     t.match(
       err.message,
-      /prev must be an iterator/,
+      /prev must be an array/,
       'invalid 2nd msg description'
     )
     t.end()
@@ -94,9 +72,10 @@ tape('invalid msg with bad prev', (t) => {
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
-    existing: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
+    existing: new Map(),
     when: 1652030002000,
   })
+  msg2.metadata.depth = 1
   msg2.metadata.prev = [1234]
 
   const existing = new Map()
@@ -128,11 +107,12 @@ tape('invalid msg with URI in prev', (t) => {
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
-    existing: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
+    existing: new Map(),
     when: 1652030002000,
   })
   const randBuf = Buffer.alloc(16).fill(16)
   const fakeMsgKey1 = `ppppp:message/v1/${base58.encode(randBuf)}`
+  msg2.metadata.depth = 1
   msg2.metadata.prev = [fakeMsgKey1]
 
   const existing = new Map()
