@@ -12,7 +12,6 @@ tape('encode/decode works', (t) => {
     content,
     type: 'post',
     existing: [],
-    tips: [],
     when,
   })
   t.deepEquals(
@@ -51,7 +50,6 @@ tape('encode/decode works', (t) => {
     content: content2,
     type: 'post',
     existing: new Map([[msgHash1, msg1]]),
-    tips: new Map([[msgHash1, msg1]]),
     when: when + 1,
   })
   t.deepEquals(

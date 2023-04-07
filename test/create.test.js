@@ -49,7 +49,6 @@ test('add() forked then create() merged', async (t) => {
     type: 'post',
     content: { text: '3rd post forked from 1st' },
     existing: [rec1.msg],
-    tips: [rec1.msg],
   })
 
   const rec3 = await p(peer.db.add)(msg3)

@@ -11,7 +11,6 @@ tape('invalid 1st msg with non-empty prev', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
-    tips: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
     when: 1652030001000,
   })
 
@@ -34,7 +33,6 @@ tape('invalid 1st msg with non-array prev', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map(),
-    tips: new Map(),
     when: 1652030001000,
   })
   msg.metadata.prev = null
@@ -54,7 +52,6 @@ tape('invalid msg with non-array prev', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map(),
-    tips: new Map(),
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
@@ -64,7 +61,6 @@ tape('invalid msg with non-array prev', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
-    tips: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
     when: 1652030002000,
   })
   msg2.metadata.prev = null
@@ -90,7 +86,6 @@ tape('invalid msg with bad prev', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map(),
-    tips: new Map(),
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
@@ -100,7 +95,6 @@ tape('invalid msg with bad prev', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
-    tips: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
     when: 1652030002000,
   })
   msg2.metadata.prev = [1234]
@@ -126,7 +120,6 @@ tape('invalid msg with URI in prev', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map(),
-    tips: new Map(),
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
@@ -136,7 +129,6 @@ tape('invalid msg with URI in prev', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
-    tips: new Map([['1234', { metadata: { depth: 10 }, sig: 'fake' }]]),
     when: 1652030002000,
   })
   const randBuf = Buffer.alloc(16).fill(16)
@@ -164,7 +156,6 @@ tape('invalid msg with unknown prev', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map(),
-    tips: new Map(),
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
@@ -174,7 +165,6 @@ tape('invalid msg with unknown prev', (t) => {
     content: { text: 'Alien' },
     type: 'post',
     existing: new Map(),
-    tips: new Map(),
     when: 1652030001000,
   })
   const unknownMsgHash = FeedV1.getMsgHash(unknownMsg)
@@ -184,7 +174,6 @@ tape('invalid msg with unknown prev', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map([[unknownMsgHash, unknownMsg]]),
-    tips: new Map([[unknownMsgHash, unknownMsg]]),
     when: 1652030002000,
   })
 

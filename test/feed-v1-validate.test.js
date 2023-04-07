@@ -11,7 +11,6 @@ tape('validate 1st msg', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map(),
-    tips: new Map(),
     when: 1652030001000,
   })
 
@@ -30,7 +29,6 @@ tape('validate 2nd msg with existing nativeMsg', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map(),
-    tips: new Map(),
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
@@ -40,7 +38,6 @@ tape('validate 2nd msg with existing nativeMsg', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map([[msgHash1, msg1]]),
-    tips: new Map([[msgHash1, msg1]]),
     when: 1652030002000,
   })
 
@@ -62,7 +59,6 @@ tape('validate 2nd msg with existing msgId', (t) => {
     type: 'post',
     prev: [],
     existing: new Map(),
-    tips: new Map(),
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
@@ -72,7 +68,6 @@ tape('validate 2nd msg with existing msgId', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map([[msgHash1, msg1]]),
-    tips: new Map([[msgHash1, msg1]]),
     when: 1652030002000,
   })
 
@@ -93,7 +88,6 @@ tape('validate 2nd msg with existing KVT', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map(),
-    tips: new Map(),
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
@@ -103,7 +97,6 @@ tape('validate 2nd msg with existing KVT', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map([[msgHash1, msg1]]),
-    tips: new Map([[msgHash1, msg1]]),
     when: 1652030002000,
   })
 
@@ -124,7 +117,6 @@ tape('validate 2nd forked msg', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map(),
-    tips: new Map(),
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
@@ -134,7 +126,6 @@ tape('validate 2nd forked msg', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map([[msgHash1, msg1]]),
-    tips: new Map([[msgHash1, msg1]]),
     when: 1652030002000,
   })
   const msgHash2A = FeedV1.getMsgHash(msg2A)
@@ -144,7 +135,6 @@ tape('validate 2nd forked msg', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map([[msgHash1, msg1]]),
-    tips: new Map([[msgHash1, msg1]]),
     when: 1652030003000,
   })
 
@@ -166,7 +156,6 @@ tape('invalid msg with unknown previous', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map(),
-    tips: new Map(),
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
@@ -178,7 +167,6 @@ tape('invalid msg with unknown previous', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     existing: new Map([[msgHash1, msg1]]),
-    tips: new Map([[msgHash1, msg1]]),
     when: 1652030002000,
   })
   msg2.metadata.prev = [fakeMsgKey1]

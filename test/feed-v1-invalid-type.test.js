@@ -13,7 +13,6 @@ tape('invalid type not a string', (t) => {
         when: 1652037377204,
         type: 123,
         existing: new Map(),
-        tips: new Map(),
       })
     },
     /type is not a string/,
@@ -33,7 +32,6 @@ tape('invalid type with "/" character', (t) => {
         when: 1652037377204,
         type: 'group/init',
         existing: new Map(),
-        tips: new Map(),
       })
     },
     /invalid type/,
@@ -53,7 +51,6 @@ tape('invalid type with "*" character', (t) => {
         when: 1652037377204,
         type: 'star*',
         existing: new Map(),
-        tips: new Map(),
       })
     },
     /invalid type/,
@@ -73,7 +70,6 @@ tape('invalid type too short', (t) => {
         when: 1652037377204,
         type: 'xy',
         existing: new Map(),
-        tips: new Map(),
       })
     },
     /shorter than 3/,
@@ -93,7 +89,6 @@ tape('invalid type too long', (t) => {
         when: 1652037377204,
         type: 'a'.repeat(120),
         existing: new Map(),
-        tips: new Map(),
       })
     },
     /100\+ characters long/,
