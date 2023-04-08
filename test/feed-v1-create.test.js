@@ -80,3 +80,72 @@ tape('FeedV1.create()', (t) => {
 
   t.end()
 })
+
+tape('create() handles DAG tips correctly', (t) => {
+  const keys = generateKeypair('alice')
+  const when = 1652037377204
+  const existing = new Map()
+
+  const msg1 = FeedV1.create({
+    keys,
+    content: { text: '1' },
+    type: 'post',
+    existing: new Map(),
+    when: when + 1,
+  })
+  const msgHash1 = FeedV1.getMsgHash(msg1)
+  t.deepEquals(msg1.metadata.prev, [], 'msg1.prev is empty')
+
+  existing.set(msgHash1, msg1)
+
+  const msg2A = FeedV1.create({
+    keys,
+    content: { text: '2A' },
+    type: 'post',
+    existing,
+    when: when + 2,
+  })
+  t.deepEquals(msg2A.metadata.prev, [msgHash1], 'msg2A.prev is msg1')
+
+  const msg2B = FeedV1.create({
+    keys,
+    content: { text: '2B' },
+    type: 'post',
+    existing,
+    when: when + 2,
+  })
+  const msgHash2B = FeedV1.getMsgHash(msg2B)
+  t.deepEquals(msg2B.metadata.prev, [msgHash1], 'msg2B.prev is msg1')
+
+  existing.set(msgHash2B, msg2B)
+
+  const msg3 = FeedV1.create({
+    keys,
+    content: { text: '3' },
+    type: 'post',
+    existing,
+    when: when + 3,
+  })
+  const msgHash3 = FeedV1.getMsgHash(msg3)
+  t.deepEquals(msg3.metadata.prev, [msgHash2B], 'msg3.prev is msg2B')
+  existing.set(msgHash3, msg3)
+
+  const msgHash2A = FeedV1.getMsgHash(msg2A)
+  existing.set(msgHash2A, msg2A)
+  t.pass('msg2A comes into awareness')
+
+  const msg4 = FeedV1.create({
+    keys,
+    content: { text: '4' },
+    type: 'post',
+    existing,
+    when: when + 4,
+  })
+  t.deepEquals(
+    msg4.metadata.prev,
+    [msgHash1, msgHash3, msgHash2A],
+    'msg4.prev is [msg1(lipmaa),msg3(previous),msg2A(old fork as tip)]'
+  )
+
+  t.end()
+})
