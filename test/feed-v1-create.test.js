@@ -2,7 +2,7 @@ const tape = require('tape')
 const FeedV1 = require('../lib/feed-v1')
 const { generateKeypair } = require('./util')
 
-tape('encode/decode works', (t) => {
+tape('FeedV1.create()', (t) => {
   const keys = generateKeypair('alice')
   const content = { text: 'Hello world!' }
   const when = 1652037377204
