@@ -20,13 +20,13 @@ test('del', async (t) => {
 
   await peer.db.loaded()
 
-  const msgIDs = []
+  const msgHashes = []
   for (let i = 0; i < 5; i++) {
     const rec = await p(peer.db.create)({
       type: 'post',
       content: { text: 'm' + i },
     })
-    msgIDs.push(rec.id)
+    msgHashes.push(rec.hash)
   }
 
   const before = []
@@ -36,7 +36,7 @@ test('del', async (t) => {
 
   t.deepEqual(before, ['m0', 'm1', 'm2', 'm3', 'm4'], 'msgs before the delete')
 
-  await p(peer.db.del)(msgIDs[2])
+  await p(peer.db.del)(msgHashes[2])
 
   const after = []
   for (const msg of peer.db.msgs()) {

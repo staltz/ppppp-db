@@ -75,7 +75,7 @@ test('create() encrypted with box', async (t) => {
   t.equal(typeof recEncrypted.msg.content, 'string')
   t.true(recEncrypted.msg.content.endsWith('.box'), '.box')
 
-  const msgDecrypted = peer.db.get(recEncrypted.id)
+  const msgDecrypted = peer.db.get(recEncrypted.hash)
   t.equals(msgDecrypted.content.text, 'I am chewing food')
 })
 

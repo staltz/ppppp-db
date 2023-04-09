@@ -20,17 +20,17 @@ test('create some msgs, close, re-open', async (t) => {
   await peer.db.loaded()
   t.pass('opened db')
 
-  const msgIDs = []
+  const msgHashes = []
   for (let i = 0; i < 6; i++) {
     const rec = await p(peer.db.create)({
       type: 'post',
       content: { text: 'hello ' + i },
     })
-    msgIDs.push(rec.id)
+    msgHashes.push(rec.hash)
   }
   t.pass('created some msgs')
 
-  await p(peer.db.del)(msgIDs[2])
+  await p(peer.db.del)(msgHashes[2])
   t.pass('deleted the 3rd msg')
 
   await p(peer.close)(true)
