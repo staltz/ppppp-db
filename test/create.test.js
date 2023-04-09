@@ -12,6 +12,7 @@ const DIR = path.join(os.tmpdir(), 'ppppp-db-create')
 rimraf.sync(DIR)
 
 const keys = generateKeypair('alice')
+const bobKeys = generateKeypair('bob')
 let peer
 test('setup', async (t) => {
   peer = SecretStack({ appKey: caps.shs })
@@ -77,6 +78,27 @@ test('create() encrypted with box', async (t) => {
 
   const msgDecrypted = peer.db.get(recEncrypted.hash)
   t.equals(msgDecrypted.content.text, 'I am chewing food')
+})
+
+test('create() with tangles', async (t) => {
+  const recA = await p(peer.db.create)({
+    type: 'comment',
+    content: { text: 'I am root' },
+  })
+  t.equal(recA.msg.content.text, 'I am root', 'root text correct')
+
+  const recB = await p(peer.db.create)({
+    type: 'comment',
+    content: { text: 'I am comment 1' },
+    tangles: [recA.hash],
+    keys: bobKeys,
+  })
+  t.equal(recB.msg.metadata.tangles[recA.hash].depth, 1, 'tangle depth 1')
+  t.deepEquals(
+    recB.msg.metadata.tangles[recA.hash].prev,
+    [recA.hash],
+    'tangle prev'
+  )
 })
 
 test('teardown', (t) => {
