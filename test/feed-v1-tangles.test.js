@@ -5,16 +5,32 @@ const { generateKeypair } = require('./util')
 tape('simple multi-author tangle', (t) => {
   const keysA = generateKeypair('alice')
   const keysB = generateKeypair('bob')
+  const existingA = new Map()
+  const existingB = new Map()
+
+  const rootMsgA = FeedV1.createRoot(keysA, 'post')
+  const rootHashA = FeedV1.getMsgHash(rootMsgA)
+  existingA.set(rootHashA, rootMsgA)
+
+  const rootMsgB = FeedV1.createRoot(keysB, 'post')
+  const rootHashB = FeedV1.getMsgHash(rootMsgB)
+  existingB.set(rootHashB, rootMsgB)
 
   const msg1 = FeedV1.create({
     keys: keysA,
     content: { text: 'Hello world!' },
     type: 'post',
-    existing: new Map(),
+    tangles: {
+      [rootHashA]: existingA,
+    },
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
-  t.notOk(msg1.metadata.tangles, 'msg1 has no extra tangles')
+  t.deepEquals(
+    Object.keys(msg1.metadata.tangles),
+    [rootHashA],
+    'msg1 has only feed tangle'
+  )
 
   const msg2 = FeedV1.create({
     keys: keysB,
@@ -22,12 +38,24 @@ tape('simple multi-author tangle', (t) => {
     type: 'post',
     existing: new Map(),
     tangles: {
+      [rootHashB]: existingB,
       [msgHash1]: new Map([[msgHash1, msg1]]),
     },
     when: 1652030002000,
   })
-  t.ok(msg2.metadata.tangles, 'msg2 has extra tangles')
-  t.ok(msg2.metadata.tangles[msgHash1], 'msg2 has tangle for msgHash1')
+
+  t.deepEquals(
+    Object.keys(msg2.metadata.tangles),
+    [rootHashB, msgHash1],
+    'msg2 has feed tangle and misc tangle'
+  )
+  t.equal(msg2.metadata.tangles[rootHashB].depth, 1, 'msg2 feed tangle depth')
+  t.deepEquals(
+    msg2.metadata.tangles[rootHashB].prev,
+    [rootHashB],
+    'msg2 feed tangle prev'
+  )
+
   t.equal(msg2.metadata.tangles[msgHash1].depth, 1, 'msg2 has tangle depth 1')
   t.deepEquals(
     msg2.metadata.tangles[msgHash1].prev,
@@ -48,18 +76,29 @@ tape('lipmaa in multi-author tangle', (t) => {
   const existingB = new Map()
   const tangleExisting = new Map()
 
+  const rootMsgA = FeedV1.createRoot(keysA, 'post')
+  const rootHashA = FeedV1.getMsgHash(rootMsgA)
+  existingA.set(rootHashA, rootMsgA)
+
+  const rootMsgB = FeedV1.createRoot(keysB, 'post')
+  const rootHashB = FeedV1.getMsgHash(rootMsgB)
+  existingB.set(rootHashB, rootMsgB)
+
+
   const msg1 = FeedV1.create({
     keys: keysA,
     content,
     type: 'post',
-    existing: existingA,
+    tangles: {
+      [rootHashA]: existingA,
+    },
     when: when + 1,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
   existingA.set(msgHash1, msg1)
   tangleExisting.set(msgHash1, msg1)
 
-  t.notOk(msg1.metadata.tangles, 'A:msg1 has no extra tangles')
+  t.deepEquals(Object.keys(msg1.metadata.tangles),[rootHashA], 'A:msg1 has only feed tangle')
 
   const msg2 = FeedV1.create({
     keys: keysB,
@@ -67,6 +106,7 @@ tape('lipmaa in multi-author tangle', (t) => {
     type: 'post',
     existing: existingB,
     tangles: {
+      [rootHashB]: existingB,
       [msgHash1]: tangleExisting,
     },
     when: when + 2,
@@ -87,6 +127,7 @@ tape('lipmaa in multi-author tangle', (t) => {
     type: 'post',
     existing: existingB,
     tangles: {
+      [rootHashB]: existingB,
       [msgHash1]: tangleExisting,
     },
     when: when + 3,
@@ -107,6 +148,7 @@ tape('lipmaa in multi-author tangle', (t) => {
     type: 'post',
     existing: existingA,
     tangles: {
+      [rootHashA]: existingA,
       [msgHash1]: tangleExisting,
     },
     when: when + 4,

@@ -23,6 +23,8 @@ test('setup', async (t) => {
   await peer.db.loaded()
 })
 
+const rootMsg = FeedV1.createRoot(keys, 'post')
+const rootHash = FeedV1.getMsgHash(rootMsg)
 let msgHash1
 let rec1
 let msgHash2
@@ -32,6 +34,17 @@ test('create()', async (t) => {
     content: { text: 'I am 1st post' },
   })
   t.equal(rec1.msg.content.text, 'I am 1st post', 'msg1 text correct')
+  t.equal(
+    rec1.msg.metadata.tangles[rootHash].depth,
+    1,
+    'msg1 tangle depth correct'
+  )
+  t.deepEquals(
+    rec1.msg.metadata.tangles[rootHash].prev,
+    [rootHash],
+    'msg1 tangle prev correct'
+  )
+
   msgHash1 = FeedV1.getMsgHash(rec1.msg)
 
   const rec2 = await p(peer.db.create)({
@@ -39,7 +52,16 @@ test('create()', async (t) => {
     content: { text: 'I am 2nd post' },
   })
   t.equal(rec2.msg.content.text, 'I am 2nd post', 'msg2 text correct')
-  t.deepEquals(rec2.msg.metadata.prev, [msgHash1], 'msg2 prev correct')
+  t.equal(
+    rec2.msg.metadata.tangles[rootHash].depth,
+    2,
+    'msg2 tangle depth correct'
+  )
+  t.deepEquals(
+    rec2.msg.metadata.tangles[rootHash].prev,
+    [msgHash1],
+    'msg2 tangle prev correct'
+  )
   msgHash2 = FeedV1.getMsgHash(rec2.msg)
 })
 
@@ -49,10 +71,15 @@ test('add() forked then create() merged', async (t) => {
     when: Date.now(),
     type: 'post',
     content: { text: '3rd post forked from 1st' },
-    existing: [rec1.msg],
+    tangles: {
+      [rootHash]: new Map([
+        [rootHash, rootMsg],
+        [rec1.hash, rec1.msg],
+      ]),
+    },
   })
 
-  const rec3 = await p(peer.db.add)(msg3)
+  const rec3 = await p(peer.db.add)(msg3, rootHash)
   const msgHash3 = FeedV1.getMsgHash(rec3.msg)
 
   const rec4 = await p(peer.db.create)({
@@ -61,9 +88,9 @@ test('add() forked then create() merged', async (t) => {
   })
   t.ok(rec4, '4th post created')
   t.deepEquals(
-    rec4.msg.metadata.prev,
-    [msgHash2, msgHash3],
-    'msg4 prev is msg2 and msg3'
+    rec4.msg.metadata.tangles[rootHash].prev,
+    [rootHash, msgHash2, msgHash3],
+    'msg4 prev is root, msg2 and msg3'
   )
 })
 

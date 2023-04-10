@@ -20,15 +20,23 @@ test('add()', async (t) => {
 
   await peer.db.loaded()
 
+  const rootMsg = FeedV1.createRoot(keys, 'post')
+  const rootHash = FeedV1.getMsgHash(rootMsg)
+
+  const recRoot = await p(peer.db.add)(rootMsg, rootHash)
+  t.equals(recRoot.msg.metadata.when, 0, 'root msg added')
+
   const inputMsg = FeedV1.create({
     keys,
     when: 1514517067954,
     type: 'post',
     content: { text: 'This is the first post!' },
-    existing: [],
+    tangles: {
+      [rootHash]: new Map([[FeedV1.getMsgHash(rootMsg), rootMsg]]),
+    },
   })
 
-  const rec = await p(peer.db.add)(inputMsg)
+  const rec = await p(peer.db.add)(inputMsg, rootHash)
   t.equal(rec.msg.content.text, 'This is the first post!')
 
   await p(peer.close)(true)

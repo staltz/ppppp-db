@@ -30,6 +30,7 @@ test('records() iterator', async (t) => {
 
   let count = 0
   for (const rec of peer.db.records()) {
+    if (!rec.msg.content) continue
     t.true(rec.misc.size > rec.msg.metadata.size)
     count++
   }

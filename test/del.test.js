@@ -31,7 +31,7 @@ test('del', async (t) => {
 
   const before = []
   for (const msg of peer.db.msgs()) {
-    before.push(msg.content.text)
+    if (msg.content) before.push(msg.content.text)
   }
 
   t.deepEqual(before, ['m0', 'm1', 'm2', 'm3', 'm4'], 'msgs before the delete')
@@ -40,7 +40,7 @@ test('del', async (t) => {
 
   const after = []
   for (const msg of peer.db.msgs()) {
-    after.push(msg.content.text)
+    if (msg.content) after.push(msg.content.text)
   }
 
   t.deepEqual(after, ['m0', 'm1', 'm3', 'm4'], 'msgs after the delete')
@@ -78,7 +78,7 @@ test('del', async (t) => {
   })
 
   t.deepEqual(
-    persistedMsgs.map((msg) => msg.content.text),
+    persistedMsgs.filter((msg) => msg.content).map((msg) => msg.content.text),
     ['m0', 'm1', 'm3', 'm4'],
     'msgs in disk after the delete'
   )

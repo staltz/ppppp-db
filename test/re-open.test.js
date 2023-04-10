@@ -46,6 +46,7 @@ test('create some msgs, close, re-open', async (t) => {
 
   const texts = []
   for (const msg of peer2.db.msgs()) {
+    if (!msg.content) continue
     texts.push(msg.content.text)
   }
 

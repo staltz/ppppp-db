@@ -8,64 +8,132 @@ tape('lipmaa prevs', (t) => {
   const when = 1652037377204
   const existing = new Map()
 
+  const rootMsg = FeedV1.createRoot(keys, 'post')
+  const rootHash = FeedV1.getMsgHash(rootMsg)
+  existing.set(rootHash, rootMsg)
+
   const msg1 = FeedV1.create({
     keys,
     content,
     type: 'post',
-    existing: new Map(),
+    tangles: {
+      [rootHash]: existing,
+    },
     when: when + 1,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
   existing.set(msgHash1, msg1)
-  t.deepEquals(msg1.metadata.prev, [], 'msg1.prev is empty')
+  t.equals(msg1.metadata.tangles[rootHash].depth, 1, 'msg1 depth')
+  t.deepEquals(msg1.metadata.tangles[rootHash].prev, [rootHash], 'msg1 prev')
 
   const msg2 = FeedV1.create({
     keys,
     content,
     type: 'post',
-    existing,
+    tangles: {
+      [rootHash]: existing,
+    },
     when: when + 2,
   })
   const msgHash2 = FeedV1.getMsgHash(msg2)
   existing.set(msgHash2, msg2)
-  t.deepEquals(msg2.metadata.prev, [msgHash1], 'msg2.prev is msg1')
+  t.equals(msg2.metadata.tangles[rootHash].depth, 2, 'msg2 depth')
+  t.deepEquals(
+    msg2.metadata.tangles[rootHash].prev,
+    [msgHash1],
+    'msg2 prev'
+  )
 
   const msg3 = FeedV1.create({
     keys,
     content,
     type: 'post',
-    existing,
+    tangles: {
+      [rootHash]: existing,
+    },
     when: when + 3,
   })
   const msgHash3 = FeedV1.getMsgHash(msg3)
   existing.set(msgHash3, msg3)
-  t.deepEquals(msg3.metadata.prev, [msgHash2], 'msg3.prev is msg2')
+  t.equals(msg3.metadata.tangles[rootHash].depth, 3, 'msg3 depth')
+  t.deepEquals(
+    msg3.metadata.tangles[rootHash].prev,
+    [rootHash, msgHash2],
+    'msg3 prev (has lipmaa!)'
+  )
 
   const msg4 = FeedV1.create({
     keys,
     content,
     type: 'post',
-    existing,
+    tangles: {
+      [rootHash]: existing,
+    },
     when: when + 4,
   })
   const msgHash4 = FeedV1.getMsgHash(msg4)
   existing.set(msgHash4, msg4)
+  t.equals(msg4.metadata.tangles[rootHash].depth, 4, 'msg4 depth')
   t.deepEquals(
-    msg4.metadata.prev,
-    [msgHash1, msgHash3],
-    'msg4.prev is msg1 and msg3'
+    msg4.metadata.tangles[rootHash].prev,
+    [msgHash3],
+    'msg4 prev'
   )
 
   const msg5 = FeedV1.create({
     keys,
     content,
     type: 'post',
-    existing,
+    tangles: {
+      [rootHash]: existing,
+    },
     when: when + 5,
   })
   const msgHash5 = FeedV1.getMsgHash(msg5)
   existing.set(msgHash5, msg5)
-  t.deepEquals(msg5.metadata.prev, [msgHash4], 'msg5.prev is msg4')
+  t.equals(msg5.metadata.tangles[rootHash].depth, 5, 'msg5 depth')
+  t.deepEquals(
+    msg5.metadata.tangles[rootHash].prev,
+    [msgHash4],
+    'msg5 prev'
+  )
+
+  const msg6 = FeedV1.create({
+    keys,
+    content,
+    type: 'post',
+    tangles: {
+      [rootHash]: existing,
+    },
+    when: when + 6,
+  })
+  const msgHash6 = FeedV1.getMsgHash(msg6)
+  existing.set(msgHash6, msg6)
+  t.equals(msg6.metadata.tangles[rootHash].depth, 6, 'msg6 depth')
+  t.deepEquals(
+    msg6.metadata.tangles[rootHash].prev,
+    [msgHash5],
+    'msg6 prev'
+  )
+
+  const msg7 = FeedV1.create({
+    keys,
+    content,
+    type: 'post',
+    tangles: {
+      [rootHash]: existing,
+    },
+    when: when + 7,
+  })
+  const msgHash7 = FeedV1.getMsgHash(msg7)
+  existing.set(msgHash7, msg7)
+  t.equals(msg7.metadata.tangles[rootHash].depth, 7, 'msg7 depth')
+  t.deepEquals(
+    msg7.metadata.tangles[rootHash].prev,
+    [msgHash3, msgHash6],
+    'msg7 prev (has lipmaa!)'
+  )
+
 
   t.end()
 })

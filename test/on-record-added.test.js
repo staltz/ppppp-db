@@ -31,8 +31,10 @@ test('onRecordAdded', async (t) => {
 
   await p(setTimeout)(500)
 
-  t.equal(listened.length, 1)
-  t.deepEquals(listened, [rec1])
+  t.equal(listened.length, 2)
+  t.deepEquals(listened[0].msg.content, null, 'root')
+  t.deepEquals(listened[0].msg.metadata.when, 0, 'root')
+  t.deepEquals(listened[1], rec1, 'actual record')
 
   remove()
   await p(peer.close)(true)

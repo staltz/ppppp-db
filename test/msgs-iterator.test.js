@@ -31,6 +31,7 @@ test('msgs() iterator', async (t) => {
   const posts = []
   const abouts = []
   for (const msg of peer.db.msgs()) {
+    if (!msg.content) continue
     if (msg.metadata.type === 'post') posts.push(msg.content.text)
     else if (msg.metadata.type === 'about') abouts.push(msg.content.name)
   }
