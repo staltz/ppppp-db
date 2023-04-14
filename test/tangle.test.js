@@ -96,6 +96,23 @@ test('Tangle.has', (t) => {
   t.end()
 })
 
+test('Tangle.getDepth', t=> {
+  const tangle = new Tangle(rootPost, peer.db.records())
+  t.equals(tangle.getDepth(rootPost), 0, 'depth of rootPost is 0')
+  t.equals(tangle.getDepth(reply1Lo), 1, 'depth of reply1Lo is 1')
+  t.equals(tangle.getDepth(reply1Hi), 1, 'depth of reply1Hi is 1')
+  t.equals(tangle.getDepth(reply2A), 2, 'depth of reply2A is 2')
+  t.equals(tangle.getDepth(reply3Lo), 3, 'depth of reply3Lo is 3')
+  t.equals(tangle.getDepth(reply3Hi), 3, 'depth of reply3Hi is 3')
+  t.end()
+})
+
+test('Tangle.getMaxDepth', t => {
+  const tangle = new Tangle(rootPost, peer.db.records())
+  t.equals(tangle.getMaxDepth(), 3, 'max depth is 3')
+  t.end()
+})
+
 test('Tangle.topoSort', (t) => {
   const tangle = new Tangle(rootPost, peer.db.records())
   const sorted = tangle.topoSort()
@@ -115,20 +132,31 @@ test('Tangle.getTips', (t) => {
   const tangle = new Tangle(rootPost, peer.db.records())
   const tips = tangle.getTips()
 
-  t.equals(tips.length, 2, 'there are 2 tips')
-  t.true(tips.includes(reply3Lo), 'tips contains reply3Lo')
-  t.true(tips.includes(reply3Hi), 'tips contains reply3Hi')
+  t.equals(tips.size, 2, 'there are 2 tips')
+  t.true(tips.has(reply3Lo), 'tips contains reply3Lo')
+  t.true(tips.has(reply3Hi), 'tips contains reply3Hi')
   t.end()
 })
 
-test('Tangle.getLipmaa', (t) => {
+test('Tangle.getLipmaaSet', (t) => {
   const tangle = new Tangle(rootPost, peer.db.records())
-  t.deepEquals(tangle.getLipmaa(0), [], 'lipmaa 0 (empty)')
-  t.deepEquals(tangle.getLipmaa(1), [rootPost], 'lipmaa 1 (-1)')
-  t.deepEquals(tangle.getLipmaa(2), [reply1Lo, reply1Hi], 'lipmaa 2 (-1)')
-  t.deepEquals(tangle.getLipmaa(3), [rootPost], 'lipmaa 3 (leap!)')
-  t.deepEquals(tangle.getLipmaa(4), [reply3Lo, reply3Hi], 'lipmaa 4 (-1)')
-  t.deepEquals(tangle.getLipmaa(5), [], 'lipmaa 5 (empty)')
+  t.equals(tangle.getLipmaaSet(0).size, 0, 'lipmaa 0 (empty)')
+
+  t.equals(tangle.getLipmaaSet(1).size, 1, 'lipmaa 1 (-1)')
+  t.true(tangle.getLipmaaSet(1).has(rootPost), 'lipmaa 1 (-1)')
+
+  t.equals(tangle.getLipmaaSet(2).size, 2, 'lipmaa 2 (-1)')
+  t.true(tangle.getLipmaaSet(2).has(reply1Lo), 'lipmaa 2 (-1)')
+  t.true(tangle.getLipmaaSet(2).has(reply1Hi), 'lipmaa 2 (-1)')
+
+  t.equals(tangle.getLipmaaSet(3).size, 1, 'lipmaa 3 (leap!)')
+  t.true(tangle.getLipmaaSet(3).has(rootPost), 'lipmaa 3 (leap!)')
+
+  t.equals(tangle.getLipmaaSet(4).size, 2, 'lipmaa 4 (-1)')
+  t.true(tangle.getLipmaaSet(4).has(reply3Lo), 'lipmaa 4 (-1)')
+  t.true(tangle.getLipmaaSet(4).has(reply3Hi), 'lipmaa 4 (-1)')
+
+  t.equals(tangle.getLipmaaSet(5).size, 0, 'lipmaa 5 (empty)')
 
   t.end()
 })
