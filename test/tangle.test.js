@@ -83,6 +83,19 @@ test('setup', async (t) => {
   reply3Hi = reply3B.localeCompare(reply3C) < 0 ? reply3C : reply3B
 })
 
+test('Tangle.has', (t) => {
+  const tangle = new Tangle(rootPost, peer.db.records())
+
+  t.true(tangle.has(rootPost), 'has rootPost')
+  t.true(tangle.has(reply1Lo), 'has reply1Lo')
+  t.true(tangle.has(reply1Hi), 'has reply1Hi')
+  t.true(tangle.has(reply2A), 'has reply2A')
+  t.true(tangle.has(reply3Lo), 'has reply3Lo')
+  t.true(tangle.has(reply3Hi), 'has reply3Hi')
+  t.false(tangle.has('nonsense'), 'does not have nonsense')
+  t.end()
+})
+
 test('Tangle.topoSort', (t) => {
   const tangle = new Tangle(rootPost, peer.db.records())
   const sorted = tangle.topoSort()
@@ -95,7 +108,6 @@ test('Tangle.topoSort', (t) => {
     reply3Lo,
     reply3Hi,
   ])
-  console.log(sorted);
   t.end()
 })
 
@@ -121,7 +133,7 @@ test('Tangle.getLipmaa', (t) => {
   t.end()
 })
 
-test('Tangle.getDeletablesAndEmptyables basic', t => {
+test('Tangle.getDeletablesAndEmptyables basic', (t) => {
   const tangle = new Tangle(rootPost, peer.db.records())
   const { deletables, emptyables } = tangle.getDeletablesAndEmptyables(reply2A)
 
@@ -130,8 +142,7 @@ test('Tangle.getDeletablesAndEmptyables basic', t => {
   t.end()
 })
 
-
-test('Tangle.getDeletablesAndEmptyables with lipmaa', t => {
+test('Tangle.getDeletablesAndEmptyables with lipmaa', (t) => {
   const tangle = new Tangle(rootPost, peer.db.records())
   const { deletables, emptyables } = tangle.getDeletablesAndEmptyables(reply3Lo)
 
