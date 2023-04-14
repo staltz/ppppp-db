@@ -1,5 +1,6 @@
 const tape = require('tape')
 const FeedV1 = require('../lib/feed-v1')
+const Tangle = require('../lib/tangle')
 const { generateKeypair } = require('./util')
 
 let rootMsg = null
@@ -30,7 +31,7 @@ tape('FeedV1.create()', (t) => {
     content,
     type: 'post',
     tangles: {
-      [rootHash]: new Map([[rootHash, rootMsg]]),
+      [rootHash]: new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }]),
     },
     when,
   })
@@ -71,9 +72,9 @@ tape('FeedV1.create()', (t) => {
     content: content2,
     type: 'post',
     tangles: {
-      [rootHash]: new Map([
-        [rootHash, rootMsg],
-        [msgHash1, msg1],
+      [rootHash]: new Tangle(rootHash, [
+        { hash: rootHash, msg: rootMsg },
+        { hash: msgHash1, msg: msg1 },
       ]),
     },
     when: when + 1,
@@ -111,14 +112,14 @@ tape('FeedV1.create()', (t) => {
 tape('create() handles DAG tips correctly', (t) => {
   const keys = generateKeypair('alice')
   const when = 1652037377204
-  const existing = new Map([[rootHash, rootMsg]])
+  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
 
   const msg1 = FeedV1.create({
     keys,
     content: { text: '1' },
     type: 'post',
     tangles: {
-      [rootHash]: existing,
+      [rootHash]: tangle,
     },
     when: when + 1,
   })
@@ -129,14 +130,14 @@ tape('create() handles DAG tips correctly', (t) => {
     'msg1.prev is root'
   )
 
-  existing.set(msgHash1, msg1)
+  tangle.add(msgHash1, msg1)
 
   const msg2A = FeedV1.create({
     keys,
     content: { text: '2A' },
     type: 'post',
     tangles: {
-      [rootHash]: existing,
+      [rootHash]: tangle,
     },
     when: when + 2,
   })
@@ -151,9 +152,8 @@ tape('create() handles DAG tips correctly', (t) => {
     content: { text: '2B' },
     type: 'post',
     tangles: {
-      [rootHash]: existing,
+      [rootHash]: tangle,
     },
-    existing,
     when: when + 2,
   })
   const msgHash2B = FeedV1.getMsgHash(msg2B)
@@ -163,14 +163,14 @@ tape('create() handles DAG tips correctly', (t) => {
     'msg2B.prev is msg1'
   )
 
-  existing.set(msgHash2B, msg2B)
+  tangle.add(msgHash2B, msg2B)
 
   const msg3 = FeedV1.create({
     keys,
     content: { text: '3' },
     type: 'post',
     tangles: {
-      [rootHash]: existing,
+      [rootHash]: tangle,
     },
     when: when + 3,
   })
@@ -180,10 +180,10 @@ tape('create() handles DAG tips correctly', (t) => {
     [rootHash, msgHash2B],
     'msg3.prev is root(lipmaa),msg2B(previous)'
   )
-  existing.set(msgHash3, msg3)
+  tangle.add(msgHash3, msg3)
 
   const msgHash2A = FeedV1.getMsgHash(msg2A)
-  existing.set(msgHash2A, msg2A)
+  tangle.add(msgHash2A, msg2A)
   t.pass('msg2A comes into awareness')
 
   const msg4 = FeedV1.create({
@@ -191,7 +191,7 @@ tape('create() handles DAG tips correctly', (t) => {
     content: { text: '4' },
     type: 'post',
     tangles: {
-      [rootHash]: existing,
+      [rootHash]: tangle,
     },
     when: when + 4,
   })

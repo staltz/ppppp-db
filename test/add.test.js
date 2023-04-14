@@ -5,6 +5,7 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const FeedV1 = require('../lib/feed-v1')
+const Tangle = require('../lib/tangle')
 const p = require('util').promisify
 const { generateKeypair } = require('./util')
 
@@ -32,7 +33,7 @@ test('add()', async (t) => {
     type: 'post',
     content: { text: 'This is the first post!' },
     tangles: {
-      [rootHash]: new Map([[FeedV1.getMsgHash(rootMsg), rootMsg]]),
+      [rootHash]: new Tangle(rootHash, [recRoot]),
     },
   })
 

@@ -1,6 +1,7 @@
 const tape = require('tape')
 const base58 = require('bs58')
 const FeedV1 = require('../lib/feed-v1')
+const Tangle = require('../lib/tangle')
 const { generateKeypair } = require('./util')
 
 tape('invalid msg with non-array prev', (t) => {
@@ -9,21 +10,21 @@ tape('invalid msg with non-array prev', (t) => {
   const rootMsg = FeedV1.createRoot(keys, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
 
-  const existing = new Map([[rootHash, rootMsg]])
+  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
 
   const msg = FeedV1.create({
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
     tangles: {
-      [rootHash]: existing,
+      [rootHash]: tangle,
     },
     when: 1652030001000,
   })
   msg.metadata.tangles[rootHash].prev = null
   const msgHash = FeedV1.getMsgHash(msg)
 
-  FeedV1.validate(msg, existing, msgHash, rootHash, (err) => {
+  FeedV1.validate(msg, tangle, msgHash, rootHash, (err) => {
     t.ok(err, 'invalid 2nd msg throws')
     t.match(err.message, /prev must be an array/, 'invalid 2nd msg description')
     t.end()
@@ -36,26 +37,26 @@ tape('invalid msg with bad prev', (t) => {
   const rootMsg = FeedV1.createRoot(keys, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
 
-  const existing = new Map([[rootHash, rootMsg]])
+  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
 
   const msg1 = FeedV1.create({
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
     tangles: {
-      [rootHash]: existing,
+      [rootHash]: tangle,
     },
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
-  existing.set(msgHash1, msg1)
+  tangle.add(msgHash1, msg1)
 
   const msg2 = FeedV1.create({
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
     tangles: {
-      [rootHash]: existing,
+      [rootHash]: tangle,
     },
     when: 1652030002000,
   })
@@ -63,7 +64,7 @@ tape('invalid msg with bad prev', (t) => {
   msg2.metadata.tangles[rootHash].prev = [1234]
   const msgHash2 = FeedV1.getMsgHash(msg2)
 
-  FeedV1.validate(msg2, existing, msgHash2, rootHash, (err) => {
+  FeedV1.validate(msg2, tangle, msgHash2, rootHash, (err) => {
     t.ok(err, 'invalid 2nd msg throws')
     t.match(
       err.message,
@@ -80,26 +81,26 @@ tape('invalid msg with URI in prev', (t) => {
   const rootMsg = FeedV1.createRoot(keys, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
 
-  const existing = new Map([[rootHash, rootMsg]])
+  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
 
   const msg1 = FeedV1.create({
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
     tangles: {
-      [rootHash]: existing,
+      [rootHash]: tangle,
     },
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
-  existing.set(msgHash1, msg1)
+  tangle.add(msgHash1, msg1)
 
   const msg2 = FeedV1.create({
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
     tangles: {
-      [rootHash]: existing,
+      [rootHash]: tangle,
     },
     when: 1652030002000,
   })
@@ -109,7 +110,7 @@ tape('invalid msg with URI in prev', (t) => {
   msg2.metadata.tangles[rootHash].depth = 1
   msg2.metadata.tangles[rootHash].prev = [fakeMsgKey1]
 
-  FeedV1.validate(msg2, existing, msgHash2, rootHash, (err) => {
+  FeedV1.validate(msg2, tangle, msgHash2, rootHash, (err) => {
     t.ok(err, 'invalid 2nd msg throws')
     t.match(
       err.message,
@@ -126,26 +127,26 @@ tape('invalid msg with unknown prev', (t) => {
   const rootMsg = FeedV1.createRoot(keys, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
 
-  const existing = new Map([[rootHash, rootMsg]])
+  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
 
   const msg1 = FeedV1.create({
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
     tangles: {
-      [rootHash]: existing,
+      [rootHash]: tangle,
     },
     when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
-  existing.set(msgHash1, msg1)
+  tangle.add(msgHash1, msg1)
 
   const unknownMsg = FeedV1.create({
     keys,
     content: { text: 'Alien' },
     type: 'post',
     tangles: {
-      [rootHash]: existing,
+      [rootHash]: tangle,
     },
     when: 1652030001000,
   })
@@ -156,13 +157,16 @@ tape('invalid msg with unknown prev', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     tangles: {
-      [rootHash]: new Map([[rootHash, rootMsg], [unknownMsgHash, unknownMsg]]),
+      [rootHash]: new Tangle(rootHash, [
+        { hash: rootHash, msg: rootMsg },
+        { hash: unknownMsgHash, msg: unknownMsg },
+      ]),
     },
     when: 1652030002000,
   })
   const msgHash2 = FeedV1.getMsgHash(msg2)
 
-  FeedV1.validate(msg2, existing, msgHash2, rootHash, (err) => {
+  FeedV1.validate(msg2, tangle, msgHash2, rootHash, (err) => {
     t.ok(err, 'invalid 2nd msg throws')
     t.match(
       err.message,
