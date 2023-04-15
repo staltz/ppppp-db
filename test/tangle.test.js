@@ -161,18 +161,18 @@ test('Tangle.getLipmaaSet', (t) => {
   t.end()
 })
 
-test('Tangle.getDeletablesAndEmptyables basic', (t) => {
+test('Tangle.getDeletablesAndErasables basic', (t) => {
   const tangle = new Tangle(rootPost, peer.db.records())
-  const { deletables, emptyables } = tangle.getDeletablesAndEmptyables(reply2A)
+  const { deletables, emptyables } = tangle.getDeletablesAndErasables(reply2A)
 
   t.deepEquals(deletables, [reply1Hi], 'deletables')
   t.deepEquals(emptyables, [reply1Lo, rootPost], 'emptyables')
   t.end()
 })
 
-test('Tangle.getDeletablesAndEmptyables with lipmaa', (t) => {
+test('Tangle.getDeletablesAndErasables with lipmaa', (t) => {
   const tangle = new Tangle(rootPost, peer.db.records())
-  const { deletables, emptyables } = tangle.getDeletablesAndEmptyables(reply3Lo)
+  const { deletables, emptyables } = tangle.getDeletablesAndErasables(reply3Lo)
 
   t.deepEquals(deletables, [reply1Lo, reply1Hi, reply2A], 'deletables')
   t.deepEquals(emptyables, [rootPost], 'emptyables')
