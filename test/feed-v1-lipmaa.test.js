@@ -1,6 +1,5 @@
 const tape = require('tape')
 const FeedV1 = require('../lib/feed-v1')
-const Tangle = require('../lib/tangle')
 const { generateKeypair } = require('./util')
 
 tape('lipmaa prevs', (t) => {
@@ -10,7 +9,8 @@ tape('lipmaa prevs', (t) => {
 
   const rootMsg = FeedV1.createRoot(keys, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
-  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
+  const tangle = new FeedV1.Tangle(rootHash)
+  tangle.add(rootHash, rootMsg)
 
   const msg1 = FeedV1.create({
     keys,

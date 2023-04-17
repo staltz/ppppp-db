@@ -1,7 +1,6 @@
 const tape = require('tape')
 const base58 = require('bs58')
 const FeedV1 = require('../lib/feed-v1')
-const Tangle = require('../lib/tangle')
 const { generateKeypair } = require('./util')
 
 tape('invalid msg with non-array prev', (t) => {
@@ -10,7 +9,8 @@ tape('invalid msg with non-array prev', (t) => {
   const rootMsg = FeedV1.createRoot(keys, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
 
-  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
+  const tangle = new FeedV1.Tangle(rootHash)
+  tangle.add(rootHash, rootMsg)
 
   const msg = FeedV1.create({
     keys,
@@ -37,7 +37,8 @@ tape('invalid msg with bad prev', (t) => {
   const rootMsg = FeedV1.createRoot(keys, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
 
-  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
+  const tangle = new FeedV1.Tangle(rootHash)
+  tangle.add(rootHash, rootMsg)
 
   const msg1 = FeedV1.create({
     keys,
@@ -81,7 +82,8 @@ tape('invalid msg with URI in prev', (t) => {
   const rootMsg = FeedV1.createRoot(keys, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
 
-  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
+  const tangle = new FeedV1.Tangle(rootHash)
+  tangle.add(rootHash, rootMsg)
 
   const msg1 = FeedV1.create({
     keys,
@@ -127,7 +129,8 @@ tape('invalid msg with unknown prev', (t) => {
   const rootMsg = FeedV1.createRoot(keys, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
 
-  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
+  const tangle = new FeedV1.Tangle(rootHash)
+  tangle.add(rootHash, rootMsg)
 
   const msg1 = FeedV1.create({
     keys,
@@ -152,15 +155,16 @@ tape('invalid msg with unknown prev', (t) => {
   })
   const unknownMsgHash = FeedV1.getMsgHash(unknownMsg)
 
+  const tangle2 = new FeedV1.Tangle(rootHash)
+  tangle2.add(rootHash, rootMsg)
+  tangle2.add(unknownMsgHash, unknownMsg)
+
   const msg2 = FeedV1.create({
     keys,
     content: { text: 'Hello world!' },
     type: 'post',
     tangles: {
-      [rootHash]: new Tangle(rootHash, [
-        { hash: rootHash, msg: rootMsg },
-        { hash: unknownMsgHash, msg: unknownMsg },
-      ]),
+      [rootHash]: tangle2
     },
     when: 1652030002000,
   })
@@ -183,7 +187,8 @@ tape('invalid feed msg with a different who', (t) => {
 
   const rootMsg = FeedV1.createRoot(keysA, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
-  const feedTangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
+  const feedTangle = new FeedV1.Tangle(rootHash)
+  feedTangle.add(rootHash, rootMsg)
 
   const msg = FeedV1.create({
     keys: keysB,
@@ -207,7 +212,8 @@ tape('invalid feed msg with a different type', (t) => {
 
   const rootMsg = FeedV1.createRoot(keysA, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
-  const feedTangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
+  const feedTangle = new FeedV1.Tangle(rootHash)
+  feedTangle.add(rootHash, rootMsg)
 
   const msg = FeedV1.create({
     keys: keysA,

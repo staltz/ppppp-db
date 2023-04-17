@@ -1,7 +1,6 @@
 const tape = require('tape')
 const base58 = require('bs58')
 const FeedV1 = require('../lib/feed-v1')
-const Tangle = require('../lib/tangle')
 const { generateKeypair } = require('./util')
 
 tape('validate root msg', (t) => {
@@ -9,7 +8,8 @@ tape('validate root msg', (t) => {
 
   const rootMsg = FeedV1.createRoot(keys, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
-  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
+  const tangle = new FeedV1.Tangle(rootHash)
+  tangle.add(rootHash, rootMsg)
 
   FeedV1.validate(rootMsg, tangle, rootHash, rootHash, (err) => {
     if (err) console.log(err)
@@ -23,7 +23,8 @@ tape('validate 2nd msg with existing root', (t) => {
 
   const rootMsg = FeedV1.createRoot(keys, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
-  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
+  const tangle = new FeedV1.Tangle(rootHash)
+  tangle.add(rootHash, rootMsg)
 
   const msg1 = FeedV1.create({
     keys,
@@ -49,7 +50,8 @@ tape('validate 2nd forked msg', (t) => {
 
   const rootMsg = FeedV1.createRoot(keys, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
-  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
+  const tangle = new FeedV1.Tangle(rootHash)
+  tangle.add(rootHash, rootMsg)
 
   const msg1A = FeedV1.create({
     keys,
@@ -88,7 +90,8 @@ tape('invalid msg with unknown previous', (t) => {
 
   const rootMsg = FeedV1.createRoot(keys, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
-  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
+  const tangle = new FeedV1.Tangle(rootHash)
+  tangle.add(rootHash, rootMsg)
 
   const msg1 = FeedV1.create({
     keys,

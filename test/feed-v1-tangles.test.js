@@ -1,6 +1,5 @@
 const tape = require('tape')
 const FeedV1 = require('../lib/feed-v1')
-const Tangle = require('../lib/tangle')
 const { generateKeypair } = require('./util')
 
 tape('simple multi-author tangle', (t) => {
@@ -9,11 +8,13 @@ tape('simple multi-author tangle', (t) => {
 
   const rootMsgA = FeedV1.createRoot(keysA, 'post')
   const rootHashA = FeedV1.getMsgHash(rootMsgA)
-  const tangleA = new Tangle(rootHashA, [{ hash: rootHashA, msg: rootMsgA }])
+  const tangleA = new FeedV1.Tangle(rootHashA)
+  tangleA.add(rootHashA, rootMsgA)
 
   const rootMsgB = FeedV1.createRoot(keysB, 'post')
   const rootHashB = FeedV1.getMsgHash(rootMsgB)
-  const tangleB = new Tangle(rootHashB, [{ hash: rootHashB, msg: rootMsgB }])
+  const tangleB = new FeedV1.Tangle(rootHashB)
+  tangleB.add(rootHashB, rootMsgB)
 
   const msg1 = FeedV1.create({
     keys: keysA,
@@ -31,13 +32,16 @@ tape('simple multi-author tangle', (t) => {
     'msg1 has only feed tangle'
   )
 
+  const tangleX = new FeedV1.Tangle(msgHash1)
+  tangleX.add(msgHash1, msg1)
+
   const msg2 = FeedV1.create({
     keys: keysB,
     content: { text: 'Hello world!' },
     type: 'post',
     tangles: {
       [rootHashB]: tangleB,
-      [msgHash1]: new Tangle(msgHash1, [{ hash: msgHash1, msg: msg1 }]),
+      [msgHash1]: tangleX,
     },
     when: 1652030002000,
   })
@@ -73,11 +77,13 @@ tape('lipmaa in multi-author tangle', (t) => {
 
   const rootMsgA = FeedV1.createRoot(keysA, 'post')
   const rootHashA = FeedV1.getMsgHash(rootMsgA)
-  const tangleA = new Tangle(rootHashA, [{ hash: rootHashA, msg: rootMsgA }])
+  const tangleA = new FeedV1.Tangle(rootHashA)
+  tangleA.add(rootHashA, rootMsgA)
 
   const rootMsgB = FeedV1.createRoot(keysB, 'post')
   const rootHashB = FeedV1.getMsgHash(rootMsgB)
-  const tangleB = new Tangle(rootHashB, [{ hash: rootHashB, msg: rootMsgB }])
+  const tangleB = new FeedV1.Tangle(rootHashB)
+  tangleB.add(rootHashB, rootMsgB)
 
   const msg1 = FeedV1.create({
     keys: keysA,
@@ -90,7 +96,8 @@ tape('lipmaa in multi-author tangle', (t) => {
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
   tangleA.add(msgHash1, msg1)
-  const tangleThread = new Tangle(msgHash1, [{ hash: msgHash1, msg: msg1 }])
+  const tangleThread = new FeedV1.Tangle(msgHash1)
+  tangleThread.add(msgHash1, msg1)
 
   t.deepEquals(
     Object.keys(msg1.metadata.tangles),

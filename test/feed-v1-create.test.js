@@ -1,6 +1,5 @@
 const tape = require('tape')
 const FeedV1 = require('../lib/feed-v1')
-const Tangle = require('../lib/tangle')
 const { generateKeypair } = require('./util')
 
 let rootMsg = null
@@ -26,12 +25,15 @@ tape('FeedV1.create()', (t) => {
   const content = { text: 'Hello world!' }
   const when = 1652037377204
 
+  const tangle1 = new FeedV1.Tangle(rootHash)
+  tangle1.add(rootHash, rootMsg)
+
   const msg1 = FeedV1.create({
     keys,
     content,
     type: 'post',
     tangles: {
-      [rootHash]: new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }]),
+      [rootHash]: tangle1,
     },
     when,
   })
@@ -65,6 +67,10 @@ tape('FeedV1.create()', (t) => {
     'getMsgId'
   )
 
+  const tangle2 = new FeedV1.Tangle(rootHash)
+  tangle2.add(rootHash, rootMsg)
+  tangle2.add(msgHash1, msg1)
+
   const content2 = { text: 'Ola mundo!' }
 
   const msg2 = FeedV1.create({
@@ -72,10 +78,7 @@ tape('FeedV1.create()', (t) => {
     content: content2,
     type: 'post',
     tangles: {
-      [rootHash]: new Tangle(rootHash, [
-        { hash: rootHash, msg: rootMsg },
-        { hash: msgHash1, msg: msg1 },
-      ]),
+      [rootHash]: tangle2,
     },
     when: when + 1,
   })
@@ -112,7 +115,8 @@ tape('FeedV1.create()', (t) => {
 tape('create() handles DAG tips correctly', (t) => {
   const keys = generateKeypair('alice')
   const when = 1652037377204
-  const tangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
+  const tangle = new FeedV1.Tangle(rootHash)
+  tangle.add(rootHash, rootMsg)
 
   const msg1 = FeedV1.create({
     keys,

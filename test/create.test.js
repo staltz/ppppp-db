@@ -6,7 +6,6 @@ const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const p = require('util').promisify
 const FeedV1 = require('../lib/feed-v1')
-const Tangle = require('../lib/tangle')
 const { generateKeypair } = require('./util')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-create')
@@ -67,16 +66,17 @@ test('create()', async (t) => {
 })
 
 test('add() forked then create() merged', async (t) => {
+  const tangle = new FeedV1.Tangle(rootHash)
+  tangle.add(rootHash, rootMsg)
+  tangle.add(rec1.hash, rec1.msg)
+
   const msg3 = FeedV1.create({
     keys,
     when: Date.now(),
     type: 'post',
     content: { text: '3rd post forked from 1st' },
     tangles: {
-      [rootHash]: new Tangle(rootHash, [
-        { hash: rootHash, msg: rootMsg },
-        rec1,
-      ]),
+      [rootHash]: tangle
     },
   })
 

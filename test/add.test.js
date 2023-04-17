@@ -5,7 +5,6 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const FeedV1 = require('../lib/feed-v1')
-const Tangle = require('../lib/tangle')
 const p = require('util').promisify
 const { generateKeypair } = require('./util')
 
@@ -26,6 +25,8 @@ test('add()', async (t) => {
 
   const recRoot = await p(peer.db.add)(rootMsg, rootHash)
   t.equals(recRoot.msg.metadata.when, 0, 'root msg added')
+  const tangle = new FeedV1.Tangle(rootHash)
+  tangle.add(recRoot.hash, recRoot.msg)
 
   const inputMsg = FeedV1.create({
     keys,
@@ -33,7 +34,7 @@ test('add()', async (t) => {
     type: 'post',
     content: { text: 'This is the first post!' },
     tangles: {
-      [rootHash]: new Tangle(rootHash, [recRoot]),
+      [rootHash]: tangle,
     },
   })
 

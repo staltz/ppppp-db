@@ -6,13 +6,13 @@ const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const p = require('util').promisify
 const { generateKeypair } = require('./util')
-const Tangle = require('../lib/tangle')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-tangle')
 rimraf.sync(DIR)
 
 let peer
 let rootPost, reply1Lo, reply1Hi, reply2A, reply3Lo, reply3Hi
+let tangle
 test('setup', async (t) => {
   const keysA = generateKeypair('alice')
   const keysB = generateKeypair('bob')
@@ -81,11 +81,11 @@ test('setup', async (t) => {
   ])
   reply3Lo = reply3B.localeCompare(reply3C) < 0 ? reply3B : reply3C
   reply3Hi = reply3B.localeCompare(reply3C) < 0 ? reply3C : reply3B
+
+  tangle = peer.db.getTangle(rootPost)
 })
 
 test('Tangle.has', (t) => {
-  const tangle = new Tangle(rootPost, peer.db.records())
-
   t.true(tangle.has(rootPost), 'has rootPost')
   t.true(tangle.has(reply1Lo), 'has reply1Lo')
   t.true(tangle.has(reply1Hi), 'has reply1Hi')
@@ -97,7 +97,6 @@ test('Tangle.has', (t) => {
 })
 
 test('Tangle.getDepth', t=> {
-  const tangle = new Tangle(rootPost, peer.db.records())
   t.equals(tangle.getDepth(rootPost), 0, 'depth of rootPost is 0')
   t.equals(tangle.getDepth(reply1Lo), 1, 'depth of reply1Lo is 1')
   t.equals(tangle.getDepth(reply1Hi), 1, 'depth of reply1Hi is 1')
@@ -108,13 +107,11 @@ test('Tangle.getDepth', t=> {
 })
 
 test('Tangle.getMaxDepth', t => {
-  const tangle = new Tangle(rootPost, peer.db.records())
   t.equals(tangle.getMaxDepth(), 3, 'max depth is 3')
   t.end()
 })
 
 test('Tangle.topoSort', (t) => {
-  const tangle = new Tangle(rootPost, peer.db.records())
   const sorted = tangle.topoSort()
 
   t.deepEquals(sorted, [
@@ -129,7 +126,6 @@ test('Tangle.topoSort', (t) => {
 })
 
 test('Tangle.getTips', (t) => {
-  const tangle = new Tangle(rootPost, peer.db.records())
   const tips = tangle.getTips()
 
   t.equals(tips.size, 2, 'there are 2 tips')
@@ -139,7 +135,6 @@ test('Tangle.getTips', (t) => {
 })
 
 test('Tangle.getLipmaaSet', (t) => {
-  const tangle = new Tangle(rootPost, peer.db.records())
   t.equals(tangle.getLipmaaSet(0).size, 0, 'lipmaa 0 (empty)')
 
   t.equals(tangle.getLipmaaSet(1).size, 1, 'lipmaa 1 (-1)')
@@ -162,7 +157,6 @@ test('Tangle.getLipmaaSet', (t) => {
 })
 
 test('Tangle.getDeletablesAndErasables basic', (t) => {
-  const tangle = new Tangle(rootPost, peer.db.records())
   const { deletables, erasables } = tangle.getDeletablesAndErasables(reply2A)
 
   t.deepEquals(deletables, [reply1Hi], 'deletables')
@@ -171,7 +165,6 @@ test('Tangle.getDeletablesAndErasables basic', (t) => {
 })
 
 test('Tangle.getDeletablesAndErasables with lipmaa', (t) => {
-  const tangle = new Tangle(rootPost, peer.db.records())
   const { deletables, erasables } = tangle.getDeletablesAndErasables(reply3Lo)
 
   t.deepEquals(deletables, [reply1Lo, reply1Hi, reply2A], 'deletables')
