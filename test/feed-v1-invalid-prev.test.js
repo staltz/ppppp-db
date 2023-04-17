@@ -19,7 +19,6 @@ tape('invalid msg with non-array prev', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: 1652030001000,
   })
   msg.metadata.tangles[rootHash].prev = null
   const msgHash = FeedV1.getMsgHash(msg)
@@ -47,7 +46,6 @@ tape('invalid msg with bad prev', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
   tangle.add(msgHash1, msg1)
@@ -59,7 +57,6 @@ tape('invalid msg with bad prev', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: 1652030002000,
   })
   msg2.metadata.tangles[rootHash].depth = 1
   msg2.metadata.tangles[rootHash].prev = [1234]
@@ -92,7 +89,6 @@ tape('invalid msg with URI in prev', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
   tangle.add(msgHash1, msg1)
@@ -104,7 +100,6 @@ tape('invalid msg with URI in prev', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: 1652030002000,
   })
   const msgHash2 = FeedV1.getMsgHash(msg2)
   const randBuf = Buffer.alloc(16).fill(16)
@@ -139,7 +134,6 @@ tape('invalid msg with unknown prev', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
   tangle.add(msgHash1, msg1)
@@ -151,7 +145,6 @@ tape('invalid msg with unknown prev', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: 1652030001000,
   })
   const unknownMsgHash = FeedV1.getMsgHash(unknownMsg)
 
@@ -166,7 +159,6 @@ tape('invalid msg with unknown prev', (t) => {
     tangles: {
       [rootHash]: tangle2
     },
-    when: 1652030002000,
   })
   const msgHash2 = FeedV1.getMsgHash(msg2)
 
@@ -197,7 +189,6 @@ tape('invalid feed msg with a different who', (t) => {
     tangles: {
       [rootHash]: feedTangle,
     },
-    when: 1652030002000,
   })
   const msgHash = FeedV1.getMsgHash(msg)
 
@@ -222,7 +213,6 @@ tape('invalid feed msg with a different type', (t) => {
     tangles: {
       [rootHash]: feedTangle,
     },
-    when: 1652030002000,
   })
   const msgHash = FeedV1.getMsgHash(msg)
 

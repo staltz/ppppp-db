@@ -5,7 +5,6 @@ const { generateKeypair } = require('./util')
 tape('lipmaa prevs', (t) => {
   const keys = generateKeypair('alice')
   const content = { text: 'Hello world!' }
-  const when = 1652037377204
 
   const rootMsg = FeedV1.createRoot(keys, 'post')
   const rootHash = FeedV1.getMsgHash(rootMsg)
@@ -19,7 +18,6 @@ tape('lipmaa prevs', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: when + 1,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
   tangle.add(msgHash1, msg1)
@@ -33,7 +31,6 @@ tape('lipmaa prevs', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: when + 2,
   })
   const msgHash2 = FeedV1.getMsgHash(msg2)
   tangle.add(msgHash2, msg2)
@@ -47,7 +44,6 @@ tape('lipmaa prevs', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: when + 3,
   })
   const msgHash3 = FeedV1.getMsgHash(msg3)
   tangle.add(msgHash3, msg3)
@@ -65,7 +61,6 @@ tape('lipmaa prevs', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: when + 4,
   })
   const msgHash4 = FeedV1.getMsgHash(msg4)
   tangle.add(msgHash4, msg4)
@@ -79,7 +74,6 @@ tape('lipmaa prevs', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: when + 5,
   })
   const msgHash5 = FeedV1.getMsgHash(msg5)
   tangle.add(msgHash5, msg5)
@@ -93,7 +87,6 @@ tape('lipmaa prevs', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: when + 6,
   })
   const msgHash6 = FeedV1.getMsgHash(msg6)
   tangle.add(msgHash6, msg6)
@@ -107,7 +100,6 @@ tape('lipmaa prevs', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: when + 7,
   })
   const msgHash7 = FeedV1.getMsgHash(msg7)
   tangle.add(msgHash7, msg7)

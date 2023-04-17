@@ -33,7 +33,7 @@ test('onRecordAdded', async (t) => {
 
   t.equal(listened.length, 2)
   t.deepEquals(listened[0].msg.content, null, 'root')
-  t.deepEquals(listened[0].msg.metadata.when, 0, 'root')
+  t.deepEquals(listened[0].msg.metadata.size, 0, 'root')
   t.deepEquals(listened[1], rec1, 'actual record')
 
   remove()

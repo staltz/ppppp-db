@@ -33,7 +33,6 @@ tape('validate 2nd msg with existing root', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
   tangle.add(msgHash1, msg1)
@@ -61,7 +60,6 @@ tape('validate 2nd forked msg', (t) => {
       [rootHash]: tangle,
     },
     existing: new Map(),
-    when: 1652030001000,
   })
   const msgHash1A = FeedV1.getMsgHash(msg1A)
 
@@ -72,7 +70,6 @@ tape('validate 2nd forked msg', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: 1652030002000,
   })
   const msgHash1B = FeedV1.getMsgHash(msg1B)
 
@@ -100,7 +97,6 @@ tape('invalid msg with unknown previous', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
 

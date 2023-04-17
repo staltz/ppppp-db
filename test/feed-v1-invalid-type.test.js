@@ -10,7 +10,6 @@ tape('invalid type not a string', (t) => {
       FeedV1.create({
         keys,
         content: { text: 'Hello world!' },
-        when: 1652037377204,
         type: 123,
       })
     },
@@ -28,7 +27,6 @@ tape('invalid type with "/" character', (t) => {
       FeedV1.create({
         keys,
         content: { text: 'Hello world!' },
-        when: 1652037377204,
         type: 'group/init',
       })
     },
@@ -46,7 +44,6 @@ tape('invalid type with "*" character', (t) => {
       FeedV1.create({
         keys,
         content: { text: 'Hello world!' },
-        when: 1652037377204,
         type: 'star*',
       })
     },
@@ -64,7 +61,6 @@ tape('invalid type too short', (t) => {
       FeedV1.create({
         keys,
         content: { text: 'Hello world!' },
-        when: 1652037377204,
         type: 'xy',
       })
     },
@@ -82,7 +78,6 @@ tape('invalid type too long', (t) => {
       FeedV1.create({
         keys,
         content: { text: 'Hello world!' },
-        when: 1652037377204,
         type: 'a'.repeat(120),
       })
     },

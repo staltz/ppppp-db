@@ -72,7 +72,6 @@ test('add() forked then create() merged', async (t) => {
 
   const msg3 = FeedV1.create({
     keys,
-    when: Date.now(),
     type: 'post',
     content: { text: '3rd post forked from 1st' },
     tangles: {

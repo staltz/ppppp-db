@@ -24,13 +24,12 @@ test('add()', async (t) => {
   const rootHash = FeedV1.getMsgHash(rootMsg)
 
   const recRoot = await p(peer.db.add)(rootMsg, rootHash)
-  t.equals(recRoot.msg.metadata.when, 0, 'root msg added')
+  t.equals(recRoot.msg.metadata.size, 0, 'root msg added')
   const tangle = new FeedV1.Tangle(rootHash)
   tangle.add(recRoot.hash, recRoot.msg)
 
   const inputMsg = FeedV1.create({
     keys,
-    when: 1514517067954,
     type: 'post',
     content: { text: 'This is the first post!' },
     tangles: {

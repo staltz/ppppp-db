@@ -23,7 +23,6 @@ tape('simple multi-author tangle', (t) => {
     tangles: {
       [rootHashA]: tangleA,
     },
-    when: 1652030001000,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
   t.deepEquals(
@@ -43,7 +42,6 @@ tape('simple multi-author tangle', (t) => {
       [rootHashB]: tangleB,
       [msgHash1]: tangleX,
     },
-    when: 1652030002000,
   })
 
   t.deepEquals(
@@ -73,7 +71,6 @@ tape('lipmaa in multi-author tangle', (t) => {
   const keysB = generateKeypair('bob')
 
   const content = { text: 'Hello world!' }
-  const when = 1652037377204
 
   const rootMsgA = FeedV1.createRoot(keysA, 'post')
   const rootHashA = FeedV1.getMsgHash(rootMsgA)
@@ -92,7 +89,6 @@ tape('lipmaa in multi-author tangle', (t) => {
     tangles: {
       [rootHashA]: tangleA,
     },
-    when: when + 1,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
   tangleA.add(msgHash1, msg1)
@@ -113,7 +109,6 @@ tape('lipmaa in multi-author tangle', (t) => {
       [rootHashB]: tangleB,
       [msgHash1]: tangleThread,
     },
-    when: when + 2,
   })
   const msgHash2 = FeedV1.getMsgHash(msg2)
   tangleB.add(msgHash2, msg2)
@@ -133,7 +128,6 @@ tape('lipmaa in multi-author tangle', (t) => {
       [rootHashB]: tangleB,
       [msgHash1]: tangleThread,
     },
-    when: when + 3,
   })
   const msgHash3 = FeedV1.getMsgHash(msg3)
   tangleB.add(msgHash3, msg3)
@@ -153,7 +147,6 @@ tape('lipmaa in multi-author tangle', (t) => {
       [rootHashA]: tangleA,
       [msgHash1]: tangleThread,
     },
-    when: when + 4,
   })
   const msgHash4 = FeedV1.getMsgHash(msg4)
   tangleB.add(msgHash4, msg4)

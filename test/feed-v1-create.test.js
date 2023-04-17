@@ -12,18 +12,16 @@ tape('FeedV1.createRoot()', (t) => {
   t.equals(rootMsg.metadata.size, 0, 'size')
   t.equals(rootMsg.metadata.type, 'post', 'type')
   t.equals(rootMsg.metadata.who, FeedV1.stripAuthor(keys.id), 'who')
-  t.equals(rootMsg.metadata.when, 0, 'when')
   t.deepEquals(rootMsg.metadata.tangles, {}, 'tangles')
 
   rootHash = FeedV1.getMsgHash(rootMsg)
-  t.equals(rootHash, 'PpkBfa8C4sB8wHrqiNmHqe', 'root hash')
+  t.equals(rootHash, 'PGwQiuwFnB7EySQHBit2mA', 'root hash')
   t.end()
 })
 
 tape('FeedV1.create()', (t) => {
   const keys = generateKeypair('alice')
   const content = { text: 'Hello world!' }
-  const when = 1652037377204
 
   const tangle1 = new FeedV1.Tangle(rootHash)
   tangle1.add(rootHash, rootMsg)
@@ -35,11 +33,10 @@ tape('FeedV1.create()', (t) => {
     tangles: {
       [rootHash]: tangle1,
     },
-    when,
   })
   t.deepEquals(
     Object.keys(msg1.metadata),
-    ['proof', 'size', 'tangles', 'type', 'who', 'when'],
+    ['proof', 'size', 'tangles', 'type', 'who'],
     'metadata fields'
   )
   t.equals(
@@ -53,12 +50,11 @@ tape('FeedV1.create()', (t) => {
   t.equals(msg1.metadata.tangles[rootHash].depth, 1, 'tangle depth')
   t.deepEquals(msg1.metadata.tangles[rootHash].prev, [rootHash], 'tangle prev')
   t.deepEquals(msg1.metadata.size, 23, 'metadata.size')
-  t.equals(typeof msg1.metadata.when, 'number', 'metadata.when')
   t.deepEqual(msg1.content, content, 'content is correct')
 
   console.log(msg1)
 
-  const msgHash1 = 'YWbEeMtcU4eNwF6uJVTrKE'
+  const msgHash1 = 'M31mLeV2wNDwp9ZRkkF8pL'
 
   t.equals(
     FeedV1.getMsgId(msg1),
@@ -80,11 +76,10 @@ tape('FeedV1.create()', (t) => {
     tangles: {
       [rootHash]: tangle2,
     },
-    when: when + 1,
   })
   t.deepEquals(
     Object.keys(msg2.metadata),
-    ['proof', 'size', 'tangles', 'type', 'who', 'when'],
+    ['proof', 'size', 'tangles', 'type', 'who'],
     'metadata keys'
   )
   t.equals(
@@ -98,14 +93,13 @@ tape('FeedV1.create()', (t) => {
   t.deepEquals(msg2.metadata.tangles[rootHash].prev, [msgHash1], 'tangle prev')
   t.deepEquals(msg2.metadata.proof, 'XuZEzH1Dhy1yuRMcviBBcN', 'metadata.proof')
   t.deepEquals(msg2.metadata.size, 21, 'metadata.size')
-  t.equals(typeof msg2.metadata.when, 'number', 'metadata.when')
   t.deepEqual(msg2.content, content2, 'content is correct')
 
   console.log(msg2)
 
   t.deepEqual(
     FeedV1.getMsgId(msg2),
-    'ppppp:message/v1/4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW/post/R9XRXBL1ntSKRrrk86bhn8',
+    'ppppp:message/v1/4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW/post/MHLPVrHFzCLXVeXUkY1W4a',
     'getMsgId'
   )
 
@@ -114,7 +108,6 @@ tape('FeedV1.create()', (t) => {
 
 tape('create() handles DAG tips correctly', (t) => {
   const keys = generateKeypair('alice')
-  const when = 1652037377204
   const tangle = new FeedV1.Tangle(rootHash)
   tangle.add(rootHash, rootMsg)
 
@@ -125,12 +118,11 @@ tape('create() handles DAG tips correctly', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: when + 1,
   })
   const msgHash1 = FeedV1.getMsgHash(msg1)
   t.deepEquals(
     msg1.metadata.tangles[rootHash].prev,
-    ['PpkBfa8C4sB8wHrqiNmHqe'],
+    ['PGwQiuwFnB7EySQHBit2mA'],
     'msg1.prev is root'
   )
 
@@ -143,7 +135,6 @@ tape('create() handles DAG tips correctly', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: when + 2,
   })
   t.deepEquals(
     msg2A.metadata.tangles[rootHash].prev,
@@ -158,7 +149,6 @@ tape('create() handles DAG tips correctly', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: when + 2,
   })
   const msgHash2B = FeedV1.getMsgHash(msg2B)
   t.deepEquals(
@@ -176,7 +166,6 @@ tape('create() handles DAG tips correctly', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: when + 3,
   })
   const msgHash3 = FeedV1.getMsgHash(msg3)
   t.deepEquals(
@@ -197,7 +186,6 @@ tape('create() handles DAG tips correctly', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    when: when + 4,
   })
   t.deepEquals(
     msg4.metadata.tangles[rootHash].prev,
