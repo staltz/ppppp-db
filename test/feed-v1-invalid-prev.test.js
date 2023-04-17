@@ -176,3 +176,56 @@ tape('invalid msg with unknown prev', (t) => {
     t.end()
   })
 })
+
+tape('invalid feed msg with a different who', (t) => {
+  const keysA = generateKeypair('alice')
+  const keysB = generateKeypair('bob')
+
+  const rootMsg = FeedV1.createRoot(keysA, 'post')
+  const rootHash = FeedV1.getMsgHash(rootMsg)
+  const feedTangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
+
+  const msg = FeedV1.create({
+    keys: keysB,
+    content: { text: 'Hello world!' },
+    type: 'post',
+    tangles: {
+      [rootHash]: feedTangle,
+    },
+    when: 1652030002000,
+  })
+  const msgHash = FeedV1.getMsgHash(msg)
+
+  FeedV1.validate(msg, feedTangle, msgHash, rootHash, (err) => {
+    t.match(err.message, /who ".*" does not match feed who/, 'invalid feed msg')
+    t.end()
+  })
+})
+
+tape('invalid feed msg with a different type', (t) => {
+  const keysA = generateKeypair('alice')
+
+  const rootMsg = FeedV1.createRoot(keysA, 'post')
+  const rootHash = FeedV1.getMsgHash(rootMsg)
+  const feedTangle = new Tangle(rootHash, [{ hash: rootHash, msg: rootMsg }])
+
+  const msg = FeedV1.create({
+    keys: keysA,
+    content: { text: 'Hello world!' },
+    type: 'comment',
+    tangles: {
+      [rootHash]: feedTangle,
+    },
+    when: 1652030002000,
+  })
+  const msgHash = FeedV1.getMsgHash(msg)
+
+  FeedV1.validate(msg, feedTangle, msgHash, rootHash, (err) => {
+    t.match(
+      err.message,
+      /type "comment" does not match feed type "post"/,
+      'invalid feed msg'
+    )
+    t.end()
+  })
+})
