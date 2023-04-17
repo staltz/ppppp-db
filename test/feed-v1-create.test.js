@@ -14,8 +14,9 @@ tape('FeedV1.createRoot()', (t) => {
   t.equals(rootMsg.metadata.who, FeedV1.stripAuthor(keys.id), 'who')
   t.deepEquals(rootMsg.metadata.tangles, {}, 'tangles')
 
+  console.log(rootMsg);
   rootHash = FeedV1.getMsgHash(rootMsg)
-  t.equals(rootHash, 'Nf2kuXAYsLBHEgU9eonYdn', 'root hash')
+  t.equals(rootHash, '3F26EgnwbMHm1EEeeVM1Eb', 'root hash')
   t.end()
 })
 
@@ -54,7 +55,7 @@ tape('FeedV1.create()', (t) => {
 
   console.log(msg1)
 
-  const msgHash1 = 'SktCiaHrUxz2mXS1SRSDmj'
+  const msgHash1 = 'MTYQM89hvHuiVKaw8Ze7kc'
 
   t.equals(
     FeedV1.getMsgId(msg1),
@@ -99,7 +100,7 @@ tape('FeedV1.create()', (t) => {
 
   t.deepEqual(
     FeedV1.getMsgId(msg2),
-    'ppppp:message/v1/4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW/post/Nej4ibHrxryTduWqDeCJE4',
+    'ppppp:message/v1/4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW/post/T7juKvDH2bqEUhJB9Dxctr',
     'getMsgId'
   )
 
@@ -122,7 +123,7 @@ tape('create() handles DAG tips correctly', (t) => {
   const msgHash1 = FeedV1.getMsgHash(msg1)
   t.deepEquals(
     msg1.metadata.tangles[rootHash].prev,
-    ['Nf2kuXAYsLBHEgU9eonYdn'],
+    [FeedV1.getFeedRootHash(keys.id, 'post')],
     'msg1.prev is root'
   )
 

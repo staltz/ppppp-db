@@ -20,7 +20,6 @@ test('erase', async (t) => {
 
   await peer.db.loaded()
 
-  const rootHash = 'Nf2kuXAYsLBHEgU9eonYdn'
   const msgHashes = []
   for (let i = 0; i < 5; i++) {
     const rec = await p(peer.db.create)({
@@ -48,8 +47,8 @@ test('erase', async (t) => {
 
   const after2 = []
   for (const msg of peer.db.msgs()) {
-    if (msg.metadata.tangles[rootHash]) {
-      after2.push(msg.metadata.tangles[rootHash].depth)
+    for (const tangleId in msg.metadata.tangles) {
+      after2.push(msg.metadata.tangles[tangleId].depth)
     }
   }
 
