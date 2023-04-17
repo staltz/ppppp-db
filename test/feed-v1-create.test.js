@@ -8,14 +8,14 @@ tape('FeedV1.createRoot()', (t) => {
   const keys = generateKeypair('alice')
   rootMsg = FeedV1.createRoot(keys, 'post')
   t.equals(rootMsg.content, null, 'content')
-  t.equals(rootMsg.metadata.proof, '', 'proof')
+  t.equals(rootMsg.metadata.hash, null, 'hash')
   t.equals(rootMsg.metadata.size, 0, 'size')
   t.equals(rootMsg.metadata.type, 'post', 'type')
   t.equals(rootMsg.metadata.who, FeedV1.stripAuthor(keys.id), 'who')
   t.deepEquals(rootMsg.metadata.tangles, {}, 'tangles')
 
   rootHash = FeedV1.getMsgHash(rootMsg)
-  t.equals(rootHash, 'PGwQiuwFnB7EySQHBit2mA', 'root hash')
+  t.equals(rootHash, 'Nf2kuXAYsLBHEgU9eonYdn', 'root hash')
   t.end()
 })
 
@@ -36,7 +36,7 @@ tape('FeedV1.create()', (t) => {
   })
   t.deepEquals(
     Object.keys(msg1.metadata),
-    ['proof', 'size', 'tangles', 'type', 'who'],
+    ['hash', 'size', 'tangles', 'type', 'v', 'who'],
     'metadata fields'
   )
   t.equals(
@@ -45,7 +45,7 @@ tape('FeedV1.create()', (t) => {
     'metadata.who'
   )
   t.equals(msg1.metadata.type, 'post', 'metadata.type')
-  t.deepEquals(msg1.metadata.proof, '9R7XmBhHF5ooPg34j9TQcz', 'metadata.proof')
+  t.deepEquals(msg1.metadata.hash, '9R7XmBhHF5ooPg34j9TQcz', 'metadata.hash')
   t.deepEquals(Object.keys(msg1.metadata.tangles), [rootHash], 'tangles')
   t.equals(msg1.metadata.tangles[rootHash].depth, 1, 'tangle depth')
   t.deepEquals(msg1.metadata.tangles[rootHash].prev, [rootHash], 'tangle prev')
@@ -54,7 +54,7 @@ tape('FeedV1.create()', (t) => {
 
   console.log(msg1)
 
-  const msgHash1 = 'M31mLeV2wNDwp9ZRkkF8pL'
+  const msgHash1 = 'SktCiaHrUxz2mXS1SRSDmj'
 
   t.equals(
     FeedV1.getMsgId(msg1),
@@ -79,7 +79,7 @@ tape('FeedV1.create()', (t) => {
   })
   t.deepEquals(
     Object.keys(msg2.metadata),
-    ['proof', 'size', 'tangles', 'type', 'who'],
+    ['hash', 'size', 'tangles', 'type', 'v', 'who'],
     'metadata keys'
   )
   t.equals(
@@ -91,7 +91,7 @@ tape('FeedV1.create()', (t) => {
   t.deepEquals(Object.keys(msg1.metadata.tangles), [rootHash], 'tangles')
   t.equals(msg2.metadata.tangles[rootHash].depth, 2, 'tangle depth')
   t.deepEquals(msg2.metadata.tangles[rootHash].prev, [msgHash1], 'tangle prev')
-  t.deepEquals(msg2.metadata.proof, 'XuZEzH1Dhy1yuRMcviBBcN', 'metadata.proof')
+  t.deepEquals(msg2.metadata.hash, 'XuZEzH1Dhy1yuRMcviBBcN', 'metadata.hash')
   t.deepEquals(msg2.metadata.size, 21, 'metadata.size')
   t.deepEqual(msg2.content, content2, 'content is correct')
 
@@ -99,7 +99,7 @@ tape('FeedV1.create()', (t) => {
 
   t.deepEqual(
     FeedV1.getMsgId(msg2),
-    'ppppp:message/v1/4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW/post/MHLPVrHFzCLXVeXUkY1W4a',
+    'ppppp:message/v1/4mjQ5aJu378cEu6TksRG3uXAiKFiwGjYQtWAjfVjDAJW/post/Nej4ibHrxryTduWqDeCJE4',
     'getMsgId'
   )
 
@@ -122,7 +122,7 @@ tape('create() handles DAG tips correctly', (t) => {
   const msgHash1 = FeedV1.getMsgHash(msg1)
   t.deepEquals(
     msg1.metadata.tangles[rootHash].prev,
-    ['PGwQiuwFnB7EySQHBit2mA'],
+    ['Nf2kuXAYsLBHEgU9eonYdn'],
     'msg1.prev is root'
   )
 

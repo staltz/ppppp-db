@@ -20,7 +20,7 @@ test('erase', async (t) => {
 
   await peer.db.loaded()
 
-  const rootHash = 'PGwQiuwFnB7EySQHBit2mA'
+  const rootHash = 'Nf2kuXAYsLBHEgU9eonYdn'
   const msgHashes = []
   for (let i = 0; i < 5; i++) {
     const rec = await p(peer.db.create)({
