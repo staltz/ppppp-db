@@ -96,7 +96,7 @@ test('Tangle.has', (t) => {
   t.end()
 })
 
-test('Tangle.getDepth', t=> {
+test('Tangle.getDepth', (t) => {
   t.equals(tangle.getDepth(rootPost), 0, 'depth of rootPost is 0')
   t.equals(tangle.getDepth(reply1Lo), 1, 'depth of reply1Lo is 1')
   t.equals(tangle.getDepth(reply1Hi), 1, 'depth of reply1Hi is 1')
@@ -106,7 +106,7 @@ test('Tangle.getDepth', t=> {
   t.end()
 })
 
-test('Tangle.getMaxDepth', t => {
+test('Tangle.getMaxDepth', (t) => {
   t.equals(tangle.getMaxDepth(), 3, 'max depth is 3')
   t.end()
 })
@@ -170,6 +170,25 @@ test('Tangle.getDeletablesAndErasables with lipmaa', (t) => {
   t.deepEquals(deletables, [reply1Lo, reply1Hi, reply2A], 'deletables')
   t.deepEquals(erasables, [rootPost], 'erasables')
   t.end()
+})
+
+test('Tangle.topoSort after some have been deleted and erased', async (t) => {
+  const { deletables, erasables } = tangle.getDeletablesAndErasables(reply3Lo)
+  for (const msgHash of deletables) {
+    await p(peer.db.del)(msgHash)
+  }
+  for (const msgHash of erasables) {
+    await p(peer.db.erase)(msgHash)
+  }
+
+  const tangle2 = peer.db.getTangle(rootPost)
+  const sorted = tangle2.topoSort()
+
+  t.deepEquals(sorted, [
+    rootPost,
+    reply3Lo,
+    reply3Hi,
+  ])
 })
 
 test('teardown', async (t) => {
