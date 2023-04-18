@@ -23,11 +23,10 @@ tape('invalid msg with non-array prev', (t) => {
   msg.metadata.tangles[rootHash].prev = null
   const msgHash = FeedV1.getMsgHash(msg)
 
-  FeedV1.validate(msg, tangle, msgHash, rootHash, (err) => {
-    t.ok(err, 'invalid 2nd msg throws')
-    t.match(err.message, /prev must be an array/, 'invalid 2nd msg description')
-    t.end()
-  })
+  const err = FeedV1.validate(msg, tangle, msgHash, rootHash)
+  t.ok(err, 'invalid 2nd msg throws')
+  t.match(err.message, /prev must be an array/, 'invalid 2nd msg description')
+  t.end()
 })
 
 tape('invalid msg with bad prev', (t) => {
@@ -62,15 +61,14 @@ tape('invalid msg with bad prev', (t) => {
   msg2.metadata.tangles[rootHash].prev = [1234]
   const msgHash2 = FeedV1.getMsgHash(msg2)
 
-  FeedV1.validate(msg2, tangle, msgHash2, rootHash, (err) => {
-    t.ok(err, 'invalid 2nd msg throws')
-    t.match(
-      err.message,
-      /prev must contain strings/,
-      'invalid 2nd msg description'
-    )
-    t.end()
-  })
+  const err = FeedV1.validate(msg2, tangle, msgHash2, rootHash)
+  t.ok(err, 'invalid 2nd msg throws')
+  t.match(
+    err.message,
+    /prev must contain strings/,
+    'invalid 2nd msg description'
+  )
+  t.end()
 })
 
 tape('invalid msg with URI in prev', (t) => {
@@ -107,15 +105,14 @@ tape('invalid msg with URI in prev', (t) => {
   msg2.metadata.tangles[rootHash].depth = 1
   msg2.metadata.tangles[rootHash].prev = [fakeMsgKey1]
 
-  FeedV1.validate(msg2, tangle, msgHash2, rootHash, (err) => {
-    t.ok(err, 'invalid 2nd msg throws')
-    t.match(
-      err.message,
-      /prev must not contain URIs/,
-      'invalid 2nd msg description'
-    )
-    t.end()
-  })
+  const err = FeedV1.validate(msg2, tangle, msgHash2, rootHash)
+  t.ok(err, 'invalid 2nd msg throws')
+  t.match(
+    err.message,
+    /prev must not contain URIs/,
+    'invalid 2nd msg description'
+  )
+  t.end()
 })
 
 tape('invalid msg with unknown prev', (t) => {
@@ -148,8 +145,9 @@ tape('invalid msg with unknown prev', (t) => {
   })
   const unknownMsgHash = FeedV1.getMsgHash(unknownMsg)
 
-  const tangle2 = new FeedV1.Tangle(rootHash)
-  tangle2.add(rootHash, rootMsg)
+  const fakeRootHash = 'ABCDEabcde' + rootHash.substring(10)
+  const tangle2 = new FeedV1.Tangle(fakeRootHash)
+  tangle2.add(fakeRootHash, rootMsg)
   tangle2.add(unknownMsgHash, unknownMsg)
 
   const msg2 = FeedV1.create({
@@ -157,20 +155,19 @@ tape('invalid msg with unknown prev', (t) => {
     content: { text: 'Hello world!' },
     type: 'post',
     tangles: {
-      [rootHash]: tangle2
+      [rootHash]: tangle2,
     },
   })
   const msgHash2 = FeedV1.getMsgHash(msg2)
 
-  FeedV1.validate(msg2, tangle, msgHash2, rootHash, (err) => {
-    t.ok(err, 'invalid 2nd msg throws')
-    t.match(
-      err.message,
-      /prev .+ is not locally known/,
-      'invalid 2nd msg description'
-    )
-    t.end()
-  })
+  const err = FeedV1.validate(msg2, tangle, msgHash2, rootHash)
+  t.ok(err, 'invalid 2nd msg throws')
+  t.match(
+    err.message,
+    /all prev are locally unknown/,
+    'invalid 2nd msg description'
+  )
+  t.end()
 })
 
 tape('invalid feed msg with a different who', (t) => {
@@ -192,10 +189,9 @@ tape('invalid feed msg with a different who', (t) => {
   })
   const msgHash = FeedV1.getMsgHash(msg)
 
-  FeedV1.validate(msg, feedTangle, msgHash, rootHash, (err) => {
-    t.match(err.message, /who ".*" does not match feed who/, 'invalid feed msg')
-    t.end()
-  })
+  const err = FeedV1.validate(msg, feedTangle, msgHash, rootHash)
+  t.match(err.message, /who ".*" does not match feed who/, 'invalid feed msg')
+  t.end()
 })
 
 tape('invalid feed msg with a different type', (t) => {
@@ -216,12 +212,11 @@ tape('invalid feed msg with a different type', (t) => {
   })
   const msgHash = FeedV1.getMsgHash(msg)
 
-  FeedV1.validate(msg, feedTangle, msgHash, rootHash, (err) => {
-    t.match(
-      err.message,
-      /type "comment" does not match feed type "post"/,
-      'invalid feed msg'
-    )
-    t.end()
-  })
+  const err = FeedV1.validate(msg, feedTangle, msgHash, rootHash)
+  t.match(
+    err.message,
+    /type "comment" does not match feed type "post"/,
+    'invalid feed msg'
+  )
+  t.end()
 })
