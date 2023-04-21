@@ -17,7 +17,7 @@ let msgHash1
 let msgId1
 test('setup', async (t) => {
   peer = SecretStack({ appKey: caps.shs })
-    .use(require('../'))
+    .use(require('../lib'))
     .use(require('ssb-box'))
     .call(null, { keys, path: DIR })
 

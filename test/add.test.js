@@ -14,7 +14,7 @@ rimraf.sync(DIR)
 test('add()', async (t) => {
   const keys = generateKeypair('alice')
   const peer = SecretStack({ appKey: caps.shs })
-    .use(require('../'))
+    .use(require('../lib'))
     .use(require('ssb-box'))
     .call(null, { keys, path: DIR })
 

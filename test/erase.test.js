@@ -15,7 +15,7 @@ rimraf.sync(DIR)
 test('erase', async (t) => {
   const keys = generateKeypair('alice')
   const peer = SecretStack({ appKey: caps.shs })
-    .use(require('../'))
+    .use(require('../lib'))
     .call(null, { keys, path: DIR })
 
   await peer.db.loaded()

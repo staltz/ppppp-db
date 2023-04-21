@@ -13,7 +13,7 @@ rimraf.sync(DIR)
 test('create some msgs, close, re-open', async (t) => {
   const keys = generateKeypair('alice')
   const peer = SecretStack({ appKey: caps.shs })
-    .use(require('../'))
+    .use(require('../lib'))
     .use(require('ssb-box'))
     .call(null, { keys, path: DIR })
 
@@ -37,7 +37,7 @@ test('create some msgs, close, re-open', async (t) => {
   t.pass('closed')
 
   const peer2 = SecretStack({ appKey: caps.shs })
-    .use(require('../'))
+    .use(require('../lib'))
     .use(require('ssb-box'))
     .call(null, { keys, path: DIR })
   t.pass('re-opened')

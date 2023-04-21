@@ -19,7 +19,7 @@ test('setup', async (t) => {
   const keysC = generateKeypair('carol')
 
   peer = SecretStack({ appKey: caps.shs })
-    .use(require('../'))
+    .use(require('../lib'))
     .use(require('ssb-box'))
     .call(null, { keys: keysA, path: DIR })
 
