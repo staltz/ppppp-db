@@ -16,7 +16,7 @@
     "./feed-v1": "./lib/feed-v1/index.js"
   },
   "author": "Andre Staltz <contact@staltz.com>",
-  "license": "CC0-1.0",
+  "license": "MIT",
   "homepage": "https://github.com/staltz/ppppp-db",
   "repository": {
     "type": "git",
