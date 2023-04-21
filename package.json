@@ -19,6 +19,7 @@
       "require": "./lib/feed-v1/index.js"
     }
   },
+  "type": "commonjs",
   "author": "Andre Staltz <contact@staltz.com>",
   "license": "MIT",
   "homepage": "https://github.com/staltz/ppppp-db",
