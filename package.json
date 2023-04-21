@@ -12,8 +12,12 @@
     "node": ">=16"
   },
   "exports": {
-    ".": "./index.js",
-    "./feed-v1": "./lib/feed-v1/index.js"
+    ".": {
+      "require": "./index.js"
+    },
+    "./feed-v1": {
+      "require": "./lib/feed-v1/index.js"
+    }
   },
   "author": "Andre Staltz <contact@staltz.com>",
   "license": "MIT",
