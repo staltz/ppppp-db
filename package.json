@@ -5,15 +5,14 @@
   "main": "index.js",
   "files": [
     "*.js",
-    "lib/**/*.js",
-    "compat/*.js"
+    "lib/**/*.js"
   ],
   "engines": {
     "node": ">=16"
   },
   "exports": {
     ".": {
-      "require": "./index.js"
+      "require": "./lib/index.js"
     },
     "./feed-v1": {
       "require": "./lib/feed-v1/index.js"
