@@ -75,7 +75,7 @@ test('add() forked then create() merged', async (t) => {
     type: 'post',
     content: { text: '3rd post forked from 1st' },
     tangles: {
-      [rootHash]: tangle
+      [rootHash]: tangle,
     },
   })
 

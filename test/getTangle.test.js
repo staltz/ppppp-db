@@ -184,11 +184,7 @@ test('Tangle.topoSort after some have been deleted and erased', async (t) => {
   const tangle2 = peer.db.getTangle(rootPost)
   const sorted = tangle2.topoSort()
 
-  t.deepEquals(sorted, [
-    rootPost,
-    reply3Lo,
-    reply3Hi,
-  ])
+  t.deepEquals(sorted, [rootPost, reply3Lo, reply3Hi])
 })
 
 test('teardown', async (t) => {
