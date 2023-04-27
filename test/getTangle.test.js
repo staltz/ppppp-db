@@ -125,6 +125,28 @@ test('Tangle.topoSort', (t) => {
   t.end()
 })
 
+test('Tangle.precedes', (t) => {
+  t.true(tangle.precedes(rootPost, reply1Lo), 'rootPost precedes reply1Lo')
+  t.true(tangle.precedes(rootPost, reply1Hi), 'rootPost precedes reply1Hi')
+  t.false(
+    tangle.precedes(reply1Hi, rootPost),
+    'reply1Hi doesnt precede rootPost'
+  )
+  t.false(
+    tangle.precedes(reply1Lo, reply1Hi),
+    'reply1Lo doesnt precede reply1Hi'
+  )
+  t.false(tangle.precedes(reply1Lo, reply1Lo), 'reply1Lo doesnt precede itself')
+  t.true(tangle.precedes(reply1Lo, reply3Hi), 'reply1Lo precedes reply3Hi')
+  t.true(tangle.precedes(reply1Hi, reply2A), 'reply1Hi precedes reply2A')
+  t.false(
+    tangle.precedes(reply3Lo, reply1Hi),
+    'reply3Lo doesnt precede reply1Hi'
+  )
+
+  t.end()
+})
+
 test('Tangle.getTips', (t) => {
   const tips = tangle.getTips()
 
