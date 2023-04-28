@@ -29,5 +29,12 @@ test('initializeFeed()', async (t) => {
 
   t.ok(peer.db.getFeedRoot(keys.id, 'profile'), 'has profile feed')
 
+  const rootHash2 = await p(peer.db.initializeFeed)({ type: 'profile' })
+  t.pass('initialized feed is idempotent')
+
+  t.equals(rootHash2, FeedV1.getMsgHash(rootMsg), 'root hash is consistent')
+
+  t.ok(peer.db.getFeedRoot(keys.id, 'profile'), 'still has profile feed')
+
   await p(peer.close)(true)
 })
