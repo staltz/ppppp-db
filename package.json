@@ -53,7 +53,7 @@
     "tape": "^5.6.3"
   },
   "scripts": {
-    "test": "tape test/*.test.js | tap-arc --bail",
+    "test": "tape 'test/**/*.test.js' | tap-arc --bail",
     "format-code": "prettier --write \"(lib|test)/**/*.js\"",
     "format-code-staged": "pretty-quick --staged --pattern \"(lib|test)/**/*.js\"",
     "coverage": "c8 --reporter=lcov npm run test"

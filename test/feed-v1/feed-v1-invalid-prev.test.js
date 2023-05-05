@@ -1,7 +1,7 @@
 const tape = require('tape')
 const base58 = require('bs58')
-const FeedV1 = require('../lib/feed-v1')
-const { generateKeypair } = require('./util')
+const FeedV1 = require('../../lib/feed-v1')
+const { generateKeypair } = require('../util')
 
 tape('invalid msg with non-array prev', (t) => {
   const keys = generateKeypair('alice')

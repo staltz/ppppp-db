@@ -1,6 +1,6 @@
 const tape = require('tape')
-const FeedV1 = require('../lib/feed-v1')
-const { generateKeypair } = require('./util')
+const FeedV1 = require('../../lib/feed-v1')
+const { generateKeypair } = require('../util')
 
 let rootMsg = null
 let rootHash = null

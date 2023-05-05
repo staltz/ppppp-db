@@ -1,6 +1,6 @@
 const tape = require('tape')
-const FeedV1 = require('../lib/feed-v1')
-const { generateKeypair } = require('./util')
+const FeedV1 = require('../../lib/feed-v1')
+const { generateKeypair } = require('../util')
 
 tape('lipmaa prevs', (t) => {
   const keys = generateKeypair('alice')
