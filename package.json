@@ -30,7 +30,7 @@
     "async-append-only-log": "^4.3.10",
     "blake3": "^2.1.7",
     "bs58": "^5.0.0",
-    "fast-json-stable-stringify": "^2.1.0",
+    "canonicalize": "^2.0.0",
     "obz": "^1.1.0",
     "promisify-4loc": "^1.0.0",
     "push-stream": "^11.2.0",
