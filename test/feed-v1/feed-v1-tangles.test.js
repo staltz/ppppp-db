@@ -46,7 +46,7 @@ tape('simple multi-author tangle', (t) => {
 
   t.deepEquals(
     Object.keys(msg2.metadata.tangles),
-    [rootHashB, msgHash1],
+    [rootHashB, msgHash1].sort(),
     'msg2 has feed tangle and misc tangle'
   )
   t.equal(msg2.metadata.tangles[rootHashB].depth, 1, 'msg2 feed tangle depth')
@@ -154,7 +154,7 @@ tape('lipmaa in multi-author tangle', (t) => {
 
   t.deepEquals(
     msg4.metadata.tangles[msgHash1].prev,
-    [msgHash1, msgHash3],
+    [msgHash1, msgHash3].sort(),
     'A:msg4 points to A:msg1,B:msg3'
   )
 

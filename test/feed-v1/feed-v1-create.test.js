@@ -171,8 +171,8 @@ tape('create() handles DAG tips correctly', (t) => {
   const msgHash3 = FeedV1.getMsgHash(msg3)
   t.deepEquals(
     msg3.metadata.tangles[rootHash].prev,
-    [rootHash, msgHash2B],
-    'msg3.prev is root(lipmaa),msg2B(previous)'
+    [rootHash, msgHash2B].sort(),
+    'msg3.prev is [root(lipmaa),msg2B(previous)], sorted'
   )
   tangle.add(msgHash3, msg3)
 
@@ -190,8 +190,8 @@ tape('create() handles DAG tips correctly', (t) => {
   })
   t.deepEquals(
     msg4.metadata.tangles[rootHash].prev,
-    [msgHash3, msgHash2A],
-    'msg4.prev is [msg3(previous),msg2A(old fork as tip)]'
+    [msgHash3, msgHash2A].sort(),
+    'msg4.prev is [msg3(previous),msg2A(old fork as tip)], sorted'
   )
 
   t.end()

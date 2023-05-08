@@ -50,7 +50,7 @@ tape('lipmaa prevs', (t) => {
   t.equals(msg3.metadata.tangles[rootHash].depth, 3, 'msg3 depth')
   t.deepEquals(
     msg3.metadata.tangles[rootHash].prev,
-    [rootHash, msgHash2],
+    [rootHash, msgHash2].sort(),
     'msg3 prev (has lipmaa!)'
   )
 
@@ -106,7 +106,7 @@ tape('lipmaa prevs', (t) => {
   t.equals(msg7.metadata.tangles[rootHash].depth, 7, 'msg7 depth')
   t.deepEquals(
     msg7.metadata.tangles[rootHash].prev,
-    [msgHash3, msgHash6],
+    [msgHash3, msgHash6].sort(),
     'msg7 prev (has lipmaa!)'
   )
 

@@ -220,3 +220,95 @@ tape('invalid feed msg with a different type', (t) => {
   )
   t.end()
 })
+
+tape('invalid feed msg with non-alphabetical prev', (t) => {
+  const keys = generateKeypair('alice')
+
+  const rootMsg = FeedV1.createRoot(keys, 'post')
+  const rootHash = FeedV1.getMsgHash(rootMsg)
+
+  const tangle = new FeedV1.Tangle(rootHash)
+  tangle.add(rootHash, rootMsg)
+
+  const msg1 = FeedV1.create({
+    keys,
+    content: { text: '1' },
+    type: 'post',
+    tangles: {
+      [rootHash]: tangle,
+    },
+  })
+  const msgHash1 = FeedV1.getMsgHash(msg1)
+
+  const msg2 = FeedV1.create({
+    keys,
+    content: { text: '2' },
+    type: 'post',
+    tangles: {
+      [rootHash]: tangle,
+    },
+  })
+  const msgHash2 = FeedV1.getMsgHash(msg2)
+
+  tangle.add(msgHash1, msg1)
+  tangle.add(msgHash2, msg2)
+
+  const msg3 = FeedV1.create({
+    keys,
+    content: { text: '3' },
+    type: 'post',
+    tangles: {
+      [rootHash]: tangle,
+    },
+  })
+  const msgHash3 = FeedV1.getMsgHash(msg3)
+
+  let prevHashes = msg3.metadata.tangles[rootHash].prev
+  if (prevHashes[0] < prevHashes[1]) {
+    prevHashes = [prevHashes[1], prevHashes[0]]
+  } else {
+    prevHashes = [prevHashes[0], prevHashes[1]]
+  }
+  msg3.metadata.tangles[rootHash].prev = prevHashes
+
+  const err = FeedV1.validate(msg3, tangle, msgHash3, rootHash)
+  t.ok(err, 'invalid 3rd msg throws')
+  t.match(
+    err.message,
+    /prev must be sorted in alphabetical order/,
+    'invalid error message'
+  )
+  t.end()
+})
+
+tape('invalid feed msg with duplicate prev', (t) => {
+  const keys = generateKeypair('alice')
+
+  const rootMsg = FeedV1.createRoot(keys, 'post')
+  const rootHash = FeedV1.getMsgHash(rootMsg)
+
+  const tangle = new FeedV1.Tangle(rootHash)
+  tangle.add(rootHash, rootMsg)
+
+  const msg1 = FeedV1.create({
+    keys,
+    content: { text: '1' },
+    type: 'post',
+    tangles: {
+      [rootHash]: tangle,
+    },
+  })
+  const msgHash1 = FeedV1.getMsgHash(msg1)
+
+  const [prevHash] = msg1.metadata.tangles[rootHash].prev
+  msg1.metadata.tangles[rootHash].prev = [prevHash, prevHash]
+
+  const err = FeedV1.validate(msg1, tangle, msgHash1, rootHash)
+  t.ok(err, 'invalid 1st msg throws')
+  t.match(
+    err.message,
+    /prev must be unique set/,
+    'invalid error message'
+  )
+  t.end()
+})
