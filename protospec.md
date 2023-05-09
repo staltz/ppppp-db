@@ -7,11 +7,11 @@ interface Msg {
   content: any | null, // any object, or null
   metadata: {
     hash: ContentHash, // blake3 hash of the `content` object serialized
-    size: number, // byte size of the `content` object serialized
+    size: number, // byte size (unsigned integer) of the `content` object serialized
     tangles: {
       // for each tangle this msg belongs to, identified by the tangle's root
       [rootMsgHash: string]: {
-        depth: number, // maximum distance from this msg to the root
+        depth: number, // maximum distance (positive integer) from this msg to the root
         prev: Array<MsgHash>, // list of msg hashes of existing msgs, unique set and ordered alphabetically
       },
     },
@@ -65,9 +65,4 @@ Given the root msg ID, any peer can thus refer to the feed tangle, because the r
 
 ## JSON serialization
 
-Whenever we need to serialize any JSON in the context of creating a Feed V1 message, we use the following rules:
-
-- Object fields are ordered alphabetically by field key
-- No whitespace nor newliners are added
-- No trailing commas are added
-- UTF-8 encoding
+Whenever we need to serialize any JSON in the context of creating a Feed V1 message, we follow the "JSON Canonicalization Scheme" (JSC) defined by [RFC 8785](https://tools.ietf.org/html/rfc8785).
