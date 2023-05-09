@@ -12,7 +12,7 @@ interface Msg {
       // for each tangle this msg belongs to, identified by the tangle's root
       [rootMsgHash: string]: {
         depth: number, // maximum distance (positive integer) from this msg to the root
-        prev: Array<MsgHash>, // list of msg hashes of existing msgs
+        prev: Array<MsgHash>, // list of msg hashes of existing msgs, unique set and ordered alphabetically
       },
     },
     type: string, // alphanumeric string, at least 3 chars, max 100 chars
