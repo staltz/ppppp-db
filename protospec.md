@@ -7,11 +7,11 @@ interface Msg {
   content: any | null, // any object, or null
   metadata: {
     hash: ContentHash, // blake3 hash of the `content` object serialized
-    size: number, // byte size of the `content` object serialized
+    size: number, // byte size (unsigned integer) of the `content` object serialized
     tangles: {
       // for each tangle this msg belongs to, identified by the tangle's root
       [rootMsgHash: string]: {
-        depth: number, // maximum distance from this msg to the root
+        depth: number, // maximum distance (positive integer) from this msg to the root
         prev: Array<MsgHash>, // list of msg hashes of existing msgs
       },
     },
