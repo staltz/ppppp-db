@@ -20,18 +20,21 @@ test('erase', async (t) => {
 
   await peer.db.loaded()
 
+  const group = (await p(peer.db.group.create)(null)).hash
+
   const msgHashes = []
   for (let i = 0; i < 5; i++) {
-    const rec = await p(peer.db.create)({
+    const rec = await p(peer.db.feed.publish)({
+      group,
       type: 'post',
-      content: { text: 'm' + i },
+      data: { text: 'm' + i },
     })
     msgHashes.push(rec.hash)
   }
 
   const before = []
   for (const msg of peer.db.msgs()) {
-    if (msg.content) before.push(msg.content.text)
+    if (msg.data && msg.metadata.group) before.push(msg.data.text)
   }
 
   t.deepEqual(before, ['m0', 'm1', 'm2', 'm3', 'm4'], '5 msgs before the erase')
@@ -40,7 +43,7 @@ test('erase', async (t) => {
 
   const after = []
   for (const msg of peer.db.msgs()) {
-    if (msg.content) after.push(msg.content.text)
+    if (msg.data && msg.metadata.group) after.push(msg.data.text)
   }
 
   t.deepEqual(after, ['m0', 'm1', 'm3', 'm4'], '4 msgs after the erase')

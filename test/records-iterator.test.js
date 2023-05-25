@@ -17,11 +17,13 @@ test('records() iterator', async (t) => {
     .call(null, { keys, path: DIR })
 
   await peer.db.loaded()
+  const group = (await p(peer.db.group.create)(null)).hash
 
   for (let i = 0; i < 6; i++) {
-    await p(peer.db.create)({
+    await p(peer.db.feed.publish)({
+      group,
       type: i % 2 === 0 ? 'post' : 'about',
-      content:
+      data:
         i % 2 === 0
           ? { text: 'hello ' + i }
           : { about: peer.id, name: 'Mr. #' + i },
@@ -30,8 +32,9 @@ test('records() iterator', async (t) => {
 
   let count = 0
   for (const rec of peer.db.records()) {
-    if (!rec.msg.content) continue
-    t.true(rec.misc.size > rec.msg.metadata.size)
+    if (!rec.msg.data) continue
+    if (!rec.msg.metadata.group) continue
+    t.true(rec.misc.size > rec.msg.metadata.dataSize, 'size > dataSize')
     count++
   }
   t.equals(count, 6)

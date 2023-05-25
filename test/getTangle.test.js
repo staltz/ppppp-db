@@ -25,31 +25,36 @@ test('setup', async (t) => {
 
   await peer.db.loaded()
 
-  // Slow down append so that we can create msgs in parallel
+  const group = (await p(peer.db.group.create)(null)).hash
+
+  // Slow down append so that we can trigger msg creation in parallel
   const originalAppend = peer.db._getLog().append
   peer.db._getLog().append = function (...args) {
     setTimeout(originalAppend, 20, ...args)
   }
 
   rootPost = (
-    await p(peer.db.create)({
+    await p(peer.db.feed.publish)({
+      group,
       keys: keysA,
       type: 'comment',
-      content: { text: 'root' },
+      data: { text: 'root' },
     })
   ).hash
 
   const [{ hash: reply1B }, { hash: reply1C }] = await Promise.all([
-    p(peer.db.create)({
+    p(peer.db.feed.publish)({
+      group,
       keys: keysB,
       type: 'comment',
-      content: { text: 'reply 1' },
+      data: { text: 'reply 1B' },
       tangles: [rootPost],
     }),
-    p(peer.db.create)({
+    p(peer.db.feed.publish)({
+      group,
       keys: keysC,
       type: 'comment',
-      content: { text: 'reply 1' },
+      data: { text: 'reply 1C' },
       tangles: [rootPost],
     }),
   ])
@@ -57,25 +62,28 @@ test('setup', async (t) => {
   reply1Hi = reply1B.localeCompare(reply1C) < 0 ? reply1C : reply1B
 
   reply2A = (
-    await p(peer.db.create)({
+    await p(peer.db.feed.publish)({
+      group,
       keys: keysA,
       type: 'comment',
-      content: { text: 'reply 2' },
+      data: { text: 'reply 2' },
       tangles: [rootPost],
     })
   ).hash
 
   const [{ hash: reply3B }, { hash: reply3C }] = await Promise.all([
-    p(peer.db.create)({
+    p(peer.db.feed.publish)({
+      group,
       keys: keysB,
       type: 'comment',
-      content: { text: 'reply 3' },
+      data: { text: 'reply 3B' },
       tangles: [rootPost],
     }),
-    p(peer.db.create)({
+    p(peer.db.feed.publish)({
+      group,
       keys: keysC,
       type: 'comment',
-      content: { text: 'reply 3' },
+      data: { text: 'reply 3C' },
       tangles: [rootPost],
     }),
   ])

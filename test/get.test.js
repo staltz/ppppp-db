@@ -13,6 +13,7 @@ rimraf.sync(DIR)
 
 const keys = generateKeypair('alice')
 let peer
+let group
 let msgHash1
 let msgId1
 test('setup', async (t) => {
@@ -23,9 +24,12 @@ test('setup', async (t) => {
 
   await peer.db.loaded()
 
-  const rec1 = await p(peer.db.create)({
+  group = (await p(peer.db.group.create)(null)).hash
+
+  const rec1 = await p(peer.db.feed.publish)({
+    group,
     type: 'post',
-    content: { text: 'I am 1st post' },
+    data: { text: 'I am 1st post' },
   })
   msgHash1 = FeedV1.getMsgHash(rec1.msg)
   msgId1 = FeedV1.getMsgId(rec1.msg)
@@ -34,13 +38,13 @@ test('setup', async (t) => {
 test('get() supports ppppp URIs', async (t) => {
   const msg = peer.db.get(msgId1)
   t.ok(msg, 'msg exists')
-  t.equals(msg.content.text, 'I am 1st post')
+  t.equals(msg.data.text, 'I am 1st post')
 })
 
 test('get() supports msg hashes', async (t) => {
   const msg = peer.db.get(msgHash1)
   t.ok(msg, 'msg exists')
-  t.equals(msg.content.text, 'I am 1st post')
+  t.equals(msg.data.text, 'I am 1st post')
 })
 
 test('teardown', (t) => {

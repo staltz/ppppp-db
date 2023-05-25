@@ -1,3 +1,30 @@
+# Feed V2
+
+JSON
+
+```typescript
+interface Msg {
+  data: any | null, // any object, or null
+  metadata: {
+    dataHash: ContentHash, // blake3 hash of the `content` object serialized
+    dataSize: number, // byte size (unsigned integer) of the `content` object serialized
+    group: string | null, // blake3 hash of a group tangle root msg, or null
+    groupTips: Array<string> | null, // list of blake3 hashes of group tangle tips, or null
+    tangles: {
+      // for each tangle this msg belongs to, identified by the tangle's root
+      [rootMsgHash: string]: {
+        depth: number, // maximum distance (positive integer) from this msg to the root
+        prev: Array<MsgHash>, // list of msg hashes of existing msgs, unique set and ordered alphabetically
+      },
+    },
+    type: string, // alphanumeric string, at least 3 chars, max 100 chars
+    v: 2, // hard-coded at 2, indicates the version of the feed format
+  },
+  pubkey: Pubkey, // base58 encoded string for the author's public key
+  sig: Signature, // Signs the `metadata` object
+}
+```
+
 # Feed V1
 
 JSON

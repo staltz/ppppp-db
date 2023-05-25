@@ -10,7 +10,7 @@ const { generateKeypair } = require('./util')
 const DIR = path.join(os.tmpdir(), 'ppppp-db-re-open')
 rimraf.sync(DIR)
 
-test('create some msgs, close, re-open', async (t) => {
+test('publish some msgs, close, re-open', async (t) => {
   const keys = generateKeypair('alice')
   const peer = SecretStack({ appKey: caps.shs })
     .use(require('../lib'))
@@ -18,13 +18,15 @@ test('create some msgs, close, re-open', async (t) => {
     .call(null, { keys, path: DIR })
 
   await peer.db.loaded()
+  const group = (await p(peer.db.group.create)(null)).hash
   t.pass('opened db')
 
   const msgHashes = []
   for (let i = 0; i < 6; i++) {
-    const rec = await p(peer.db.create)({
+    const rec = await p(peer.db.feed.publish)({
+      group,
       type: 'post',
-      content: { text: 'hello ' + i },
+      data: { text: 'hello ' + i },
     })
     msgHashes.push(rec.hash)
   }
@@ -46,8 +48,8 @@ test('create some msgs, close, re-open', async (t) => {
 
   const texts = []
   for (const msg of peer2.db.msgs()) {
-    if (!msg.content) continue
-    texts.push(msg.content.text)
+    if (!msg.data || !msg.metadata.group) continue
+    texts.push(msg.data.text)
   }
 
   t.deepEquals(
