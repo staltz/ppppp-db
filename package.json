@@ -16,6 +16,9 @@
     },
     "./feed-v1": {
       "require": "./lib/feed-v1/index.js"
+    },
+    "./msg-v2": {
+      "require": "./lib/msg-v2/index.js"
     }
   },
   "type": "commonjs",
