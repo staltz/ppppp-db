@@ -1,5 +1,7 @@
 # Msg V2
 
+Background: https://github.com/ssbc/ssb2-discussion-forum/issues/24
+
 ## Terminology
 
 - **Msg** = published data that is signed and shareable
