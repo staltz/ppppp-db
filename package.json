@@ -2,7 +2,7 @@
   "name": "ppppp-db",
   "version": "0.0.1",
   "description": "Default ppppp database",
-  "main": "index.js",
+  "main": "lib/index.js",
   "files": [
     "*.js",
     "lib/**/*.js"
