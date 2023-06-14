@@ -1,8 +1,9 @@
-const tape = require('tape')
+const test = require('node:test')
+const assert = require('node:assert')
 const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../../lib/msg-v2')
 
-tape('lipmaa prevs', (t) => {
+test('lipmaa prevs', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const group = MsgV2.getMsgHash(MsgV2.createGroup(keypair, 'MYNONCE'))
   const data = { text: 'Hello world!' }
@@ -24,8 +25,12 @@ tape('lipmaa prevs', (t) => {
   })
   const msgHash1 = MsgV2.getMsgHash(msg1)
   tangle.add(msgHash1, msg1)
-  t.equals(msg1.metadata.tangles[rootHash].depth, 1, 'msg1 depth')
-  t.deepEquals(msg1.metadata.tangles[rootHash].prev, [rootHash], 'msg1 prev')
+  assert.equal(msg1.metadata.tangles[rootHash].depth, 1, 'msg1 depth')
+  assert.deepEqual(
+    msg1.metadata.tangles[rootHash].prev,
+    [rootHash],
+    'msg1 prev'
+  )
 
   const msg2 = MsgV2.create({
     group,
@@ -39,8 +44,12 @@ tape('lipmaa prevs', (t) => {
   })
   const msgHash2 = MsgV2.getMsgHash(msg2)
   tangle.add(msgHash2, msg2)
-  t.equals(msg2.metadata.tangles[rootHash].depth, 2, 'msg2 depth')
-  t.deepEquals(msg2.metadata.tangles[rootHash].prev, [msgHash1], 'msg2 prev')
+  assert.equal(msg2.metadata.tangles[rootHash].depth, 2, 'msg2 depth')
+  assert.deepEqual(
+    msg2.metadata.tangles[rootHash].prev,
+    [msgHash1],
+    'msg2 prev'
+  )
 
   const msg3 = MsgV2.create({
     group,
@@ -54,8 +63,8 @@ tape('lipmaa prevs', (t) => {
   })
   const msgHash3 = MsgV2.getMsgHash(msg3)
   tangle.add(msgHash3, msg3)
-  t.equals(msg3.metadata.tangles[rootHash].depth, 3, 'msg3 depth')
-  t.deepEquals(
+  assert.equal(msg3.metadata.tangles[rootHash].depth, 3, 'msg3 depth')
+  assert.deepEqual(
     msg3.metadata.tangles[rootHash].prev,
     [rootHash, msgHash2].sort(),
     'msg3 prev (has lipmaa!)'
@@ -73,8 +82,12 @@ tape('lipmaa prevs', (t) => {
   })
   const msgHash4 = MsgV2.getMsgHash(msg4)
   tangle.add(msgHash4, msg4)
-  t.equals(msg4.metadata.tangles[rootHash].depth, 4, 'msg4 depth')
-  t.deepEquals(msg4.metadata.tangles[rootHash].prev, [msgHash3], 'msg4 prev')
+  assert.equal(msg4.metadata.tangles[rootHash].depth, 4, 'msg4 depth')
+  assert.deepEqual(
+    msg4.metadata.tangles[rootHash].prev,
+    [msgHash3],
+    'msg4 prev'
+  )
 
   const msg5 = MsgV2.create({
     group,
@@ -88,8 +101,12 @@ tape('lipmaa prevs', (t) => {
   })
   const msgHash5 = MsgV2.getMsgHash(msg5)
   tangle.add(msgHash5, msg5)
-  t.equals(msg5.metadata.tangles[rootHash].depth, 5, 'msg5 depth')
-  t.deepEquals(msg5.metadata.tangles[rootHash].prev, [msgHash4], 'msg5 prev')
+  assert.equal(msg5.metadata.tangles[rootHash].depth, 5, 'msg5 depth')
+  assert.deepEqual(
+    msg5.metadata.tangles[rootHash].prev,
+    [msgHash4],
+    'msg5 prev'
+  )
 
   const msg6 = MsgV2.create({
     group,
@@ -103,8 +120,12 @@ tape('lipmaa prevs', (t) => {
   })
   const msgHash6 = MsgV2.getMsgHash(msg6)
   tangle.add(msgHash6, msg6)
-  t.equals(msg6.metadata.tangles[rootHash].depth, 6, 'msg6 depth')
-  t.deepEquals(msg6.metadata.tangles[rootHash].prev, [msgHash5], 'msg6 prev')
+  assert.equal(msg6.metadata.tangles[rootHash].depth, 6, 'msg6 depth')
+  assert.deepEqual(
+    msg6.metadata.tangles[rootHash].prev,
+    [msgHash5],
+    'msg6 prev'
+  )
 
   const msg7 = MsgV2.create({
     group,
@@ -118,12 +139,10 @@ tape('lipmaa prevs', (t) => {
   })
   const msgHash7 = MsgV2.getMsgHash(msg7)
   tangle.add(msgHash7, msg7)
-  t.equals(msg7.metadata.tangles[rootHash].depth, 7, 'msg7 depth')
-  t.deepEquals(
+  assert.equal(msg7.metadata.tangles[rootHash].depth, 7, 'msg7 depth')
+  assert.deepEqual(
     msg7.metadata.tangles[rootHash].prev,
     [msgHash3, msgHash6].sort(),
     'msg7 prev (has lipmaa!)'
   )
-
-  t.end()
 })

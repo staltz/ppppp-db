@@ -1,10 +1,11 @@
-const test = require('tape')
-const path = require('path')
-const os = require('os')
+const test = require('node:test')
+const assert = require('node:assert')
+const path = require('node:path')
+const os = require('node:os')
+const p = require('node:util').promisify
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
-const p = require('util').promisify
 const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../lib/msg-v2')
 
@@ -39,13 +40,13 @@ test('feed.publish()', async (t) => {
     type: 'post',
     data: { text: 'I am 1st post' },
   })
-  t.equal(rec1.msg.data.text, 'I am 1st post', 'msg1 text correct')
-  t.equal(
+  assert.equal(rec1.msg.data.text, 'I am 1st post', 'msg1 text correct')
+  assert.equal(
     rec1.msg.metadata.tangles[rootHash].depth,
     1,
     'msg1 tangle depth correct'
   )
-  t.deepEquals(
+  assert.deepEqual(
     rec1.msg.metadata.tangles[rootHash].prev,
     [rootHash],
     'msg1 tangle prev correct'
@@ -58,13 +59,13 @@ test('feed.publish()', async (t) => {
     type: 'post',
     data: { text: 'I am 2nd post' },
   })
-  t.equal(rec2.msg.data.text, 'I am 2nd post', 'msg2 text correct')
-  t.equal(
+  assert.equal(rec2.msg.data.text, 'I am 2nd post', 'msg2 text correct')
+  assert.equal(
     rec2.msg.metadata.tangles[rootHash].depth,
     2,
     'msg2 tangle depth correct'
   )
-  t.deepEquals(
+  assert.deepEqual(
     rec2.msg.metadata.tangles[rootHash].prev,
     [msgHash1],
     'msg2 tangle prev correct'
@@ -96,21 +97,21 @@ test('add() forked then feed.publish() merged', async (t) => {
     type: 'post',
     data: { text: 'I am 4th post' },
   })
-  t.ok(rec4, '4th post published')
-  t.equals(
+  assert.ok(rec4, '4th post published')
+  assert.equal(
     rec4.msg.metadata.tangles[rootHash].prev.length,
     3,
     'msg4 prev has 3' // is root, msg2 and msg3'
   )
-  t.true(
+  assert.ok(
     rec4.msg.metadata.tangles[rootHash].prev.includes(rootHash),
     'msg4 prev has root'
   )
-  t.true(
+  assert.ok(
     rec4.msg.metadata.tangles[rootHash].prev.includes(msgHash2),
     'msg4 prev has msg2'
   )
-  t.true(
+  assert.ok(
     rec4.msg.metadata.tangles[rootHash].prev.includes(msgHash3),
     'msg4 prev has msg3'
   )
@@ -123,11 +124,11 @@ test('feed.publish() encrypted with box', async (t) => {
     data: { text: 'I am chewing food', recps: [keypair.public] },
     encryptionFormat: 'box',
   })
-  t.equal(typeof recEncrypted.msg.data, 'string')
-  t.true(recEncrypted.msg.data.endsWith('.box'), '.box')
+  assert.equal(typeof recEncrypted.msg.data, 'string')
+  assert.ok(recEncrypted.msg.data.endsWith('.box'), '.box')
 
   const msgDecrypted = peer.db.get(recEncrypted.hash)
-  t.equals(msgDecrypted.data.text, 'I am chewing food')
+  assert.equal(msgDecrypted.data.text, 'I am chewing food')
 })
 
 test('feed.publish() with tangles', async (t) => {
@@ -136,7 +137,7 @@ test('feed.publish() with tangles', async (t) => {
     type: 'comment',
     data: { text: 'I am root' },
   })
-  t.equal(recA.msg.data.text, 'I am root', 'root text correct')
+  assert.equal(recA.msg.data.text, 'I am root', 'root text correct')
 
   const recB = await p(peer.db.feed.publish)({
     group,
@@ -145,8 +146,8 @@ test('feed.publish() with tangles', async (t) => {
     tangles: [recA.hash],
     keypair: bobKeypair,
   })
-  t.equal(recB.msg.metadata.tangles[recA.hash].depth, 1, 'tangle depth 1')
-  t.deepEquals(
+  assert.equal(recB.msg.metadata.tangles[recA.hash].depth, 1, 'tangle depth 1')
+  assert.deepEqual(
     recB.msg.metadata.tangles[recA.hash].prev,
     [recA.hash],
     'tangle prev'

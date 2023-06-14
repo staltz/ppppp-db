@@ -1,10 +1,11 @@
-const test = require('tape')
-const path = require('path')
-const os = require('os')
+const test = require('node:test')
+const assert = require('node:assert')
+const path = require('node:path')
+const os = require('node:os')
+const p = require('node:util').promisify
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
-const p = require('util').promisify
 const Keypair = require('ppppp-keypair')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-re-open')
@@ -19,7 +20,7 @@ test('publish some msgs, close, re-open', async (t) => {
 
   await peer.db.loaded()
   const group = (await p(peer.db.group.create)(null)).hash
-  t.pass('opened db')
+  // t.pass('opened db')
 
   const msgHashes = []
   for (let i = 0; i < 6; i++) {
@@ -30,19 +31,19 @@ test('publish some msgs, close, re-open', async (t) => {
     })
     msgHashes.push(rec.hash)
   }
-  t.pass('created some msgs')
+  // t.pass('created some msgs')
 
   await p(peer.db.del)(msgHashes[2])
-  t.pass('deleted the 3rd msg')
+  // t.pass('deleted the 3rd msg')
 
   await p(peer.close)(true)
-  t.pass('closed')
+  // t.pass('closed')
 
   const peer2 = SecretStack({ appKey: caps.shs })
     .use(require('../lib'))
     .use(require('ssb-box'))
     .call(null, { keypair, path: DIR })
-  t.pass('re-opened')
+  // t.pass('re-opened')
 
   await peer2.db.loaded()
 
@@ -52,7 +53,7 @@ test('publish some msgs, close, re-open', async (t) => {
     texts.push(msg.data.text)
   }
 
-  t.deepEquals(
+  assert.deepEqual(
     texts,
     ['hello 0', 'hello 1', 'hello 3', 'hello 4', 'hello 5'],
     'queried posts'

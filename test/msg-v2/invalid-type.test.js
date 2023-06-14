@@ -1,11 +1,12 @@
-const tape = require('tape')
+const test = require('node:test')
+const assert = require('node:assert')
 const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../../lib/msg-v2')
 
-tape('invalid type not a string', (t) => {
+test('invalid type not a string', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  t.throws(
+  assert.throws(
     () => {
       MsgV2.create({
         keypair,
@@ -16,13 +17,12 @@ tape('invalid type not a string', (t) => {
     /invalid type/,
     'not a string'
   )
-  t.end()
 })
 
-tape('invalid type with "/" character', (t) => {
+test('invalid type with "/" character', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  t.throws(
+  assert.throws(
     () => {
       MsgV2.create({
         keypair,
@@ -33,13 +33,12 @@ tape('invalid type with "/" character', (t) => {
     /invalid type/,
     'invalid type if contains /'
   )
-  t.end()
 })
 
-tape('invalid type with "*" character', (t) => {
+test('invalid type with "*" character', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  t.throws(
+  assert.throws(
     () => {
       MsgV2.create({
         keypair,
@@ -50,13 +49,12 @@ tape('invalid type with "*" character', (t) => {
     /invalid type/,
     'invalid type if contains *'
   )
-  t.end()
 })
 
-tape('invalid type too short', (t) => {
+test('invalid type too short', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  t.throws(
+  assert.throws(
     () => {
       MsgV2.create({
         keypair,
@@ -67,13 +65,12 @@ tape('invalid type too short', (t) => {
     /shorter than 3/,
     'invalid type if too short'
   )
-  t.end()
 })
 
-tape('invalid type too long', (t) => {
+test('invalid type too long', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  t.throws(
+  assert.throws(
     () => {
       MsgV2.create({
         keypair,
@@ -84,6 +81,4 @@ tape('invalid type too long', (t) => {
     /100\+ characters long/,
     'invalid type if too long'
   )
-
-  t.end()
 })

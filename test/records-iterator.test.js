@@ -1,10 +1,11 @@
-const test = require('tape')
-const path = require('path')
-const os = require('os')
+const test = require('node:test')
+const assert = require('node:assert')
+const path = require('node:path')
+const os = require('node:os')
+const p = require('node:util').promisify
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
-const p = require('util').promisify
 const Keypair = require('ppppp-keypair')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-records-iter')
@@ -34,10 +35,10 @@ test('records() iterator', async (t) => {
   for (const rec of peer.db.records()) {
     if (!rec.msg.data) continue
     if (!rec.msg.metadata.group) continue
-    t.true(rec.misc.size > rec.msg.metadata.dataSize, 'size > dataSize')
+    assert.ok(rec.misc.size > rec.msg.metadata.dataSize, 'size > dataSize')
     count++
   }
-  t.equals(count, 6)
+  assert.equal(count, 6)
 
   await p(peer.close)(true)
 })

@@ -1,13 +1,14 @@
-const test = require('tape')
-const path = require('path')
-const os = require('os')
+const test = require('node:test')
+const assert = require('node:assert')
+const path = require('node:path')
+const os = require('node:os')
+const p = require('node:util').promisify
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const AAOL = require('async-append-only-log')
 const push = require('push-stream')
 const caps = require('ssb-caps')
 const Keypair = require('ppppp-keypair')
-const p = require('util').promisify
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-erase')
 rimraf.sync(DIR)
@@ -37,7 +38,11 @@ test('erase', async (t) => {
     if (msg.data && msg.metadata.group) before.push(msg.data.text)
   }
 
-  t.deepEqual(before, ['m0', 'm1', 'm2', 'm3', 'm4'], '5 msgs before the erase')
+  assert.deepEqual(
+    before,
+    ['m0', 'm1', 'm2', 'm3', 'm4'],
+    '5 msgs before the erase'
+  )
 
   await p(peer.db.erase)(msgHashes[2])
 
@@ -46,7 +51,7 @@ test('erase', async (t) => {
     if (msg.data && msg.metadata.group) after.push(msg.data.text)
   }
 
-  t.deepEqual(after, ['m0', 'm1', 'm3', 'm4'], '4 msgs after the erase')
+  assert.deepEqual(after, ['m0', 'm1', 'm3', 'm4'], '4 msgs after the erase')
 
   const after2 = []
   for (const msg of peer.db.msgs()) {
@@ -55,7 +60,7 @@ test('erase', async (t) => {
     }
   }
 
-  t.deepEqual(after2, [1, 2, 3, 4, 5], '5 metadata exists after the erase')
+  assert.deepEqual(after2, [1, 2, 3, 4, 5], '5 metadata exists after the erase')
 
   await p(peer.close)(true)
 

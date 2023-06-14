@@ -1,4 +1,5 @@
-const tape = require('tape')
+const test = require('node:test')
+const assert = require('node:assert')
 const base58 = require('bs58')
 const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../../lib/msg-v2')
@@ -7,7 +8,7 @@ const keypair = Keypair.generate('ed25519', 'alice')
 const group = MsgV2.getMsgHash(MsgV2.createGroup(keypair, 'MYNONCE'))
 const pubkeys = new Set([keypair.public])
 
-tape('invalid msg with non-array prev', (t) => {
+test('invalid msg with non-array prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   const rootMsg = MsgV2.createRoot(group, 'post', keypair)
@@ -30,16 +31,15 @@ tape('invalid msg with non-array prev', (t) => {
   const msgHash = MsgV2.getMsgHash(msg)
 
   const err = MsgV2.validate(msg, tangle, pubkeys, msgHash, rootHash)
-  t.ok(err, 'invalid 2nd msg throws')
-  t.match(
+  assert.ok(err, 'invalid 2nd msg throws')
+  assert.match(
     err,
     /prev ".*" should have been an array/,
     'invalid 2nd msg description'
   )
-  t.end()
 })
 
-tape('invalid msg with bad prev', (t) => {
+test('invalid msg with bad prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   const rootMsg = MsgV2.createRoot(group, 'post', keypair)
@@ -76,16 +76,15 @@ tape('invalid msg with bad prev', (t) => {
   const msgHash2 = MsgV2.getMsgHash(msg2)
 
   const err = MsgV2.validate(msg2, tangle, pubkeys, msgHash2, rootHash)
-  t.ok(err, 'invalid 2nd msg throws')
-  t.match(
+  assert.ok(err, 'invalid 2nd msg throws')
+  assert.match(
     err,
     /prev item ".*" should have been a string/,
     'invalid 2nd msg description'
   )
-  t.end()
 })
 
-tape('invalid msg with URI in prev', (t) => {
+test('invalid msg with URI in prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   const rootMsg = MsgV2.createRoot(group, 'post', keypair)
@@ -124,12 +123,11 @@ tape('invalid msg with URI in prev', (t) => {
   msg2.metadata.tangles[rootHash].prev = [fakeMsgKey1]
 
   const err = MsgV2.validate(msg2, tangle, pubkeys, msgHash2, rootHash)
-  t.ok(err, 'invalid 2nd msg throws')
-  t.match(err, /prev item ".*" is a URI/, 'invalid 2nd msg description')
-  t.end()
+  assert.ok(err, 'invalid 2nd msg throws')
+  assert.match(err, /prev item ".*" is a URI/, 'invalid 2nd msg description')
 })
 
-tape('invalid msg with unknown prev', (t) => {
+test('invalid msg with unknown prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   const rootMsg = MsgV2.createRoot(group, 'post', keypair)
@@ -181,12 +179,11 @@ tape('invalid msg with unknown prev', (t) => {
   const msgHash2 = MsgV2.getMsgHash(msg2)
 
   const err = MsgV2.validate(msg2, tangle, pubkeys, msgHash2, rootHash)
-  t.ok(err, 'invalid 2nd msg throws')
-  t.match(err, /all prev are locally unknown/, 'invalid 2nd msg description')
-  t.end()
+  assert.ok(err, 'invalid 2nd msg throws')
+  assert.match(err, /all prev are locally unknown/, 'invalid 2nd msg description')
 })
 
-tape('invalid feed msg with a different pubkey', (t) => {
+test('invalid feed msg with a different pubkey', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
 
@@ -210,15 +207,15 @@ tape('invalid feed msg with a different pubkey', (t) => {
   const msgHash = MsgV2.getMsgHash(msg)
 
   const err = MsgV2.validate(msg, feedTangle, pubkeys, msgHash, rootHash)
-  t.match(
+  assert.ok(err, 'invalid msg throws')
+  assert.match(
     err,
     /pubkey ".*" should have been one of ".*" from the group ".*"/,
     'invalid msg'
   )
-  t.end()
 })
 
-tape('invalid feed msg with a different type', (t) => {
+test('invalid feed msg with a different type', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
 
   const rootMsg = MsgV2.createRoot(group, 'post', keypair)
@@ -239,15 +236,15 @@ tape('invalid feed msg with a different type', (t) => {
   const msgHash = MsgV2.getMsgHash(msg)
 
   const err = MsgV2.validate(msg, feedTangle, pubkeys, msgHash, rootHash)
-  t.match(
+  assert.ok(err, 'invalid msg throws')
+  assert.match(
     err,
     /type "comment" should have been feed type "post"/,
     'invalid feed msg'
   )
-  t.end()
 })
 
-tape('invalid feed msg with non-alphabetical prev', (t) => {
+test('invalid feed msg with non-alphabetical prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   const rootMsg = MsgV2.createRoot(group, 'post', keypair)
@@ -304,16 +301,15 @@ tape('invalid feed msg with non-alphabetical prev', (t) => {
   msg3.metadata.tangles[rootHash].prev = prevHashes
 
   const err = MsgV2.validate(msg3, tangle, pubkeys, msgHash3, rootHash)
-  t.ok(err, 'invalid 3rd msg throws')
-  t.match(
+  assert.ok(err, 'invalid 3rd msg throws')
+  assert.match(
     err,
     /prev ".*" should have been alphabetically sorted/,
     'invalid error message'
   )
-  t.end()
 })
 
-tape('invalid feed msg with duplicate prev', (t) => {
+test('invalid feed msg with duplicate prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   const rootMsg = MsgV2.createRoot(group, 'post', keypair)
@@ -338,7 +334,6 @@ tape('invalid feed msg with duplicate prev', (t) => {
   msg1.metadata.tangles[rootHash].prev = [prevHash, prevHash]
 
   const err = MsgV2.validate(msg1, tangle, pubkeys, msgHash1, rootHash)
-  t.ok(err, 'invalid 1st msg throws')
-  t.match(err, /prev ".*" contains duplicates/, 'invalid error message')
-  t.end()
+  assert.ok(err, 'invalid 1st msg throws')
+  assert.match(err, /prev ".*" contains duplicates/, 'invalid error message')
 })

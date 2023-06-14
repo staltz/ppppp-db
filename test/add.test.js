@@ -1,7 +1,8 @@
-const test = require('tape')
-const path = require('path')
-const os = require('os')
-const p = require('util').promisify
+const test = require('node:test')
+const assert = require('node:assert')
+const path = require('node:path')
+const os = require('node:os')
+const p = require('node:util').promisify
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
@@ -29,7 +30,7 @@ test('add()', async (t) => {
   const rootHash = MsgV2.getMsgHash(rootMsg)
 
   const recRoot = await p(peer.db.add)(rootMsg, rootHash)
-  t.equals(recRoot.msg.metadata.dataSize, 0, 'root msg added')
+  assert.equal(recRoot.msg.metadata.dataSize, 0, 'root msg added')
   const tangle = new MsgV2.Tangle(rootHash)
   tangle.add(recRoot.hash, recRoot.msg)
 
@@ -45,7 +46,7 @@ test('add()', async (t) => {
   })
 
   const rec = await p(peer.db.add)(inputMsg, rootHash)
-  t.equal(rec.msg.data.text, 'This is the first post!')
+  assert.equal(rec.msg.data.text, 'This is the first post!')
 
   await p(peer.close)(true)
 })

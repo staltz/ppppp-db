@@ -1,10 +1,11 @@
-const test = require('tape')
-const path = require('path')
-const os = require('os')
+const test = require('node:test')
+const assert = require('node:assert')
+const path = require('node:path')
+const os = require('node:os')
+const p = require('node:util').promisify
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
-const p = require('util').promisify
 const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../lib/msg-v2')
 
@@ -37,14 +38,14 @@ test('setup', async (t) => {
 
 test('get() supports ppppp URIs', async (t) => {
   const msg = peer.db.get(msgId1)
-  t.ok(msg, 'msg exists')
-  t.equals(msg.data.text, 'I am 1st post')
+  assert.ok(msg, 'msg exists')
+  assert.equal(msg.data.text, 'I am 1st post')
 })
 
 test('get() supports msg hashes', async (t) => {
   const msg = peer.db.get(msgHash1)
-  t.ok(msg, 'msg exists')
-  t.equals(msg.data.text, 'I am 1st post')
+  assert.ok(msg, 'msg exists')
+  assert.equal(msg.data.text, 'I am 1st post')
 })
 
 test('teardown', (t) => {

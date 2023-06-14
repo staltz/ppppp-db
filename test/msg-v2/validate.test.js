@@ -1,8 +1,9 @@
-const tape = require('tape')
+const test = require('node:test')
+const assert = require('node:assert')
 const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../../lib/msg-v2')
 
-tape('validate root msg', (t) => {
+test('validate root msg', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const group = MsgV2.getMsgHash(MsgV2.createGroup(keypair, 'alice'))
   const pubkeys = new Set([keypair.public])
@@ -12,12 +13,10 @@ tape('validate root msg', (t) => {
   const tangle = new MsgV2.Tangle(rootHash)
 
   const err = MsgV2.validate(rootMsg, tangle, pubkeys, rootHash, rootHash)
-  if (err) console.log(err)
-  t.error(err, 'valid root msg')
-  t.end()
+  assert.ifError(err, 'valid root msg')
 })
 
-tape('validate group tangle', (t) => {
+test('validate group tangle', (t) => {
   const pubkeys = new Set()
   const keypair1 = Keypair.generate('ed25519', 'alice')
   pubkeys.add(keypair1.public)
@@ -29,8 +28,7 @@ tape('validate group tangle', (t) => {
   const tangle = new MsgV2.Tangle(group)
 
   let err = MsgV2.validate(groupMsg0, tangle, pubkeys, groupMsg0Hash, group)
-  if (err) console.log(err)
-  t.error(err, 'valid group root msg')
+  assert.ifError(err, 'valid group root msg')
 
   tangle.add(group, groupMsg0)
 
@@ -49,12 +47,10 @@ tape('validate group tangle', (t) => {
   const groupMsg1Hash = MsgV2.getMsgHash(groupMsg1)
 
   err = MsgV2.validate(groupMsg1, tangle, pubkeys, groupMsg1Hash, group)
-  if (err) console.log(err)
-  t.error(err, 'valid group msg')
-  t.end()
+  assert.ifError(err, 'valid group msg')
 })
 
-tape('validate 2nd msg with existing root', (t) => {
+test('validate 2nd msg with existing root', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const group = MsgV2.getMsgHash(MsgV2.createGroup(keypair, 'alice'))
   const pubkeys = new Set([keypair.public])
@@ -78,12 +74,10 @@ tape('validate 2nd msg with existing root', (t) => {
   tangle.add(msgHash1, msg1)
 
   const err = MsgV2.validate(msg1, tangle, pubkeys, msgHash1, rootHash)
-  if (err) console.log(err)
-  t.error(err, 'valid 2nd msg')
-  t.end()
+  assert.ifError(err, 'valid 2nd msg')
 })
 
-tape('validate 2nd forked msg', (t) => {
+test('validate 2nd forked msg', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const group = MsgV2.getMsgHash(MsgV2.createGroup(keypair, 'alice'))
   const pubkeys = new Set([keypair.public])
@@ -120,7 +114,5 @@ tape('validate 2nd forked msg', (t) => {
   tangle.add(msgHash1A, msg1A)
   tangle.add(msgHash1B, msg1B)
   const err = MsgV2.validate(msg1B, tangle, pubkeys, msgHash1B, rootHash)
-  if (err) console.log(err)
-  t.error(err, 'valid 2nd forked msg')
-  t.end()
+  assert.ifError(err, 'valid 2nd forked msg')
 })

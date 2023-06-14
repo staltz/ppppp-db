@@ -1,10 +1,11 @@
-const test = require('tape')
-const path = require('path')
-const os = require('os')
+const test = require('node:test')
+const assert = require('node:assert')
+const path = require('node:path')
+const os = require('node:os')
+const p = require('node:util').promisify
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
-const p = require('util').promisify
 const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../lib/msg-v2')
 
@@ -33,7 +34,7 @@ test('setup', async (t) => {
 
 test('feed.getId()', async (t) => {
   const id = peer.db.feed.getId(group, 'post')
-  t.equals(id, rootHash, 'feed.getId() returns root hash')
+  assert.equal(id, rootHash, 'feed.getId() returns root hash')
 })
 
 test('teardown', (t) => {

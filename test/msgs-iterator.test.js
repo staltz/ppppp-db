@@ -1,10 +1,11 @@
-const test = require('tape')
-const path = require('path')
-const os = require('os')
+const test = require('node:test')
+const assert = require('node:assert')
+const path = require('node:path')
+const os = require('node:os')
+const p = require('node:util').promisify
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
-const p = require('util').promisify
 const Keypair = require('ppppp-keypair')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-msgs-iter')
@@ -39,8 +40,8 @@ test('msgs() iterator', async (t) => {
     else if (msg.metadata.type === 'about') abouts.push(msg.data.name)
   }
 
-  t.deepEqual(posts, ['hello 0', 'hello 2', 'hello 4'], 'queried posts')
-  t.deepEqual(abouts, ['Mr. #1', 'Mr. #3', 'Mr. #5'], 'queried abouts')
+  assert.deepEqual(posts, ['hello 0', 'hello 2', 'hello 4'], 'queried posts')
+  assert.deepEqual(abouts, ['Mr. #1', 'Mr. #3', 'Mr. #5'], 'queried abouts')
 
   await p(peer.close)(true)
 })

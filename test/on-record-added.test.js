@@ -1,10 +1,11 @@
-const test = require('tape')
-const path = require('path')
+const test = require('node:test')
+const assert = require('node:assert')
+const path = require('node:path')
+const os = require('node:os')
+const p = require('node:util').promisify
 const rimraf = require('rimraf')
-const os = require('os')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
-const p = require('util').promisify
 const Keypair = require('ppppp-keypair')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-on-msg-added')
@@ -30,15 +31,15 @@ test('onRecordAdded', async (t) => {
     type: 'post',
     data: { text: 'I am hungry' },
   })
-  t.equal(rec1.msg.data.text, 'I am hungry', 'msg1 text correct')
+  assert.equal(rec1.msg.data.text, 'I am hungry', 'msg1 text correct')
 
   await p(setTimeout)(500)
 
-  t.equal(listened.length, 3)
-  t.equals(listened[0].msg.metadata.group, null, 'group root')
-  t.equals(listened[1].msg.data, null, 'root')
-  t.equals(listened[1].msg.metadata.dataSize, 0, 'root')
-  t.deepEquals(listened[2], rec1, 'actual record')
+  assert.equal(listened.length, 3)
+  assert.equal(listened[0].msg.metadata.group, null, 'group root')
+  assert.equal(listened[1].msg.data, null, 'root')
+  assert.equal(listened[1].msg.metadata.dataSize, 0, 'root')
+  assert.deepEqual(listened[2], rec1, 'actual record')
 
   remove()
   await p(peer.close)(true)

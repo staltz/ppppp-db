@@ -1,8 +1,9 @@
-const tape = require('tape')
+const test = require('node:test')
+const assert = require('node:assert')
 const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../../lib/msg-v2')
 
-tape('simple multi-author tangle', (t) => {
+test('simple multi-author tangle', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
   const groupA = MsgV2.getMsgHash(MsgV2.createGroup(keypairA, 'alice'))
@@ -29,7 +30,7 @@ tape('simple multi-author tangle', (t) => {
     keypair: keypairA,
   })
   const msgHash1 = MsgV2.getMsgHash(msg1)
-  t.deepEquals(
+  assert.deepEqual(
     Object.keys(msg1.metadata.tangles),
     [rootHashA],
     'msg1 has only feed tangle'
@@ -50,29 +51,35 @@ tape('simple multi-author tangle', (t) => {
     keypair: keypairB,
   })
 
-  t.deepEquals(
+  assert.deepEqual(
     Object.keys(msg2.metadata.tangles).sort(),
     [rootHashB, msgHash1].sort(),
     'msg2 has feed tangle and misc tangle'
   )
-  t.equal(msg2.metadata.tangles[rootHashB].depth, 1, 'msg2 feed tangle depth')
-  t.deepEquals(
+  assert.equal(
+    msg2.metadata.tangles[rootHashB].depth,
+    1,
+    'msg2 feed tangle depth'
+  )
+  assert.deepEqual(
     msg2.metadata.tangles[rootHashB].prev,
     [rootHashB],
     'msg2 feed tangle prev'
   )
 
-  t.equal(msg2.metadata.tangles[msgHash1].depth, 1, 'msg2 has tangle depth 1')
-  t.deepEquals(
+  assert.equal(
+    msg2.metadata.tangles[msgHash1].depth,
+    1,
+    'msg2 has tangle depth 1'
+  )
+  assert.deepEqual(
     msg2.metadata.tangles[msgHash1].prev,
     [msgHash1],
     'msg2 has tangle prev'
   )
-
-  t.end()
 })
 
-tape('lipmaa in multi-author tangle', (t) => {
+test('lipmaa in multi-author tangle', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
   const groupA = MsgV2.getMsgHash(MsgV2.createGroup(keypairA, 'alice'))
@@ -105,7 +112,7 @@ tape('lipmaa in multi-author tangle', (t) => {
   const tangleThread = new MsgV2.Tangle(msgHash1)
   tangleThread.add(msgHash1, msg1)
 
-  t.deepEquals(
+  assert.deepEqual(
     Object.keys(msg1.metadata.tangles),
     [rootHashA],
     'A:msg1 has only feed tangle'
@@ -126,7 +133,7 @@ tape('lipmaa in multi-author tangle', (t) => {
   tangleB.add(msgHash2, msg2)
   tangleThread.add(msgHash2, msg2)
 
-  t.deepEquals(
+  assert.deepEqual(
     msg2.metadata.tangles[msgHash1].prev,
     [msgHash1],
     'B:msg2 points to A:msg1'
@@ -147,7 +154,7 @@ tape('lipmaa in multi-author tangle', (t) => {
   tangleB.add(msgHash3, msg3)
   tangleThread.add(msgHash3, msg3)
 
-  t.deepEquals(
+  assert.deepEqual(
     msg3.metadata.tangles[msgHash1].prev,
     [msgHash2],
     'B:msg3 points to B:msg2'
@@ -168,11 +175,9 @@ tape('lipmaa in multi-author tangle', (t) => {
   tangleB.add(msgHash4, msg4)
   tangleThread.add(msgHash4, msg4)
 
-  t.deepEquals(
+  assert.deepEqual(
     msg4.metadata.tangles[msgHash1].prev,
     [msgHash1, msgHash3].sort(),
     'A:msg4 points to A:msg1,B:msg3'
   )
-
-  t.end()
 })

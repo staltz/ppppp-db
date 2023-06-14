@@ -1,13 +1,14 @@
-const test = require('tape')
-const path = require('path')
-const os = require('os')
+const test = require('node:test')
+const assert = require('node:assert')
+const path = require('node:path')
+const os = require('node:os')
+const p = require('node:util').promisify
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const AAOL = require('async-append-only-log')
 const push = require('push-stream')
 const caps = require('ssb-caps')
 const Keypair = require('ppppp-keypair')
-const p = require('util').promisify
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-del')
 rimraf.sync(DIR)
@@ -37,7 +38,7 @@ test('del', async (t) => {
     if (msg.data && msg.metadata.group) before.push(msg.data.text)
   }
 
-  t.deepEqual(before, ['m0', 'm1', 'm2', 'm3', 'm4'], 'msgs before the delete')
+  assert.deepEqual(before, ['m0', 'm1', 'm2', 'm3', 'm4'], 'msgs before the delete')
 
   await p(peer.db.del)(msgHashes[2])
 
@@ -46,7 +47,7 @@ test('del', async (t) => {
     if (msg.data && msg.metadata.group) after.push(msg.data.text)
   }
 
-  t.deepEqual(after, ['m0', 'm1', 'm3', 'm4'], 'msgs after the delete')
+  assert.deepEqual(after, ['m0', 'm1', 'm3', 'm4'], 'msgs after the delete')
 
   await p(peer.close)(true)
 
@@ -80,7 +81,7 @@ test('del', async (t) => {
     )
   })
 
-  t.deepEqual(
+  assert.deepEqual(
     persistedMsgs
       .filter((msg) => msg.data && msg.metadata.group)
       .map((msg) => msg.data.text),

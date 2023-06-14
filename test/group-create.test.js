@@ -1,10 +1,11 @@
-const test = require('tape')
-const path = require('path')
-const os = require('os')
+const test = require('node:test')
+const assert = require('node:assert')
+const path = require('node:path')
+const os = require('node:os')
+const p = require('node:util').promisify
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
-const p = require('util').promisify
 const Keypair = require('ppppp-keypair')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-group-create')
@@ -19,14 +20,14 @@ test('group.create() without args', async (t) => {
 
   await peer.db.loaded()
   const groupRec0 = await p(peer.db.group.create)({})
-  t.ok(groupRec0, 'groupRec0 exists')
+  assert.ok(groupRec0, 'groupRec0 exists')
   const { hash, msg } = groupRec0
-  t.ok(hash, 'hash exists')
-  t.equals(msg.data.add, keypair.public, 'msg.data.add')
-  t.equals(msg.metadata.group, null, 'msg.metadata.group')
-  t.equals(msg.metadata.groupTips, null, 'msg.metadata.groupTips')
-  t.deepEquals(Object.keys(msg.metadata.tangles), [], 'msg.metadata.tangles')
-  t.equals(msg.pubkey, keypair.public, 'msg.pubkey')
+  assert.ok(hash, 'hash exists')
+  assert.equal(msg.data.add, keypair.public, 'msg.data.add')
+  assert.equal(msg.metadata.group, null, 'msg.metadata.group')
+  assert.equal(msg.metadata.groupTips, null, 'msg.metadata.groupTips')
+  assert.deepEqual(Object.keys(msg.metadata.tangles), [], 'msg.metadata.tangles')
+  assert.equal(msg.pubkey, keypair.public, 'msg.pubkey')
 
   await p(peer.close)()
 })
@@ -41,14 +42,14 @@ test('group.create() with "keypair" arg', async (t) => {
 
   await peer.db.loaded()
   const groupRec0 = await p(peer.db.group.create)({ keypair })
-  t.ok(groupRec0, 'groupRec0 exists')
+  assert.ok(groupRec0, 'groupRec0 exists')
   const { hash, msg } = groupRec0
-  t.ok(hash, 'hash exists')
-  t.equals(msg.data.add, keypair.public, 'msg.data.add')
-  t.equals(msg.metadata.group, null, 'msg.metadata.group')
-  t.equals(msg.metadata.groupTips, null, 'msg.metadata.groupTips')
-  t.deepEquals(Object.keys(msg.metadata.tangles), [], 'msg.metadata.tangles')
-  t.equals(msg.pubkey, keypair.public, 'msg.pubkey')
+  assert.ok(hash, 'hash exists')
+  assert.equal(msg.data.add, keypair.public, 'msg.data.add')
+  assert.equal(msg.metadata.group, null, 'msg.metadata.group')
+  assert.equal(msg.metadata.groupTips, null, 'msg.metadata.groupTips')
+  assert.deepEqual(Object.keys(msg.metadata.tangles), [], 'msg.metadata.tangles')
+  assert.equal(msg.pubkey, keypair.public, 'msg.pubkey')
 
   await p(peer.close)()
 })

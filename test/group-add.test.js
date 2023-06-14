@@ -1,10 +1,11 @@
-const test = require('tape')
-const path = require('path')
-const os = require('os')
+const test = require('node:test')
+const assert = require('node:assert')
+const path = require('node:path')
+const p = require('node:util').promisify
+const os = require('node:os')
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
-const p = require('util').promisify
 const Keypair = require('ppppp-keypair')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-group-add')
@@ -24,18 +25,18 @@ test('group.add()', async (t) => {
   const group = groupRec0.hash
 
   const groupRec1 = await p(peer.db.group.add)({ group, keypair: keypair2 })
-  t.ok(groupRec1, 'groupRec1 exists')
+  assert.ok(groupRec1, 'groupRec1 exists')
   const { hash, msg } = groupRec1
-  t.ok(hash, 'hash exists')
-  t.equals(msg.data.add, keypair2.public, 'msg.data.add NEW KEY')
-  t.equals(msg.metadata.group, null, 'msg.metadata.group')
-  t.equals(msg.metadata.groupTips, null, 'msg.metadata.groupTips')
-  t.deepEquals(
+  assert.ok(hash, 'hash exists')
+  assert.equal(msg.data.add, keypair2.public, 'msg.data.add NEW KEY')
+  assert.equal(msg.metadata.group, null, 'msg.metadata.group')
+  assert.equal(msg.metadata.groupTips, null, 'msg.metadata.groupTips')
+  assert.deepEqual(
     msg.metadata.tangles,
     { [group]: { depth: 1, prev: [group] } },
     'msg.metadata.tangles'
   )
-  t.equals(msg.pubkey, keypair1.public, 'msg.pubkey OLD KEY')
+  assert.equal(msg.pubkey, keypair1.public, 'msg.pubkey OLD KEY')
 
   await p(peer.close)()
 })
@@ -63,16 +64,16 @@ test('publish with a key in the group', async (t) => {
     data: { text: 'hello' },
     keypair: keypair2,
   })
-  t.equal(postRec.msg.data.text, 'hello', 'post text correct')
+  assert.equal(postRec.msg.data.text, 'hello', 'post text correct')
   const postsId = peer.db.feed.getId(group, 'post')
-  t.ok(postsId, 'postsId exists')
+  assert.ok(postsId, 'postsId exists')
 
   const recs = [...peer.db.records()]
-  t.equals(recs.length, 4, '4 records')
+  assert.equal(recs.length, 4, '4 records')
   const [_groupRec0, _groupRec1, postsRoot, _post] = recs
-  t.deepEquals(_groupRec0.msg, groupRec0.msg, 'groupMsg0')
-  t.deepEquals(_groupRec1.msg, groupRec1.msg, 'groupMsg1')
-  t.deepEquals(postsRoot.msg.metadata, {
+  assert.deepEqual(_groupRec0.msg, groupRec0.msg, 'groupMsg0')
+  assert.deepEqual(_groupRec1.msg, groupRec1.msg, 'groupMsg1')
+  assert.deepEqual(postsRoot.msg.metadata, {
     dataHash: null,
     dataSize: 0,
     group,
@@ -81,7 +82,7 @@ test('publish with a key in the group', async (t) => {
     type: 'post',
     v: 2,
   }, 'postsRoot')
-  t.deepEquals(_post.msg, postRec.msg, 'postMsg')
+  assert.deepEqual(_post.msg, postRec.msg, 'postMsg')
 
   await p(peer.close)()
 
@@ -100,7 +101,7 @@ test('publish with a key in the group', async (t) => {
   await p(carol.db.add)(groupRec1.msg, group)
   await p(carol.db.add)(postsRoot.msg, postsId)
   await p(carol.db.add)(postRec.msg, postsId)
-  t.pass('carol added all messages successfully')
+  // t.pass('carol added all messages successfully')
 
   await p(carol.close)()
 })
