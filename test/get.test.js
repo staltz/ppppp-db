@@ -5,7 +5,7 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const p = require('util').promisify
-const FeedV1 = require('../lib/feed-v1')
+const MsgV2 = require('../lib/msg-v2')
 const { generateKeypair } = require('./util')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-get')
@@ -31,8 +31,8 @@ test('setup', async (t) => {
     type: 'post',
     data: { text: 'I am 1st post' },
   })
-  msgHash1 = FeedV1.getMsgHash(rec1.msg)
-  msgId1 = FeedV1.getMsgId(rec1.msg)
+  msgHash1 = MsgV2.getMsgHash(rec1.msg)
+  msgId1 = MsgV2.getMsgId(rec1.msg)
 })
 
 test('get() supports ppppp URIs', async (t) => {
