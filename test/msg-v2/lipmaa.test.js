@@ -1,13 +1,13 @@
 const tape = require('tape')
+const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../../lib/msg-v2')
-const { generateKeypair } = require('../util')
 
 tape('lipmaa prevs', (t) => {
-  const keys = generateKeypair('alice')
-  const group = MsgV2.getMsgHash(MsgV2.createGroup(keys, 'MYNONCE'))
+  const keypair = Keypair.generate('ed25519', 'alice')
+  const group = MsgV2.getMsgHash(MsgV2.createGroup(keypair, 'MYNONCE'))
   const data = { text: 'Hello world!' }
 
-  const rootMsg = MsgV2.createRoot(group, 'post', keys)
+  const rootMsg = MsgV2.createRoot(group, 'post', keypair)
   const rootHash = MsgV2.getMsgHash(rootMsg)
   const tangle = new MsgV2.Tangle(rootHash)
   tangle.add(rootHash, rootMsg)
@@ -20,7 +20,7 @@ tape('lipmaa prevs', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    keys,
+    keypair,
   })
   const msgHash1 = MsgV2.getMsgHash(msg1)
   tangle.add(msgHash1, msg1)
@@ -35,7 +35,7 @@ tape('lipmaa prevs', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    keys,
+    keypair,
   })
   const msgHash2 = MsgV2.getMsgHash(msg2)
   tangle.add(msgHash2, msg2)
@@ -50,7 +50,7 @@ tape('lipmaa prevs', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    keys,
+    keypair,
   })
   const msgHash3 = MsgV2.getMsgHash(msg3)
   tangle.add(msgHash3, msg3)
@@ -65,7 +65,7 @@ tape('lipmaa prevs', (t) => {
     group,
     groupTips: [group],
     type: 'post',
-    keys,
+    keypair,
     tangles: {
       [rootHash]: tangle,
     },
@@ -84,7 +84,7 @@ tape('lipmaa prevs', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    keys,
+    keypair,
   })
   const msgHash5 = MsgV2.getMsgHash(msg5)
   tangle.add(msgHash5, msg5)
@@ -99,7 +99,7 @@ tape('lipmaa prevs', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    keys,
+    keypair,
   })
   const msgHash6 = MsgV2.getMsgHash(msg6)
   tangle.add(msgHash6, msg6)
@@ -114,7 +114,7 @@ tape('lipmaa prevs', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    keys,
+    keypair,
   })
   const msgHash7 = MsgV2.getMsgHash(msg7)
   tangle.add(msgHash7, msg7)

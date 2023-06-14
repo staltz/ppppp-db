@@ -6,17 +6,17 @@ const SecretStack = require('secret-stack')
 const AAOL = require('async-append-only-log')
 const push = require('push-stream')
 const caps = require('ssb-caps')
+const Keypair = require('ppppp-keypair')
 const p = require('util').promisify
-const { generateKeypair } = require('./util')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-erase')
 rimraf.sync(DIR)
 
 test('erase', async (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
   const peer = SecretStack({ appKey: caps.shs })
     .use(require('../lib'))
-    .call(null, { keys, path: DIR })
+    .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
 

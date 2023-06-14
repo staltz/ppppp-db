@@ -5,16 +5,16 @@ const os = require('os')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const p = require('util').promisify
-const { generateKeypair } = require('./util')
+const Keypair = require('ppppp-keypair')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-on-msg-added')
 rimraf.sync(DIR)
 
 test('onRecordAdded', async (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
   const peer = SecretStack({ appKey: caps.shs })
     .use(require('../lib'))
-    .call(null, { keys, path: DIR })
+    .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
 

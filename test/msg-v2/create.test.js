@@ -1,15 +1,15 @@
 const tape = require('tape')
+const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../../lib/msg-v2')
-const { generateKeypair } = require('../util')
 
 let group
 tape('MsgV2.createGroup()', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
 
-  const groupMsg0 = MsgV2.createGroup(keys, 'MYNONCE')
+  const groupMsg0 = MsgV2.createGroup(keypair, 'MYNONCE')
   console.log(JSON.stringify(groupMsg0, null, 2))
 
-  t.equals(groupMsg0.data.add, keys.id, 'data.add')
+  t.equals(groupMsg0.data.add, keypair.public, 'data.add')
   t.equals(groupMsg0.metadata.dataHash, 'THi3VkJeaf8aTkLSNJUdFD', 'hash')
   t.equals(groupMsg0.metadata.dataSize, 72, 'size')
   t.equals(groupMsg0.metadata.group, null, 'group')
@@ -17,7 +17,7 @@ tape('MsgV2.createGroup()', (t) => {
   t.deepEquals(groupMsg0.metadata.tangles, {}, 'tangles')
   t.equals(groupMsg0.metadata.type, 'group', 'type')
   t.equals(groupMsg0.metadata.v, 2, 'v')
-  t.equals(groupMsg0.pubkey, keys.id, 'pubkey')
+  t.equals(groupMsg0.pubkey, keypair.public, 'pubkey')
 
   group = MsgV2.getMsgHash(groupMsg0)
   t.equals(group, 'XKKmEBmqKGa5twQ2HNSk7t', 'group ID')
@@ -28,9 +28,9 @@ tape('MsgV2.createGroup()', (t) => {
 let rootMsg = null
 let rootHash = null
 tape('MsgV2.createRoot()', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
 
-  rootMsg = MsgV2.createRoot(group, 'post', keys)
+  rootMsg = MsgV2.createRoot(group, 'post', keypair)
   console.log(JSON.stringify(rootMsg, null, 2))
 
   t.equals(rootMsg.data, null, 'data')
@@ -41,7 +41,7 @@ tape('MsgV2.createRoot()', (t) => {
   t.deepEquals(rootMsg.metadata.tangles, {}, 'tangles')
   t.equals(rootMsg.metadata.type, 'post', 'type')
   t.equals(rootMsg.metadata.v, 2, 'v')
-  t.equals(rootMsg.pubkey, keys.id, 'pubkey')
+  t.equals(rootMsg.pubkey, keypair.public, 'pubkey')
 
   rootHash = MsgV2.getMsgHash(rootMsg)
   t.equals(rootHash, 'PzuT1Dwbbgn6a8NeLuHuKw', 'root hash')
@@ -49,14 +49,14 @@ tape('MsgV2.createRoot()', (t) => {
 })
 
 tape('MsgV2.create()', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
   const data = { text: 'Hello world!' }
 
   const tangle1 = new MsgV2.Tangle(rootHash)
   tangle1.add(rootHash, rootMsg)
 
   const msg1 = MsgV2.create({
-    keys,
+    keypair,
     data,
     group,
     groupTips: [group],
@@ -116,7 +116,7 @@ tape('MsgV2.create()', (t) => {
   const data2 = { text: 'Ola mundo!' }
 
   const msg2 = MsgV2.create({
-    keys,
+    keypair,
     data: data2,
     group,
     groupTips: [group],
@@ -171,12 +171,12 @@ tape('MsgV2.create()', (t) => {
 })
 
 tape('create() handles DAG tips correctly', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
   const tangle = new MsgV2.Tangle(rootHash)
   tangle.add(rootHash, rootMsg)
 
   const msg1 = MsgV2.create({
-    keys,
+    keypair,
     data: { text: '1' },
     group,
     groupTips: [group],
@@ -195,7 +195,7 @@ tape('create() handles DAG tips correctly', (t) => {
   tangle.add(msgHash1, msg1)
 
   const msg2A = MsgV2.create({
-    keys,
+    keypair,
     data: { text: '2A' },
     group,
     groupTips: [group],
@@ -211,7 +211,7 @@ tape('create() handles DAG tips correctly', (t) => {
   )
 
   const msg2B = MsgV2.create({
-    keys,
+    keypair,
     data: { text: '2B' },
     group,
     groupTips: [group],
@@ -230,7 +230,7 @@ tape('create() handles DAG tips correctly', (t) => {
   tangle.add(msgHash2B, msg2B)
 
   const msg3 = MsgV2.create({
-    keys,
+    keypair,
     data: { text: '3' },
     group,
     groupTips: [group],
@@ -252,7 +252,7 @@ tape('create() handles DAG tips correctly', (t) => {
   t.pass('msg2A comes into awareness')
 
   const msg4 = MsgV2.create({
-    keys,
+    keypair,
     data: { text: '4' },
     group,
     groupTips: [group],

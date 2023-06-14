@@ -5,29 +5,29 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const p = require('util').promisify
-const { generateKeypair } = require('./util')
+const Keypair = require('ppppp-keypair')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-group-add')
 rimraf.sync(DIR)
 
 test('group.add()', async (t) => {
-  const keys1 = generateKeypair('alice')
-  const keys2 = generateKeypair('bob')
+  const keypair1 = Keypair.generate('ed25519', 'alice')
+  const keypair2 = Keypair.generate('ed25519', 'bob')
 
   const peer = SecretStack({ appKey: caps.shs })
     .use(require('../lib'))
     .use(require('ssb-box'))
-    .call(null, { keys: keys1, path: DIR })
+    .call(null, { keypair: keypair1, path: DIR })
 
   await peer.db.loaded()
-  const groupRec0 = await p(peer.db.group.create)({ keys: keys1 })
+  const groupRec0 = await p(peer.db.group.create)({ keypair: keypair1 })
   const group = groupRec0.hash
 
-  const groupRec1 = await p(peer.db.group.add)({ group, keys: keys2 })
+  const groupRec1 = await p(peer.db.group.add)({ group, keypair: keypair2 })
   t.ok(groupRec1, 'groupRec1 exists')
   const { hash, msg } = groupRec1
   t.ok(hash, 'hash exists')
-  t.equals(msg.data.add, keys2.id, 'msg.data.add NEW KEY')
+  t.equals(msg.data.add, keypair2.public, 'msg.data.add NEW KEY')
   t.equals(msg.metadata.group, null, 'msg.metadata.group')
   t.equals(msg.metadata.groupTips, null, 'msg.metadata.groupTips')
   t.deepEquals(
@@ -35,7 +35,7 @@ test('group.add()', async (t) => {
     { [group]: { depth: 1, prev: [group] } },
     'msg.metadata.tangles'
   )
-  t.equals(msg.pubkey, keys1.id, 'msg.pubkey OLD KEY')
+  t.equals(msg.pubkey, keypair1.public, 'msg.pubkey OLD KEY')
 
   await p(peer.close)()
 })
@@ -43,25 +43,25 @@ test('group.add()', async (t) => {
 test('publish with a key in the group', async (t) => {
   rimraf.sync(DIR)
 
-  const keys1 = generateKeypair('alice')
-  const keys2 = generateKeypair('bob')
+  const keypair1 = Keypair.generate('ed25519', 'alice')
+  const keypair2 = Keypair.generate('ed25519', 'bob')
 
   let peer = SecretStack({ appKey: caps.shs })
     .use(require('../lib'))
     .use(require('ssb-box'))
-    .call(null, { keys: keys1, path: DIR })
+    .call(null, { keypair: keypair1, path: DIR })
 
   await peer.db.loaded()
 
-  const groupRec0 = await p(peer.db.group.create)({ keys: keys1 })
+  const groupRec0 = await p(peer.db.group.create)({ keypair: keypair1 })
   const group = groupRec0.hash
-  const groupRec1 = await p(peer.db.group.add)({ group, keys: keys2 })
+  const groupRec1 = await p(peer.db.group.add)({ group, keypair: keypair2 })
 
   const postRec = await p(peer.db.feed.publish)({
     group,
     type: 'post',
     data: { text: 'hello' },
-    keys: keys2,
+    keypair: keypair2,
   })
   t.equal(postRec.msg.data.text, 'hello', 'post text correct')
   const postsId = peer.db.feed.getId(group, 'post')
@@ -87,12 +87,12 @@ test('publish with a key in the group', async (t) => {
 
   // Re-load as Carol, add the msgs to validate them
   rimraf.sync(DIR)
-  const keys3 = generateKeypair('carol')
+  const keypair3 = Keypair.generate('ed25519', 'carol')
 
   const carol = SecretStack({ appKey: caps.shs })
     .use(require('../lib'))
     .use(require('ssb-box'))
-    .call(null, { keys: keys3, path: DIR })
+    .call(null, { keypair: keypair3, path: DIR })
 
   await carol.db.loaded()
 

@@ -5,7 +5,7 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const p = require('util').promisify
-const { generateKeypair } = require('./util')
+const Keypair = require('ppppp-keypair')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-tangle')
 rimraf.sync(DIR)
@@ -14,14 +14,14 @@ let peer
 let rootPost, reply1Lo, reply1Hi, reply2A, reply3Lo, reply3Hi
 let tangle
 test('setup', async (t) => {
-  const keysA = generateKeypair('alice')
-  const keysB = generateKeypair('bob')
-  const keysC = generateKeypair('carol')
+  const keypairA = Keypair.generate('ed25519', 'alice')
+  const keypairB = Keypair.generate('ed25519', 'bob')
+  const keypairC = Keypair.generate('ed25519', 'carol')
 
   peer = SecretStack({ appKey: caps.shs })
     .use(require('../lib'))
     .use(require('ssb-box'))
-    .call(null, { keys: keysA, path: DIR })
+    .call(null, { keypair: keypairA, path: DIR })
 
   await peer.db.loaded()
 
@@ -36,7 +36,7 @@ test('setup', async (t) => {
   rootPost = (
     await p(peer.db.feed.publish)({
       group,
-      keys: keysA,
+      keypair: keypairA,
       type: 'comment',
       data: { text: 'root' },
     })
@@ -45,14 +45,14 @@ test('setup', async (t) => {
   const [{ hash: reply1B }, { hash: reply1C }] = await Promise.all([
     p(peer.db.feed.publish)({
       group,
-      keys: keysB,
+      keypair: keypairB,
       type: 'comment',
       data: { text: 'reply 1B' },
       tangles: [rootPost],
     }),
     p(peer.db.feed.publish)({
       group,
-      keys: keysC,
+      keypair: keypairC,
       type: 'comment',
       data: { text: 'reply 1C' },
       tangles: [rootPost],
@@ -64,7 +64,7 @@ test('setup', async (t) => {
   reply2A = (
     await p(peer.db.feed.publish)({
       group,
-      keys: keysA,
+      keypair: keypairA,
       type: 'comment',
       data: { text: 'reply 2' },
       tangles: [rootPost],
@@ -74,14 +74,14 @@ test('setup', async (t) => {
   const [{ hash: reply3B }, { hash: reply3C }] = await Promise.all([
     p(peer.db.feed.publish)({
       group,
-      keys: keysB,
+      keypair: keypairB,
       type: 'comment',
       data: { text: 'reply 3B' },
       tangles: [rootPost],
     }),
     p(peer.db.feed.publish)({
       group,
-      keys: keysC,
+      keypair: keypairC,
       type: 'comment',
       data: { text: 'reply 3C' },
       tangles: [rootPost],

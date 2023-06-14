@@ -1,19 +1,19 @@
 const tape = require('tape')
+const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../../lib/msg-v2')
-const { generateKeypair } = require('../util')
 
 tape('simple multi-author tangle', (t) => {
-  const keysA = generateKeypair('alice')
-  const keysB = generateKeypair('bob')
-  const groupA = MsgV2.getMsgHash(MsgV2.createGroup(keysA, 'alice'))
-  const groupB = MsgV2.getMsgHash(MsgV2.createGroup(keysB, 'bob'))
+  const keypairA = Keypair.generate('ed25519', 'alice')
+  const keypairB = Keypair.generate('ed25519', 'bob')
+  const groupA = MsgV2.getMsgHash(MsgV2.createGroup(keypairA, 'alice'))
+  const groupB = MsgV2.getMsgHash(MsgV2.createGroup(keypairB, 'bob'))
 
-  const rootMsgA = MsgV2.createRoot(groupA, 'post', keysA)
+  const rootMsgA = MsgV2.createRoot(groupA, 'post', keypairA)
   const rootHashA = MsgV2.getMsgHash(rootMsgA)
   const tangleA = new MsgV2.Tangle(rootHashA)
   tangleA.add(rootHashA, rootMsgA)
 
-  const rootMsgB = MsgV2.createRoot(groupB, 'post', keysB)
+  const rootMsgB = MsgV2.createRoot(groupB, 'post', keypairB)
   const rootHashB = MsgV2.getMsgHash(rootMsgB)
   const tangleB = new MsgV2.Tangle(rootHashB)
   tangleB.add(rootHashB, rootMsgB)
@@ -26,7 +26,7 @@ tape('simple multi-author tangle', (t) => {
     tangles: {
       [rootHashA]: tangleA,
     },
-    keys: keysA,
+    keypair: keypairA,
   })
   const msgHash1 = MsgV2.getMsgHash(msg1)
   t.deepEquals(
@@ -47,7 +47,7 @@ tape('simple multi-author tangle', (t) => {
       [rootHashB]: tangleB,
       [msgHash1]: tangleX,
     },
-    keys: keysB,
+    keypair: keypairB,
   })
 
   t.deepEquals(
@@ -73,19 +73,19 @@ tape('simple multi-author tangle', (t) => {
 })
 
 tape('lipmaa in multi-author tangle', (t) => {
-  const keysA = generateKeypair('alice')
-  const keysB = generateKeypair('bob')
-  const groupA = MsgV2.getMsgHash(MsgV2.createGroup(keysA, 'alice'))
-  const groupB = MsgV2.getMsgHash(MsgV2.createGroup(keysB, 'bob'))
+  const keypairA = Keypair.generate('ed25519', 'alice')
+  const keypairB = Keypair.generate('ed25519', 'bob')
+  const groupA = MsgV2.getMsgHash(MsgV2.createGroup(keypairA, 'alice'))
+  const groupB = MsgV2.getMsgHash(MsgV2.createGroup(keypairB, 'bob'))
 
   const data = { text: 'Hello world!' }
 
-  const rootMsgA = MsgV2.createRoot(groupA, 'post', keysA)
+  const rootMsgA = MsgV2.createRoot(groupA, 'post', keypairA)
   const rootHashA = MsgV2.getMsgHash(rootMsgA)
   const tangleA = new MsgV2.Tangle(rootHashA)
   tangleA.add(rootHashA, rootMsgA)
 
-  const rootMsgB = MsgV2.createRoot(groupB, 'post', keysB)
+  const rootMsgB = MsgV2.createRoot(groupB, 'post', keypairB)
   const rootHashB = MsgV2.getMsgHash(rootMsgB)
   const tangleB = new MsgV2.Tangle(rootHashB)
   tangleB.add(rootHashB, rootMsgB)
@@ -98,7 +98,7 @@ tape('lipmaa in multi-author tangle', (t) => {
     tangles: {
       [rootHashA]: tangleA,
     },
-    keys: keysA,
+    keypair: keypairA,
   })
   const msgHash1 = MsgV2.getMsgHash(msg1)
   tangleA.add(msgHash1, msg1)
@@ -120,7 +120,7 @@ tape('lipmaa in multi-author tangle', (t) => {
       [rootHashB]: tangleB,
       [msgHash1]: tangleThread,
     },
-    keys: keysB,
+    keypair: keypairB,
   })
   const msgHash2 = MsgV2.getMsgHash(msg2)
   tangleB.add(msgHash2, msg2)
@@ -141,7 +141,7 @@ tape('lipmaa in multi-author tangle', (t) => {
       [rootHashB]: tangleB,
       [msgHash1]: tangleThread,
     },
-    keys: keysB,
+    keypair: keypairB,
   })
   const msgHash3 = MsgV2.getMsgHash(msg3)
   tangleB.add(msgHash3, msg3)
@@ -162,7 +162,7 @@ tape('lipmaa in multi-author tangle', (t) => {
       [rootHashA]: tangleA,
       [msgHash1]: tangleThread,
     },
-    keys: keysA,
+    keypair: keypairA,
   })
   const msgHash4 = MsgV2.getMsgHash(msg4)
   tangleB.add(msgHash4, msg4)

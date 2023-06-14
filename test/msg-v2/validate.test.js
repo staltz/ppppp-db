@@ -1,13 +1,13 @@
 const tape = require('tape')
+const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../../lib/msg-v2')
-const { generateKeypair } = require('../util')
 
 tape('validate root msg', (t) => {
-  const keys = generateKeypair('alice')
-  const group = MsgV2.getMsgHash(MsgV2.createGroup(keys, 'alice'))
-  const pubkeys = new Set([keys.id])
+  const keypair = Keypair.generate('ed25519', 'alice')
+  const group = MsgV2.getMsgHash(MsgV2.createGroup(keypair, 'alice'))
+  const pubkeys = new Set([keypair.public])
 
-  const rootMsg = MsgV2.createRoot(group, 'post', keys)
+  const rootMsg = MsgV2.createRoot(group, 'post', keypair)
   const rootHash = MsgV2.getMsgHash(rootMsg)
   const tangle = new MsgV2.Tangle(rootHash)
 
@@ -19,10 +19,10 @@ tape('validate root msg', (t) => {
 
 tape('validate group tangle', (t) => {
   const pubkeys = new Set()
-  const keys1 = generateKeypair('alice')
-  pubkeys.add(keys1.id)
+  const keypair1 = Keypair.generate('ed25519', 'alice')
+  pubkeys.add(keypair1.public)
 
-  const groupMsg0 = MsgV2.createGroup(keys1, 'alice')
+  const groupMsg0 = MsgV2.createGroup(keypair1, 'alice')
   const group = MsgV2.getMsgHash(groupMsg0)
   const groupMsg0Hash = group
 
@@ -34,17 +34,17 @@ tape('validate group tangle', (t) => {
 
   tangle.add(group, groupMsg0)
 
-  const keys2 = generateKeypair('bob')
+  const keypair2 = Keypair.generate('ed25519', 'bob')
 
   const groupMsg1 = MsgV2.create({
     group: null,
     groupTips: null,
     type: 'group',
-    data: { add: keys2.id },
+    data: { add: keypair2.public },
     tangles: {
       [group]: tangle,
     },
-    keys: keys1, // announcing keys2 but signing with keys1
+    keypair: keypair1, // announcing keypair2 but signing with keypair1
   })
   const groupMsg1Hash = MsgV2.getMsgHash(groupMsg1)
 
@@ -55,11 +55,11 @@ tape('validate group tangle', (t) => {
 })
 
 tape('validate 2nd msg with existing root', (t) => {
-  const keys = generateKeypair('alice')
-  const group = MsgV2.getMsgHash(MsgV2.createGroup(keys, 'alice'))
-  const pubkeys = new Set([keys.id])
+  const keypair = Keypair.generate('ed25519', 'alice')
+  const group = MsgV2.getMsgHash(MsgV2.createGroup(keypair, 'alice'))
+  const pubkeys = new Set([keypair.public])
 
-  const rootMsg = MsgV2.createRoot(group, 'post', keys)
+  const rootMsg = MsgV2.createRoot(group, 'post', keypair)
   const rootHash = MsgV2.getMsgHash(rootMsg)
   const tangle = new MsgV2.Tangle(rootHash)
   tangle.add(rootHash, rootMsg)
@@ -72,7 +72,7 @@ tape('validate 2nd msg with existing root', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    keys,
+    keypair,
   })
   const msgHash1 = MsgV2.getMsgHash(msg1)
   tangle.add(msgHash1, msg1)
@@ -84,11 +84,11 @@ tape('validate 2nd msg with existing root', (t) => {
 })
 
 tape('validate 2nd forked msg', (t) => {
-  const keys = generateKeypair('alice')
-  const group = MsgV2.getMsgHash(MsgV2.createGroup(keys, 'alice'))
-  const pubkeys = new Set([keys.id])
+  const keypair = Keypair.generate('ed25519', 'alice')
+  const group = MsgV2.getMsgHash(MsgV2.createGroup(keypair, 'alice'))
+  const pubkeys = new Set([keypair.public])
 
-  const rootMsg = MsgV2.createRoot(group, 'post', keys)
+  const rootMsg = MsgV2.createRoot(group, 'post', keypair)
   const rootHash = MsgV2.getMsgHash(rootMsg)
   const tangle = new MsgV2.Tangle(rootHash)
   tangle.add(rootHash, rootMsg)
@@ -101,7 +101,7 @@ tape('validate 2nd forked msg', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    keys,
+    keypair,
   })
   const msgHash1A = MsgV2.getMsgHash(msg1A)
 
@@ -113,7 +113,7 @@ tape('validate 2nd forked msg', (t) => {
     tangles: {
       [rootHash]: tangle,
     },
-    keys,
+    keypair,
   })
   const msgHash1B = MsgV2.getMsgHash(msg1B)
 

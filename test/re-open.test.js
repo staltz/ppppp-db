@@ -5,17 +5,17 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const p = require('util').promisify
-const { generateKeypair } = require('./util')
+const Keypair = require('ppppp-keypair')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-re-open')
 rimraf.sync(DIR)
 
 test('publish some msgs, close, re-open', async (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
   const peer = SecretStack({ appKey: caps.shs })
     .use(require('../lib'))
     .use(require('ssb-box'))
-    .call(null, { keys, path: DIR })
+    .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
   const group = (await p(peer.db.group.create)(null)).hash
@@ -41,7 +41,7 @@ test('publish some msgs, close, re-open', async (t) => {
   const peer2 = SecretStack({ appKey: caps.shs })
     .use(require('../lib'))
     .use(require('ssb-box'))
-    .call(null, { keys, path: DIR })
+    .call(null, { keypair, path: DIR })
   t.pass('re-opened')
 
   await peer2.db.loaded()

@@ -1,14 +1,14 @@
 const tape = require('tape')
+const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../../lib/msg-v2')
-const { generateKeypair } = require('../util')
 
 tape('invalid type not a string', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
 
   t.throws(
     () => {
       MsgV2.create({
-        keys,
+        keypair,
         data: { text: 'Hello world!' },
         type: 123,
       })
@@ -20,12 +20,12 @@ tape('invalid type not a string', (t) => {
 })
 
 tape('invalid type with "/" character', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
 
   t.throws(
     () => {
       MsgV2.create({
-        keys,
+        keypair,
         data: { text: 'Hello world!' },
         type: 'group/init',
       })
@@ -37,12 +37,12 @@ tape('invalid type with "/" character', (t) => {
 })
 
 tape('invalid type with "*" character', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
 
   t.throws(
     () => {
       MsgV2.create({
-        keys,
+        keypair,
         data: { text: 'Hello world!' },
         type: 'star*',
       })
@@ -54,12 +54,12 @@ tape('invalid type with "*" character', (t) => {
 })
 
 tape('invalid type too short', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
 
   t.throws(
     () => {
       MsgV2.create({
-        keys,
+        keypair,
         data: { text: 'Hello world!' },
         type: 'xy',
       })
@@ -71,12 +71,12 @@ tape('invalid type too short', (t) => {
 })
 
 tape('invalid type too long', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
 
   t.throws(
     () => {
       MsgV2.create({
-        keys,
+        keypair,
         data: { text: 'Hello world!' },
         type: 'a'.repeat(120),
       })

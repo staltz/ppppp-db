@@ -5,14 +5,14 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const p = require('util').promisify
+const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../lib/msg-v2')
-const { generateKeypair } = require('./util')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-feed-publish')
 rimraf.sync(DIR)
 
-const keys = generateKeypair('alice')
-const bobKeys = generateKeypair('bob')
+const keypair = Keypair.generate('ed25519', 'alice')
+const bobKeypair = Keypair.generate('ed25519', 'bob')
 let peer
 let group
 let rootMsg
@@ -21,12 +21,12 @@ test('setup', async (t) => {
   peer = SecretStack({ appKey: caps.shs })
     .use(require('../lib'))
     .use(require('ssb-box'))
-    .call(null, { keys, path: DIR })
+    .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
 
   group = (await p(peer.db.group.create)(null)).hash
-  rootMsg = MsgV2.createRoot(group, 'post', keys)
+  rootMsg = MsgV2.createRoot(group, 'post', keypair)
   rootHash = MsgV2.getMsgHash(rootMsg)
 })
 
@@ -78,7 +78,7 @@ test('add() forked then feed.publish() merged', async (t) => {
   tangle.add(rec1.hash, rec1.msg)
 
   const msg3 = MsgV2.create({
-    keys,
+    keypair,
     group,
     groupTips: [group],
     type: 'post',
@@ -120,7 +120,7 @@ test('feed.publish() encrypted with box', async (t) => {
   const recEncrypted = await p(peer.db.feed.publish)({
     group,
     type: 'post',
-    data: { text: 'I am chewing food', recps: [peer.id] },
+    data: { text: 'I am chewing food', recps: [keypair.public] },
     encryptionFormat: 'box',
   })
   t.equal(typeof recEncrypted.msg.data, 'string')
@@ -143,7 +143,7 @@ test('feed.publish() with tangles', async (t) => {
     type: 'comment',
     data: { text: 'I am comment 1' },
     tangles: [recA.hash],
-    keys: bobKeys,
+    keypair: bobKeypair,
   })
   t.equal(recB.msg.metadata.tangles[recA.hash].depth, 1, 'tangle depth 1')
   t.deepEquals(

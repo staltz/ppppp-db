@@ -1,23 +1,23 @@
 const tape = require('tape')
 const base58 = require('bs58')
+const Keypair = require('ppppp-keypair')
 const MsgV2 = require('../../lib/msg-v2')
-const { generateKeypair } = require('../util')
 
-const keys = generateKeypair('alice')
-const group = MsgV2.getMsgHash(MsgV2.createGroup(keys, 'MYNONCE'))
-const pubkeys = new Set([keys.id])
+const keypair = Keypair.generate('ed25519', 'alice')
+const group = MsgV2.getMsgHash(MsgV2.createGroup(keypair, 'MYNONCE'))
+const pubkeys = new Set([keypair.public])
 
 tape('invalid msg with non-array prev', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV2.createRoot(group, 'post', keys)
+  const rootMsg = MsgV2.createRoot(group, 'post', keypair)
   const rootHash = MsgV2.getMsgHash(rootMsg)
 
   const tangle = new MsgV2.Tangle(rootHash)
   tangle.add(rootHash, rootMsg)
 
   const msg = MsgV2.create({
-    keys,
+    keypair,
     data: { text: 'Hello world!' },
     group,
     groupTips: [group],
@@ -40,16 +40,16 @@ tape('invalid msg with non-array prev', (t) => {
 })
 
 tape('invalid msg with bad prev', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV2.createRoot(group, 'post', keys)
+  const rootMsg = MsgV2.createRoot(group, 'post', keypair)
   const rootHash = MsgV2.getMsgHash(rootMsg)
 
   const tangle = new MsgV2.Tangle(rootHash)
   tangle.add(rootHash, rootMsg)
 
   const msg1 = MsgV2.create({
-    keys,
+    keypair,
     data: { text: 'Hello world!' },
     group,
     groupTips: [group],
@@ -62,7 +62,7 @@ tape('invalid msg with bad prev', (t) => {
   tangle.add(msgHash1, msg1)
 
   const msg2 = MsgV2.create({
-    keys,
+    keypair,
     data: { text: 'Hello world!' },
     group,
     groupTips: [group],
@@ -86,16 +86,16 @@ tape('invalid msg with bad prev', (t) => {
 })
 
 tape('invalid msg with URI in prev', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV2.createRoot(group, 'post', keys)
+  const rootMsg = MsgV2.createRoot(group, 'post', keypair)
   const rootHash = MsgV2.getMsgHash(rootMsg)
 
   const tangle = new MsgV2.Tangle(rootHash)
   tangle.add(rootHash, rootMsg)
 
   const msg1 = MsgV2.create({
-    keys,
+    keypair,
     data: { text: 'Hello world!' },
     group,
     groupTips: [group],
@@ -108,7 +108,7 @@ tape('invalid msg with URI in prev', (t) => {
   tangle.add(msgHash1, msg1)
 
   const msg2 = MsgV2.create({
-    keys,
+    keypair,
     data: { text: 'Hello world!' },
     group,
     groupTips: [group],
@@ -130,16 +130,16 @@ tape('invalid msg with URI in prev', (t) => {
 })
 
 tape('invalid msg with unknown prev', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV2.createRoot(group, 'post', keys)
+  const rootMsg = MsgV2.createRoot(group, 'post', keypair)
   const rootHash = MsgV2.getMsgHash(rootMsg)
 
   const tangle = new MsgV2.Tangle(rootHash)
   tangle.add(rootHash, rootMsg)
 
   const msg1 = MsgV2.create({
-    keys,
+    keypair,
     data: { text: 'Hello world!' },
     group,
     groupTips: [group],
@@ -152,7 +152,7 @@ tape('invalid msg with unknown prev', (t) => {
   tangle.add(msgHash1, msg1)
 
   const unknownMsg = MsgV2.create({
-    keys,
+    keypair,
     data: { text: 'Alien' },
     group,
     groupTips: [group],
@@ -169,7 +169,7 @@ tape('invalid msg with unknown prev', (t) => {
   tangle2.add(unknownMsgHash, unknownMsg)
 
   const msg2 = MsgV2.create({
-    keys,
+    keypair,
     data: { text: 'Hello world!' },
     group,
     groupTips: [group],
@@ -187,18 +187,18 @@ tape('invalid msg with unknown prev', (t) => {
 })
 
 tape('invalid feed msg with a different pubkey', (t) => {
-  const keysA = generateKeypair('alice')
-  const keysB = generateKeypair('bob')
+  const keypairA = Keypair.generate('ed25519', 'alice')
+  const keypairB = Keypair.generate('ed25519', 'bob')
 
-  const groupB = MsgV2.getMsgHash(MsgV2.createGroup(keysB, 'MYNONCE'))
+  const groupB = MsgV2.getMsgHash(MsgV2.createGroup(keypairB, 'MYNONCE'))
 
-  const rootMsg = MsgV2.createRoot(group, 'post', keys)
+  const rootMsg = MsgV2.createRoot(group, 'post', keypair)
   const rootHash = MsgV2.getMsgHash(rootMsg)
   const feedTangle = new MsgV2.Tangle(rootHash)
   feedTangle.add(rootHash, rootMsg)
 
   const msg = MsgV2.create({
-    keys: keysB,
+    keypair: keypairB,
     data: { text: 'Hello world!' },
     group: groupB,
     groupTips: [groupB],
@@ -219,15 +219,15 @@ tape('invalid feed msg with a different pubkey', (t) => {
 })
 
 tape('invalid feed msg with a different type', (t) => {
-  const keysA = generateKeypair('alice')
+  const keypairA = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV2.createRoot(group, 'post', keys)
+  const rootMsg = MsgV2.createRoot(group, 'post', keypair)
   const rootHash = MsgV2.getMsgHash(rootMsg)
   const feedTangle = new MsgV2.Tangle(rootHash)
   feedTangle.add(rootHash, rootMsg)
 
   const msg = MsgV2.create({
-    keys: keysA,
+    keypair: keypairA,
     data: { text: 'Hello world!' },
     group,
     groupTips: [group],
@@ -248,16 +248,16 @@ tape('invalid feed msg with a different type', (t) => {
 })
 
 tape('invalid feed msg with non-alphabetical prev', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV2.createRoot(group, 'post', keys)
+  const rootMsg = MsgV2.createRoot(group, 'post', keypair)
   const rootHash = MsgV2.getMsgHash(rootMsg)
 
   const tangle = new MsgV2.Tangle(rootHash)
   tangle.add(rootHash, rootMsg)
 
   const msg1 = MsgV2.create({
-    keys,
+    keypair,
     data: { text: '1' },
     group,
     groupTips: [group],
@@ -269,7 +269,7 @@ tape('invalid feed msg with non-alphabetical prev', (t) => {
   const msgHash1 = MsgV2.getMsgHash(msg1)
 
   const msg2 = MsgV2.create({
-    keys,
+    keypair,
     data: { text: '2' },
     group,
     groupTips: [group],
@@ -284,7 +284,7 @@ tape('invalid feed msg with non-alphabetical prev', (t) => {
   tangle.add(msgHash2, msg2)
 
   const msg3 = MsgV2.create({
-    keys,
+    keypair,
     data: { text: '3' },
     group,
     groupTips: [group],
@@ -314,16 +314,16 @@ tape('invalid feed msg with non-alphabetical prev', (t) => {
 })
 
 tape('invalid feed msg with duplicate prev', (t) => {
-  const keys = generateKeypair('alice')
+  const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV2.createRoot(group, 'post', keys)
+  const rootMsg = MsgV2.createRoot(group, 'post', keypair)
   const rootHash = MsgV2.getMsgHash(rootMsg)
 
   const tangle = new MsgV2.Tangle(rootHash)
   tangle.add(rootHash, rootMsg)
 
   const msg1 = MsgV2.create({
-    keys,
+    keypair,
     data: { text: '1' },
     group,
     groupTips: [group],
