@@ -21,8 +21,8 @@
     ".": {
       "require": "./lib/index.js"
     },
-    "./msg-v2": {
-      "require": "./lib/msg-v2/index.js"
+    "./msg-v3": {
+      "require": "./lib/msg-v3/index.js"
     }
   },
   "dependencies": {
