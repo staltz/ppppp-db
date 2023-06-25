@@ -7,7 +7,7 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const Keypair = require('ppppp-keypair')
-const MsgV2 = require('../lib/msg-v2')
+const MsgV3 = require('../lib/msg-v3')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-add')
 rimraf.sync(DIR)
@@ -21,25 +21,25 @@ test('add()', async (t) => {
 
   await peer.db.loaded()
 
-  const groupMsg0 = MsgV2.createGroup(keypair)
-  const group = MsgV2.getMsgHash(groupMsg0)
+  const identityMsg0 = MsgV3.createIdentity(keypair)
+  const id = MsgV3.getMsgHash(identityMsg0)
 
-  await p(peer.db.add)(groupMsg0, group)
+  await p(peer.db.add)(identityMsg0, id)
 
-  const rootMsg = MsgV2.createRoot(group, 'post', keypair)
-  const rootHash = MsgV2.getMsgHash(rootMsg)
+  const rootMsg = MsgV3.createRoot(id, 'post', keypair)
+  const rootHash = MsgV3.getMsgHash(rootMsg)
 
   const recRoot = await p(peer.db.add)(rootMsg, rootHash)
   assert.equal(recRoot.msg.metadata.dataSize, 0, 'root msg added')
-  const tangle = new MsgV2.Tangle(rootHash)
+  const tangle = new MsgV3.Tangle(rootHash)
   tangle.add(recRoot.hash, recRoot.msg)
 
-  const inputMsg = MsgV2.create({
+  const inputMsg = MsgV3.create({
     keypair,
-    type: 'post',
+    domain: 'post',
     data: { text: 'This is the first post!' },
-    group,
-    groupTips: [group],
+    identity: id,
+    identityTips: [id],
     tangles: {
       [rootHash]: tangle,
     },

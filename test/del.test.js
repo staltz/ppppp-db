@@ -21,13 +21,13 @@ test('del', async (t) => {
 
   await peer.db.loaded()
 
-  const group = (await p(peer.db.group.create)(null)).hash
+  const id = (await p(peer.db.identity.create)(null)).hash
 
   const msgHashes = []
   for (let i = 0; i < 5; i++) {
     const rec = await p(peer.db.feed.publish)({
-      group,
-      type: 'post',
+      identity: id,
+      domain: 'post',
       data: { text: 'm' + i },
     })
     msgHashes.push(rec.hash)
@@ -35,7 +35,7 @@ test('del', async (t) => {
 
   const before = []
   for (const msg of peer.db.msgs()) {
-    if (msg.data && msg.metadata.group) before.push(msg.data.text)
+    if (msg.data && msg.metadata.identity) before.push(msg.data.text)
   }
 
   assert.deepEqual(before, ['m0', 'm1', 'm2', 'm3', 'm4'], 'msgs before the delete')
@@ -44,7 +44,7 @@ test('del', async (t) => {
 
   const after = []
   for (const msg of peer.db.msgs()) {
-    if (msg.data && msg.metadata.group) after.push(msg.data.text)
+    if (msg.data && msg.metadata.identity) after.push(msg.data.text)
   }
 
   assert.deepEqual(after, ['m0', 'm1', 'm3', 'm4'], 'msgs after the delete')
@@ -83,7 +83,7 @@ test('del', async (t) => {
 
   assert.deepEqual(
     persistedMsgs
-      .filter((msg) => msg.data && msg.metadata.group)
+      .filter((msg) => msg.data && msg.metadata.identity)
       .map((msg) => msg.data.text),
     ['m0', 'm1', 'm3', 'm4'],
     'msgs in disk after the delete'

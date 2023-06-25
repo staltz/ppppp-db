@@ -7,7 +7,7 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const Keypair = require('ppppp-keypair')
-const MsgV2 = require('../lib/msg-v2')
+const MsgV3 = require('../lib/msg-v3')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-feed-publish')
 rimraf.sync(DIR)
@@ -15,7 +15,7 @@ rimraf.sync(DIR)
 const keypair = Keypair.generate('ed25519', 'alice')
 const bobKeypair = Keypair.generate('ed25519', 'bob')
 let peer
-let group
+let id
 let rootMsg
 let rootHash
 test('setup', async (t) => {
@@ -26,9 +26,9 @@ test('setup', async (t) => {
 
   await peer.db.loaded()
 
-  group = (await p(peer.db.group.create)(null)).hash
-  rootMsg = MsgV2.createRoot(group, 'post', keypair)
-  rootHash = MsgV2.getMsgHash(rootMsg)
+  id = (await p(peer.db.identity.create)(null)).hash
+  rootMsg = MsgV3.createRoot(id, 'post', keypair)
+  rootHash = MsgV3.getMsgHash(rootMsg)
 })
 
 let msgHash1
@@ -36,8 +36,8 @@ let rec1
 let msgHash2
 test('feed.publish()', async (t) => {
   rec1 = await p(peer.db.feed.publish)({
-    group,
-    type: 'post',
+    identity: id,
+    domain: 'post',
     data: { text: 'I am 1st post' },
   })
   assert.equal(rec1.msg.data.text, 'I am 1st post', 'msg1 text correct')
@@ -52,11 +52,11 @@ test('feed.publish()', async (t) => {
     'msg1 tangle prev correct'
   )
 
-  msgHash1 = MsgV2.getMsgHash(rec1.msg)
+  msgHash1 = MsgV3.getMsgHash(rec1.msg)
 
   const rec2 = await p(peer.db.feed.publish)({
-    group,
-    type: 'post',
+    identity: id,
+    domain: 'post',
     data: { text: 'I am 2nd post' },
   })
   assert.equal(rec2.msg.data.text, 'I am 2nd post', 'msg2 text correct')
@@ -70,19 +70,19 @@ test('feed.publish()', async (t) => {
     [msgHash1],
     'msg2 tangle prev correct'
   )
-  msgHash2 = MsgV2.getMsgHash(rec2.msg)
+  msgHash2 = MsgV3.getMsgHash(rec2.msg)
 })
 
 test('add() forked then feed.publish() merged', async (t) => {
-  const tangle = new MsgV2.Tangle(rootHash)
+  const tangle = new MsgV3.Tangle(rootHash)
   tangle.add(rootHash, rootMsg)
   tangle.add(rec1.hash, rec1.msg)
 
-  const msg3 = MsgV2.create({
+  const msg3 = MsgV3.create({
     keypair,
-    group,
-    groupTips: [group],
-    type: 'post',
+    identity: id,
+    identityTips: [id],
+    domain: 'post',
     data: { text: '3rd post forked from 1st' },
     tangles: {
       [rootHash]: tangle,
@@ -90,11 +90,11 @@ test('add() forked then feed.publish() merged', async (t) => {
   })
 
   const rec3 = await p(peer.db.add)(msg3, rootHash)
-  const msgHash3 = MsgV2.getMsgHash(rec3.msg)
+  const msgHash3 = MsgV3.getMsgHash(rec3.msg)
 
   const rec4 = await p(peer.db.feed.publish)({
-    group,
-    type: 'post',
+    identity: id,
+    domain: 'post',
     data: { text: 'I am 4th post' },
   })
   assert.ok(rec4, '4th post published')
@@ -119,8 +119,8 @@ test('add() forked then feed.publish() merged', async (t) => {
 
 test('feed.publish() encrypted with box', async (t) => {
   const recEncrypted = await p(peer.db.feed.publish)({
-    group,
-    type: 'post',
+    identity: id,
+    domain: 'post',
     data: { text: 'I am chewing food', recps: [keypair.public] },
     encryptionFormat: 'box',
   })
@@ -133,15 +133,15 @@ test('feed.publish() encrypted with box', async (t) => {
 
 test('feed.publish() with tangles', async (t) => {
   const recA = await p(peer.db.feed.publish)({
-    group,
-    type: 'comment',
+    identity: id,
+    domain: 'comment',
     data: { text: 'I am root' },
   })
   assert.equal(recA.msg.data.text, 'I am root', 'root text correct')
 
   const recB = await p(peer.db.feed.publish)({
-    group,
-    type: 'comment',
+    identity: id,
+    domain: 'comment',
     data: { text: 'I am comment 1' },
     tangles: [recA.hash],
     keypair: bobKeypair,

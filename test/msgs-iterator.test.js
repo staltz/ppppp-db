@@ -19,12 +19,12 @@ test('msgs() iterator', async (t) => {
 
   await peer.db.loaded()
 
-  const group = (await p(peer.db.group.create)(null)).hash
+  const identity = (await p(peer.db.identity.create)(null)).hash
 
   for (let i = 0; i < 6; i++) {
     await p(peer.db.feed.publish)({
-      group,
-      type: i % 2 === 0 ? 'post' : 'about',
+      identity,
+      domain: i % 2 === 0 ? 'post' : 'about',
       data:
         i % 2 === 0
           ? { text: 'hello ' + i }
@@ -36,8 +36,8 @@ test('msgs() iterator', async (t) => {
   const abouts = []
   for (const msg of peer.db.msgs()) {
     if (!msg.data) continue
-    if (msg.metadata.type === 'post') posts.push(msg.data.text)
-    else if (msg.metadata.type === 'about') abouts.push(msg.data.name)
+    if (msg.metadata.domain === 'post') posts.push(msg.data.text)
+    else if (msg.metadata.domain === 'about') abouts.push(msg.data.name)
   }
 
   assert.deepEqual(posts, ['hello 0', 'hello 2', 'hello 4'], 'queried posts')

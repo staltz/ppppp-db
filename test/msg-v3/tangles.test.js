@@ -1,48 +1,48 @@
 const test = require('node:test')
 const assert = require('node:assert')
 const Keypair = require('ppppp-keypair')
-const MsgV2 = require('../../lib/msg-v2')
+const MsgV3 = require('../../lib/msg-v3')
 
 test('simple multi-author tangle', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
-  const groupA = MsgV2.getMsgHash(MsgV2.createGroup(keypairA, 'alice'))
-  const groupB = MsgV2.getMsgHash(MsgV2.createGroup(keypairB, 'bob'))
+  const identityA = MsgV3.getMsgHash(MsgV3.createIdentity(keypairA, 'alice'))
+  const identityB = MsgV3.getMsgHash(MsgV3.createIdentity(keypairB, 'bob'))
 
-  const rootMsgA = MsgV2.createRoot(groupA, 'post', keypairA)
-  const rootHashA = MsgV2.getMsgHash(rootMsgA)
-  const tangleA = new MsgV2.Tangle(rootHashA)
+  const rootMsgA = MsgV3.createRoot(identityA, 'post', keypairA)
+  const rootHashA = MsgV3.getMsgHash(rootMsgA)
+  const tangleA = new MsgV3.Tangle(rootHashA)
   tangleA.add(rootHashA, rootMsgA)
 
-  const rootMsgB = MsgV2.createRoot(groupB, 'post', keypairB)
-  const rootHashB = MsgV2.getMsgHash(rootMsgB)
-  const tangleB = new MsgV2.Tangle(rootHashB)
+  const rootMsgB = MsgV3.createRoot(identityB, 'post', keypairB)
+  const rootHashB = MsgV3.getMsgHash(rootMsgB)
+  const tangleB = new MsgV3.Tangle(rootHashB)
   tangleB.add(rootHashB, rootMsgB)
 
-  const msg1 = MsgV2.create({
-    group: groupA,
-    groupTips: [groupA],
-    type: 'post',
+  const msg1 = MsgV3.create({
+    identity: identityA,
+    identityTips: [identityA],
+    domain: 'post',
     data: { text: 'Hello world!' },
     tangles: {
       [rootHashA]: tangleA,
     },
     keypair: keypairA,
   })
-  const msgHash1 = MsgV2.getMsgHash(msg1)
+  const msgHash1 = MsgV3.getMsgHash(msg1)
   assert.deepEqual(
     Object.keys(msg1.metadata.tangles),
     [rootHashA],
     'msg1 has only feed tangle'
   )
 
-  const tangleX = new MsgV2.Tangle(msgHash1)
+  const tangleX = new MsgV3.Tangle(msgHash1)
   tangleX.add(msgHash1, msg1)
 
-  const msg2 = MsgV2.create({
-    group: groupB,
-    groupTips: [groupB],
-    type: 'post',
+  const msg2 = MsgV3.create({
+    identity: identityB,
+    identityTips: [identityB],
+    domain: 'post',
     data: { text: 'Hello world!' },
     tangles: {
       [rootHashB]: tangleB,
@@ -82,34 +82,34 @@ test('simple multi-author tangle', (t) => {
 test('lipmaa in multi-author tangle', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
-  const groupA = MsgV2.getMsgHash(MsgV2.createGroup(keypairA, 'alice'))
-  const groupB = MsgV2.getMsgHash(MsgV2.createGroup(keypairB, 'bob'))
+  const identityA = MsgV3.getMsgHash(MsgV3.createIdentity(keypairA, 'alice'))
+  const identityB = MsgV3.getMsgHash(MsgV3.createIdentity(keypairB, 'bob'))
 
   const data = { text: 'Hello world!' }
 
-  const rootMsgA = MsgV2.createRoot(groupA, 'post', keypairA)
-  const rootHashA = MsgV2.getMsgHash(rootMsgA)
-  const tangleA = new MsgV2.Tangle(rootHashA)
+  const rootMsgA = MsgV3.createRoot(identityA, 'post', keypairA)
+  const rootHashA = MsgV3.getMsgHash(rootMsgA)
+  const tangleA = new MsgV3.Tangle(rootHashA)
   tangleA.add(rootHashA, rootMsgA)
 
-  const rootMsgB = MsgV2.createRoot(groupB, 'post', keypairB)
-  const rootHashB = MsgV2.getMsgHash(rootMsgB)
-  const tangleB = new MsgV2.Tangle(rootHashB)
+  const rootMsgB = MsgV3.createRoot(identityB, 'post', keypairB)
+  const rootHashB = MsgV3.getMsgHash(rootMsgB)
+  const tangleB = new MsgV3.Tangle(rootHashB)
   tangleB.add(rootHashB, rootMsgB)
 
-  const msg1 = MsgV2.create({
-    group: groupA,
-    groupTips: [groupA],
-    type: 'post',
+  const msg1 = MsgV3.create({
+    identity: identityA,
+    identityTips: [identityA],
+    domain: 'post',
     data,
     tangles: {
       [rootHashA]: tangleA,
     },
     keypair: keypairA,
   })
-  const msgHash1 = MsgV2.getMsgHash(msg1)
+  const msgHash1 = MsgV3.getMsgHash(msg1)
   tangleA.add(msgHash1, msg1)
-  const tangleThread = new MsgV2.Tangle(msgHash1)
+  const tangleThread = new MsgV3.Tangle(msgHash1)
   tangleThread.add(msgHash1, msg1)
 
   assert.deepEqual(
@@ -118,10 +118,10 @@ test('lipmaa in multi-author tangle', (t) => {
     'A:msg1 has only feed tangle'
   )
 
-  const msg2 = MsgV2.create({
-    group: groupB,
-    groupTips: [groupB],
-    type: 'post',
+  const msg2 = MsgV3.create({
+    identity: identityB,
+    identityTips: [identityB],
+    domain: 'post',
     data,
     tangles: {
       [rootHashB]: tangleB,
@@ -129,7 +129,7 @@ test('lipmaa in multi-author tangle', (t) => {
     },
     keypair: keypairB,
   })
-  const msgHash2 = MsgV2.getMsgHash(msg2)
+  const msgHash2 = MsgV3.getMsgHash(msg2)
   tangleB.add(msgHash2, msg2)
   tangleThread.add(msgHash2, msg2)
 
@@ -139,10 +139,10 @@ test('lipmaa in multi-author tangle', (t) => {
     'B:msg2 points to A:msg1'
   )
 
-  const msg3 = MsgV2.create({
-    group: groupB,
-    groupTips: [groupB],
-    type: 'post',
+  const msg3 = MsgV3.create({
+    identity: identityB,
+    identityTips: [identityB],
+    domain: 'post',
     data,
     tangles: {
       [rootHashB]: tangleB,
@@ -150,7 +150,7 @@ test('lipmaa in multi-author tangle', (t) => {
     },
     keypair: keypairB,
   })
-  const msgHash3 = MsgV2.getMsgHash(msg3)
+  const msgHash3 = MsgV3.getMsgHash(msg3)
   tangleB.add(msgHash3, msg3)
   tangleThread.add(msgHash3, msg3)
 
@@ -160,10 +160,10 @@ test('lipmaa in multi-author tangle', (t) => {
     'B:msg3 points to B:msg2'
   )
 
-  const msg4 = MsgV2.create({
-    group: groupA,
-    groupTips: [groupA],
-    type: 'post',
+  const msg4 = MsgV3.create({
+    identity: identityA,
+    identityTips: [identityA],
+    domain: 'post',
     data,
     tangles: {
       [rootHashA]: tangleA,
@@ -171,7 +171,7 @@ test('lipmaa in multi-author tangle', (t) => {
     },
     keypair: keypairA,
   })
-  const msgHash4 = MsgV2.getMsgHash(msg4)
+  const msgHash4 = MsgV3.getMsgHash(msg4)
   tangleB.add(msgHash4, msg4)
   tangleThread.add(msgHash4, msg4)
 

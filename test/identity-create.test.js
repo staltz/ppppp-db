@@ -8,10 +8,10 @@ const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const Keypair = require('ppppp-keypair')
 
-const DIR = path.join(os.tmpdir(), 'ppppp-db-group-create')
+const DIR = path.join(os.tmpdir(), 'ppppp-db-identity-create')
 rimraf.sync(DIR)
 
-test('group.create() without args', async (t) => {
+test('identity.create() without args', async (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const peer = SecretStack({ appKey: caps.shs })
     .use(require('../lib'))
@@ -19,20 +19,20 @@ test('group.create() without args', async (t) => {
     .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
-  const groupRec0 = await p(peer.db.group.create)({})
-  assert.ok(groupRec0, 'groupRec0 exists')
-  const { hash, msg } = groupRec0
+  const identityRec0 = await p(peer.db.identity.create)({})
+  assert.ok(identityRec0, 'identityRec0 exists')
+  const { hash, msg } = identityRec0
   assert.ok(hash, 'hash exists')
   assert.equal(msg.data.add, keypair.public, 'msg.data.add')
-  assert.equal(msg.metadata.group, null, 'msg.metadata.group')
-  assert.equal(msg.metadata.groupTips, null, 'msg.metadata.groupTips')
+  assert.equal(msg.metadata.identity, null, 'msg.metadata.identity')
+  assert.equal(msg.metadata.identityTips, null, 'msg.metadata.identityTips')
   assert.deepEqual(Object.keys(msg.metadata.tangles), [], 'msg.metadata.tangles')
   assert.equal(msg.pubkey, keypair.public, 'msg.pubkey')
 
   await p(peer.close)()
 })
 
-test('group.create() with "keypair" arg', async (t) => {
+test('identity.create() with "keypair" arg', async (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   const peer = SecretStack({ appKey: caps.shs })
@@ -41,13 +41,13 @@ test('group.create() with "keypair" arg', async (t) => {
     .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
-  const groupRec0 = await p(peer.db.group.create)({ keypair })
-  assert.ok(groupRec0, 'groupRec0 exists')
-  const { hash, msg } = groupRec0
+  const identityRec0 = await p(peer.db.identity.create)({ keypair })
+  assert.ok(identityRec0, 'identityRec0 exists')
+  const { hash, msg } = identityRec0
   assert.ok(hash, 'hash exists')
   assert.equal(msg.data.add, keypair.public, 'msg.data.add')
-  assert.equal(msg.metadata.group, null, 'msg.metadata.group')
-  assert.equal(msg.metadata.groupTips, null, 'msg.metadata.groupTips')
+  assert.equal(msg.metadata.identity, null, 'msg.metadata.identity')
+  assert.equal(msg.metadata.identityTips, null, 'msg.metadata.identityTips')
   assert.deepEqual(Object.keys(msg.metadata.tangles), [], 'msg.metadata.tangles')
   assert.equal(msg.pubkey, keypair.public, 'msg.pubkey')
 

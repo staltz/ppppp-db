@@ -1,29 +1,29 @@
 const test = require('node:test')
 const assert = require('node:assert')
 const Keypair = require('ppppp-keypair')
-const MsgV2 = require('../../lib/msg-v2')
+const MsgV3 = require('../../lib/msg-v3')
 
 test('lipmaa prevs', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
-  const group = MsgV2.getMsgHash(MsgV2.createGroup(keypair, 'MYNONCE'))
+  const identity = MsgV3.getMsgHash(MsgV3.createIdentity(keypair, 'MYNONCE'))
   const data = { text: 'Hello world!' }
 
-  const rootMsg = MsgV2.createRoot(group, 'post', keypair)
-  const rootHash = MsgV2.getMsgHash(rootMsg)
-  const tangle = new MsgV2.Tangle(rootHash)
+  const rootMsg = MsgV3.createRoot(identity, 'post', keypair)
+  const rootHash = MsgV3.getMsgHash(rootMsg)
+  const tangle = new MsgV3.Tangle(rootHash)
   tangle.add(rootHash, rootMsg)
 
-  const msg1 = MsgV2.create({
-    group,
-    groupTips: [group],
-    type: 'post',
+  const msg1 = MsgV3.create({
+    identity,
+    identityTips: [identity],
+    domain: 'post',
     data,
     tangles: {
       [rootHash]: tangle,
     },
     keypair,
   })
-  const msgHash1 = MsgV2.getMsgHash(msg1)
+  const msgHash1 = MsgV3.getMsgHash(msg1)
   tangle.add(msgHash1, msg1)
   assert.equal(msg1.metadata.tangles[rootHash].depth, 1, 'msg1 depth')
   assert.deepEqual(
@@ -32,17 +32,17 @@ test('lipmaa prevs', (t) => {
     'msg1 prev'
   )
 
-  const msg2 = MsgV2.create({
-    group,
-    groupTips: [group],
-    type: 'post',
+  const msg2 = MsgV3.create({
+    identity,
+    identityTips: [identity],
+    domain: 'post',
     data,
     tangles: {
       [rootHash]: tangle,
     },
     keypair,
   })
-  const msgHash2 = MsgV2.getMsgHash(msg2)
+  const msgHash2 = MsgV3.getMsgHash(msg2)
   tangle.add(msgHash2, msg2)
   assert.equal(msg2.metadata.tangles[rootHash].depth, 2, 'msg2 depth')
   assert.deepEqual(
@@ -51,17 +51,17 @@ test('lipmaa prevs', (t) => {
     'msg2 prev'
   )
 
-  const msg3 = MsgV2.create({
-    group,
-    groupTips: [group],
-    type: 'post',
+  const msg3 = MsgV3.create({
+    identity,
+    identityTips: [identity],
+    domain: 'post',
     data,
     tangles: {
       [rootHash]: tangle,
     },
     keypair,
   })
-  const msgHash3 = MsgV2.getMsgHash(msg3)
+  const msgHash3 = MsgV3.getMsgHash(msg3)
   tangle.add(msgHash3, msg3)
   assert.equal(msg3.metadata.tangles[rootHash].depth, 3, 'msg3 depth')
   assert.deepEqual(
@@ -70,17 +70,17 @@ test('lipmaa prevs', (t) => {
     'msg3 prev (has lipmaa!)'
   )
 
-  const msg4 = MsgV2.create({
-    group,
-    groupTips: [group],
-    type: 'post',
+  const msg4 = MsgV3.create({
+    identity,
+    identityTips: [identity],
+    domain: 'post',
     keypair,
     tangles: {
       [rootHash]: tangle,
     },
     data,
   })
-  const msgHash4 = MsgV2.getMsgHash(msg4)
+  const msgHash4 = MsgV3.getMsgHash(msg4)
   tangle.add(msgHash4, msg4)
   assert.equal(msg4.metadata.tangles[rootHash].depth, 4, 'msg4 depth')
   assert.deepEqual(
@@ -89,17 +89,17 @@ test('lipmaa prevs', (t) => {
     'msg4 prev'
   )
 
-  const msg5 = MsgV2.create({
-    group,
-    groupTips: [group],
-    type: 'post',
+  const msg5 = MsgV3.create({
+    identity,
+    identityTips: [identity],
+    domain: 'post',
     data,
     tangles: {
       [rootHash]: tangle,
     },
     keypair,
   })
-  const msgHash5 = MsgV2.getMsgHash(msg5)
+  const msgHash5 = MsgV3.getMsgHash(msg5)
   tangle.add(msgHash5, msg5)
   assert.equal(msg5.metadata.tangles[rootHash].depth, 5, 'msg5 depth')
   assert.deepEqual(
@@ -108,17 +108,17 @@ test('lipmaa prevs', (t) => {
     'msg5 prev'
   )
 
-  const msg6 = MsgV2.create({
-    group,
-    groupTips: [group],
-    type: 'post',
+  const msg6 = MsgV3.create({
+    identity,
+    identityTips: [identity],
+    domain: 'post',
     data,
     tangles: {
       [rootHash]: tangle,
     },
     keypair,
   })
-  const msgHash6 = MsgV2.getMsgHash(msg6)
+  const msgHash6 = MsgV3.getMsgHash(msg6)
   tangle.add(msgHash6, msg6)
   assert.equal(msg6.metadata.tangles[rootHash].depth, 6, 'msg6 depth')
   assert.deepEqual(
@@ -127,17 +127,17 @@ test('lipmaa prevs', (t) => {
     'msg6 prev'
   )
 
-  const msg7 = MsgV2.create({
-    group,
-    groupTips: [group],
-    type: 'post',
+  const msg7 = MsgV3.create({
+    identity,
+    identityTips: [identity],
+    domain: 'post',
     data,
     tangles: {
       [rootHash]: tangle,
     },
     keypair,
   })
-  const msgHash7 = MsgV2.getMsgHash(msg7)
+  const msgHash7 = MsgV3.getMsgHash(msg7)
   tangle.add(msgHash7, msg7)
   assert.equal(msg7.metadata.tangles[rootHash].depth, 7, 'msg7 depth')
   assert.deepEqual(

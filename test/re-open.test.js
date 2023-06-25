@@ -19,14 +19,14 @@ test('publish some msgs, close, re-open', async (t) => {
     .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
-  const group = (await p(peer.db.group.create)(null)).hash
+  const identity = (await p(peer.db.identity.create)(null)).hash
   // t.pass('opened db')
 
   const msgHashes = []
   for (let i = 0; i < 6; i++) {
     const rec = await p(peer.db.feed.publish)({
-      group,
-      type: 'post',
+      identity,
+      domain: 'post',
       data: { text: 'hello ' + i },
     })
     msgHashes.push(rec.hash)
@@ -49,7 +49,7 @@ test('publish some msgs, close, re-open', async (t) => {
 
   const texts = []
   for (const msg of peer2.db.msgs()) {
-    if (!msg.data || !msg.metadata.group) continue
+    if (!msg.data || !msg.metadata.identity) continue
     texts.push(msg.data.text)
   }
 

@@ -7,14 +7,14 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const Keypair = require('ppppp-keypair')
-const MsgV2 = require('../lib/msg-v2')
+const MsgV3 = require('../lib/msg-v3')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-feed-publish')
 rimraf.sync(DIR)
 
 const keypair = Keypair.generate('ed25519', 'alice')
 let peer
-let group
+let id
 let rootMsg
 let rootHash
 test('setup', async (t) => {
@@ -25,16 +25,16 @@ test('setup', async (t) => {
 
   await peer.db.loaded()
 
-  group = (await p(peer.db.group.create)(null)).hash
-  rootMsg = MsgV2.createRoot(group, 'post', keypair)
-  rootHash = MsgV2.getMsgHash(rootMsg)
+  id = (await p(peer.db.identity.create)(null)).hash
+  rootMsg = MsgV3.createRoot(id, 'post', keypair)
+  rootHash = MsgV3.getMsgHash(rootMsg)
 
   await p(peer.db.add)(rootMsg, rootHash)
 })
 
 test('feed.getId()', async (t) => {
-  const id = peer.db.feed.getId(group, 'post')
-  assert.equal(id, rootHash, 'feed.getId() returns root hash')
+  const feedId = peer.db.feed.getId(id, 'post')
+  assert.equal(feedId, rootHash, 'feed.getId() returns root hash')
 })
 
 test('teardown', (t) => {

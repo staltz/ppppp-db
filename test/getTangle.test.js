@@ -26,7 +26,7 @@ test('setup', async (t) => {
 
   await peer.db.loaded()
 
-  const group = (await p(peer.db.group.create)(null)).hash
+  const id = (await p(peer.db.identity.create)(null)).hash
 
   // Slow down append so that we can trigger msg creation in parallel
   const originalAppend = peer.db._getLog().append
@@ -36,25 +36,25 @@ test('setup', async (t) => {
 
   rootPost = (
     await p(peer.db.feed.publish)({
-      group,
+      identity: id,
       keypair: keypairA,
-      type: 'comment',
+      domain: 'comment',
       data: { text: 'root' },
     })
   ).hash
 
   const [{ hash: reply1B }, { hash: reply1C }] = await Promise.all([
     p(peer.db.feed.publish)({
-      group,
+      identity: id,
       keypair: keypairB,
-      type: 'comment',
+      domain: 'comment',
       data: { text: 'reply 1B' },
       tangles: [rootPost],
     }),
     p(peer.db.feed.publish)({
-      group,
+      identity: id,
       keypair: keypairC,
-      type: 'comment',
+      domain: 'comment',
       data: { text: 'reply 1C' },
       tangles: [rootPost],
     }),
@@ -64,9 +64,9 @@ test('setup', async (t) => {
 
   reply2A = (
     await p(peer.db.feed.publish)({
-      group,
+      identity: id,
       keypair: keypairA,
-      type: 'comment',
+      domain: 'comment',
       data: { text: 'reply 2' },
       tangles: [rootPost],
     })
@@ -74,16 +74,16 @@ test('setup', async (t) => {
 
   const [{ hash: reply3B }, { hash: reply3C }] = await Promise.all([
     p(peer.db.feed.publish)({
-      group,
+      identity: id,
       keypair: keypairB,
-      type: 'comment',
+      domain: 'comment',
       data: { text: 'reply 3B' },
       tangles: [rootPost],
     }),
     p(peer.db.feed.publish)({
-      group,
+      identity: id,
       keypair: keypairC,
-      type: 'comment',
+      domain: 'comment',
       data: { text: 'reply 3C' },
       tangles: [rootPost],
     }),

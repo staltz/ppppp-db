@@ -7,14 +7,14 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const Keypair = require('ppppp-keypair')
-const MsgV2 = require('../lib/msg-v2')
+const MsgV3 = require('../lib/msg-v3')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-get')
 rimraf.sync(DIR)
 
 const keypair = Keypair.generate('ed25519', 'alice')
 let peer
-let group
+let id
 let msgHash1
 let msgId1
 test('setup', async (t) => {
@@ -25,15 +25,15 @@ test('setup', async (t) => {
 
   await peer.db.loaded()
 
-  group = (await p(peer.db.group.create)(null)).hash
+  id = (await p(peer.db.identity.create)(null)).hash
 
   const rec1 = await p(peer.db.feed.publish)({
-    group,
-    type: 'post',
+    identity: id,
+    domain: 'post',
     data: { text: 'I am 1st post' },
   })
-  msgHash1 = MsgV2.getMsgHash(rec1.msg)
-  msgId1 = MsgV2.getMsgId(rec1.msg)
+  msgHash1 = MsgV3.getMsgHash(rec1.msg)
+  msgId1 = MsgV3.getMsgId(rec1.msg)
 })
 
 test('get() supports ppppp URIs', async (t) => {
