@@ -3,6 +3,7 @@ node_modules
 pnpm-lock.yaml
 package-lock.json
 coverage
+**/*.d.ts
 *~
 
 # For misc scripts and experiments:
