@@ -5,7 +5,7 @@ const os = require('node:os')
 const p = require('node:util').promisify
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
-const caps = require('ssb-caps')
+const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-tangle')
@@ -19,7 +19,7 @@ test('setup', async (t) => {
   const keypairB = Keypair.generate('ed25519', 'bob')
   const keypairC = Keypair.generate('ed25519', 'carol')
 
-  peer = SecretStack({ appKey: caps.shs })
+  peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
     .use(require('ssb-box'))
     .call(null, { keypair: keypairA, path: DIR })

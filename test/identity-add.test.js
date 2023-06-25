@@ -5,7 +5,7 @@ const p = require('node:util').promisify
 const os = require('node:os')
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
-const caps = require('ssb-caps')
+const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-identity-add')
@@ -15,7 +15,7 @@ test('identity.add()', async (t) => {
   const keypair1 = Keypair.generate('ed25519', 'alice')
   const keypair2 = Keypair.generate('ed25519', 'bob')
 
-  const peer = SecretStack({ appKey: caps.shs })
+  const peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
     .use(require('ssb-box'))
     .call(null, { keypair: keypair1, path: DIR })
@@ -47,7 +47,7 @@ test('publish with a key in the identity', async (t) => {
   const keypair1 = Keypair.generate('ed25519', 'alice')
   const keypair2 = Keypair.generate('ed25519', 'bob')
 
-  let peer = SecretStack({ appKey: caps.shs })
+  let peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
     .use(require('ssb-box'))
     .call(null, { keypair: keypair1, path: DIR })
@@ -90,7 +90,7 @@ test('publish with a key in the identity', async (t) => {
   rimraf.sync(DIR)
   const keypair3 = Keypair.generate('ed25519', 'carol')
 
-  const carol = SecretStack({ appKey: caps.shs })
+  const carol = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
     .use(require('ssb-box'))
     .call(null, { keypair: keypair3, path: DIR })
