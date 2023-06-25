@@ -6,8 +6,12 @@ const MsgV3 = require('../../lib/msg-v3')
 test('simple multi-author tangle', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
-  const identityA = MsgV3.getMsgHash(MsgV3.createIdentity(keypairA, 'alice'))
-  const identityB = MsgV3.getMsgHash(MsgV3.createIdentity(keypairB, 'bob'))
+  const identityA = MsgV3.getMsgHash(
+    MsgV3.createIdentity(keypairA, 'person', 'alice')
+  )
+  const identityB = MsgV3.getMsgHash(
+    MsgV3.createIdentity(keypairB, 'person', 'bob')
+  )
 
   const rootMsgA = MsgV3.createRoot(identityA, 'post', keypairA)
   const rootHashA = MsgV3.getMsgHash(rootMsgA)
@@ -82,8 +86,12 @@ test('simple multi-author tangle', (t) => {
 test('lipmaa in multi-author tangle', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
-  const identityA = MsgV3.getMsgHash(MsgV3.createIdentity(keypairA, 'alice'))
-  const identityB = MsgV3.getMsgHash(MsgV3.createIdentity(keypairB, 'bob'))
+  const identityA = MsgV3.getMsgHash(
+    MsgV3.createIdentity(keypairA, 'person', 'alice')
+  )
+  const identityB = MsgV3.getMsgHash(
+    MsgV3.createIdentity(keypairB, 'person', 'bob')
+  )
 
   const data = { text: 'Hello world!' }
 

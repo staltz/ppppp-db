@@ -5,7 +5,9 @@ const Keypair = require('ppppp-keypair')
 const MsgV3 = require('../../lib/msg-v3')
 
 const keypair = Keypair.generate('ed25519', 'alice')
-const identity = MsgV3.getMsgHash(MsgV3.createIdentity(keypair, 'MYNONCE'))
+const identity = MsgV3.getMsgHash(
+  MsgV3.createIdentity(keypair, 'person', 'MYNONCE')
+)
 const pubkeys = new Set([keypair.public])
 
 test('invalid msg with non-array prev', (t) => {
@@ -180,14 +182,20 @@ test('invalid msg with unknown prev', (t) => {
 
   const err = MsgV3.validate(msg2, tangle, pubkeys, msgHash2, rootHash)
   assert.ok(err, 'invalid 2nd msg throws')
-  assert.match(err, /all prev are locally unknown/, 'invalid 2nd msg description')
+  assert.match(
+    err,
+    /all prev are locally unknown/,
+    'invalid 2nd msg description'
+  )
 })
 
 test('invalid feed msg with a different pubkey', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
 
-  const identityB = MsgV3.getMsgHash(MsgV3.createIdentity(keypairB, 'MYNONCE'))
+  const identityB = MsgV3.getMsgHash(
+    MsgV3.createIdentity(keypairB, 'person', 'MYNONCE')
+  )
 
   const rootMsg = MsgV3.createRoot(identity, 'post', keypair)
   const rootHash = MsgV3.getMsgHash(rootMsg)

@@ -24,7 +24,7 @@ interface Msg {
   metadata: {
     dataHash: ContentHash | null // blake3 hash of the `content` object serialized
     dataSize: number // byte size (unsigned integer) of the `content` object serialized
-    identity: string | null // blake3 hash ofn a identity tangle root msg, or null
+    identity: string | 'self' | null // blake3 hash of an identity tangle root msg, or the string 'self', or null
     identityTips: Array<string> | null // list of blake3 hashes of identity tangle tips, or null
     tangles: {
       // for each tangle this msg belongs to, identified by the tangle's root
@@ -54,7 +54,7 @@ interface Msg {
   metadata: {
     dataHash: ContentHash
     dataSize: number
-    identity: null // MUST be null
+    identity: 'self' // MUST be the string 'self'
     identityTips: null // MUST be null
     tangles: {
       [identityTangleId: string]: {
@@ -62,7 +62,7 @@ interface Msg {
         prev: Array<MsgHash> // list of msg hashes of existing msgs, unique set and ordered alphabetically
       }
     }
-    domain: 'identity' // MUST be 'identity'
+    domain: string // alphanumeric string, at least 3 chars, max 100 chars
     v: 2
   }
   pubkey: Pubkey

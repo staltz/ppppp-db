@@ -21,7 +21,7 @@ test('add()', async (t) => {
 
   await peer.db.loaded()
 
-  const identityMsg0 = MsgV3.createIdentity(keypair)
+  const identityMsg0 = MsgV3.createIdentity(keypair, 'person')
   const id = MsgV3.getMsgHash(identityMsg0)
 
   await p(peer.db.add)(identityMsg0, id)

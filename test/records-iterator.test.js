@@ -18,7 +18,7 @@ test('records() iterator', async (t) => {
     .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
-  const identity = (await p(peer.db.identity.create)(null)).hash
+  const identity = (await p(peer.db.identity.create)({ domain: 'person' }))
 
   for (let i = 0; i < 6; i++) {
     await p(peer.db.feed.publish)({
@@ -34,7 +34,7 @@ test('records() iterator', async (t) => {
   let count = 0
   for (const rec of peer.db.records()) {
     if (!rec.msg.data) continue
-    if (!rec.msg.metadata.identity) continue
+    if (rec.msg.metadata.identity === 'self') continue
     assert.ok(rec.misc.size > rec.msg.metadata.dataSize, 'size > dataSize')
     count++
   }

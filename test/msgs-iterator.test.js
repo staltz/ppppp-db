@@ -19,7 +19,7 @@ test('msgs() iterator', async (t) => {
 
   await peer.db.loaded()
 
-  const identity = (await p(peer.db.identity.create)(null)).hash
+  const identity = (await p(peer.db.identity.create)({domain: 'person'}))
 
   for (let i = 0; i < 6; i++) {
     await p(peer.db.feed.publish)({

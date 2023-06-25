@@ -21,15 +21,20 @@ test('identity.add()', async (t) => {
     .call(null, { keypair: keypair1, path: DIR })
 
   await peer.db.loaded()
-  const identityRec0 = await p(peer.db.identity.create)({ keypair: keypair1 })
-  const id = identityRec0.hash
+  const id = await p(peer.db.identity.create)({
+    keypair: keypair1,
+    domain: 'person',
+  })
 
-  const identityRec1 = await p(peer.db.identity.add)({ identity: id, keypair: keypair2 })
+  const identityRec1 = await p(peer.db.identity.add)({
+    identity: id,
+    keypair: keypair2,
+  })
   assert.ok(identityRec1, 'identityRec1 exists')
   const { hash, msg } = identityRec1
   assert.ok(hash, 'hash exists')
   assert.equal(msg.data.add, keypair2.public, 'msg.data.add NEW KEY')
-  assert.equal(msg.metadata.identity, null, 'msg.metadata.identity')
+  assert.equal(msg.metadata.identity, 'self', 'msg.metadata.identity')
   assert.equal(msg.metadata.identityTips, null, 'msg.metadata.identityTips')
   assert.deepEqual(
     msg.metadata.tangles,
@@ -54,9 +59,15 @@ test('publish with a key in the identity', async (t) => {
 
   await peer.db.loaded()
 
-  const identityRec0 = await p(peer.db.identity.create)({ keypair: keypair1 })
-  const identity = identityRec0.hash
-  const identityRec1 = await p(peer.db.identity.add)({ identity, keypair: keypair2 })
+  const identity = await p(peer.db.identity.create)({
+    keypair: keypair1,
+    domain: 'person',
+  })
+  const identityMsg0 = peer.db.get(identity)
+  const identityRec1 = await p(peer.db.identity.add)({
+    identity,
+    keypair: keypair2,
+  })
 
   const postRec = await p(peer.db.feed.publish)({
     identity,
@@ -71,17 +82,21 @@ test('publish with a key in the identity', async (t) => {
   const recs = [...peer.db.records()]
   assert.equal(recs.length, 4, '4 records')
   const [_identityRec0, _identityRec1, postsRoot, _post] = recs
-  assert.deepEqual(_identityRec0.msg, identityRec0.msg, 'identityMsg0')
+  assert.deepEqual(_identityRec0.msg, identityMsg0, 'identityMsg0')
   assert.deepEqual(_identityRec1.msg, identityRec1.msg, 'identityMsg1')
-  assert.deepEqual(postsRoot.msg.metadata, {
-    dataHash: null,
-    dataSize: 0,
-    identity,
-    identityTips: null,
-    tangles: {},
-    domain: 'post',
-    v: 3,
-  }, 'postsRoot')
+  assert.deepEqual(
+    postsRoot.msg.metadata,
+    {
+      dataHash: null,
+      dataSize: 0,
+      identity,
+      identityTips: null,
+      tangles: {},
+      domain: 'post',
+      v: 3,
+    },
+    'postsRoot'
+  )
   assert.deepEqual(_post.msg, postRec.msg, 'postMsg')
 
   await p(peer.close)()
@@ -97,7 +112,7 @@ test('publish with a key in the identity', async (t) => {
 
   await carol.db.loaded()
 
-  await p(carol.db.add)(identityRec0.msg, identity)
+  await p(carol.db.add)(identityMsg0, identity)
   await p(carol.db.add)(identityRec1.msg, identity)
   await p(carol.db.add)(postsRoot.msg, postsId)
   await p(carol.db.add)(postRec.msg, postsId)

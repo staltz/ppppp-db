@@ -5,7 +5,9 @@ const MsgV3 = require('../../lib/msg-v3')
 
 test('lipmaa prevs', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
-  const identity = MsgV3.getMsgHash(MsgV3.createIdentity(keypair, 'MYNONCE'))
+  const identity = MsgV3.getMsgHash(
+    MsgV3.createIdentity(keypair, 'person', 'MYNONCE')
+  )
   const data = { text: 'Hello world!' }
 
   const rootMsg = MsgV3.createRoot(identity, 'post', keypair)

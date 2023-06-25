@@ -25,7 +25,7 @@ test('setup', async (t) => {
 
   await peer.db.loaded()
 
-  id = (await p(peer.db.identity.create)(null)).hash
+  id = (await p(peer.db.identity.create)({domain: 'person'}))
 
   const rec1 = await p(peer.db.feed.publish)({
     identity: id,

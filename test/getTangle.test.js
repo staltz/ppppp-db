@@ -26,7 +26,7 @@ test('setup', async (t) => {
 
   await peer.db.loaded()
 
-  const id = (await p(peer.db.identity.create)(null)).hash
+  const id = (await p(peer.db.identity.create)({domain: 'person'}))
 
   // Slow down append so that we can trigger msg creation in parallel
   const originalAppend = peer.db._getLog().append

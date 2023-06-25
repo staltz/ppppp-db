@@ -5,7 +5,9 @@ const MsgV3 = require('../../lib/msg-v3')
 
 test('validate root msg', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
-  const identity = MsgV3.getMsgHash(MsgV3.createIdentity(keypair, 'alice'))
+  const identity = MsgV3.getMsgHash(
+    MsgV3.createIdentity(keypair, 'person', 'alice')
+  )
   const pubkeys = new Set([keypair.public])
 
   const rootMsg = MsgV3.createRoot(identity, 'post', keypair)
@@ -21,13 +23,19 @@ test('validate identity tangle', (t) => {
   const keypair1 = Keypair.generate('ed25519', 'alice')
   pubkeys.add(keypair1.public)
 
-  const identityMsg0 = MsgV3.createIdentity(keypair1, 'alice')
+  const identityMsg0 = MsgV3.createIdentity(keypair1, 'person', 'alice')
   const identity = MsgV3.getMsgHash(identityMsg0)
   const identityMsg0Hash = identity
 
   const tangle = new MsgV3.Tangle(identity)
 
-  let err = MsgV3.validate(identityMsg0, tangle, pubkeys, identityMsg0Hash, identity)
+  let err = MsgV3.validate(
+    identityMsg0,
+    tangle,
+    pubkeys,
+    identityMsg0Hash,
+    identity
+  )
   assert.ifError(err, 'valid identity root msg')
 
   tangle.add(identity, identityMsg0)
@@ -46,13 +54,21 @@ test('validate identity tangle', (t) => {
   })
   const identityMsg1Hash = MsgV3.getMsgHash(identityMsg1)
 
-  err = MsgV3.validate(identityMsg1, tangle, pubkeys, identityMsg1Hash, identity)
+  err = MsgV3.validate(
+    identityMsg1,
+    tangle,
+    pubkeys,
+    identityMsg1Hash,
+    identity
+  )
   assert.ifError(err, 'valid identity msg')
 })
 
 test('validate 2nd msg with existing root', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
-  const identity = MsgV3.getMsgHash(MsgV3.createIdentity(keypair, 'alice'))
+  const identity = MsgV3.getMsgHash(
+    MsgV3.createIdentity(keypair, 'person', 'alice')
+  )
   const pubkeys = new Set([keypair.public])
 
   const rootMsg = MsgV3.createRoot(identity, 'post', keypair)
@@ -79,7 +95,9 @@ test('validate 2nd msg with existing root', (t) => {
 
 test('validate 2nd forked msg', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
-  const identity = MsgV3.getMsgHash(MsgV3.createIdentity(keypair, 'alice'))
+  const identity = MsgV3.getMsgHash(
+    MsgV3.createIdentity(keypair, 'person', 'alice')
+  )
   const pubkeys = new Set([keypair.public])
 
   const rootMsg = MsgV3.createRoot(identity, 'post', keypair)

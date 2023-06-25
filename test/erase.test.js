@@ -21,7 +21,7 @@ test('erase', async (t) => {
 
   await peer.db.loaded()
 
-  const id = (await p(peer.db.identity.create)(null)).hash
+  const id = await p(peer.db.identity.create)({ domain: 'person' })
 
   const msgHashes = []
   for (let i = 0; i < 5; i++) {
@@ -35,7 +35,9 @@ test('erase', async (t) => {
 
   const before = []
   for (const msg of peer.db.msgs()) {
-    if (msg.data && msg.metadata.identity) before.push(msg.data.text)
+    if (msg.data && msg.metadata.identity?.length > 4) {
+      before.push(msg.data.text)
+    }
   }
 
   assert.deepEqual(
@@ -48,7 +50,9 @@ test('erase', async (t) => {
 
   const after = []
   for (const msg of peer.db.msgs()) {
-    if (msg.data && msg.metadata.identity) after.push(msg.data.text)
+    if (msg.data && msg.metadata.identity?.length > 4) {
+      after.push(msg.data.text)
+    }
   }
 
   assert.deepEqual(after, ['m0', 'm1', 'm3', 'm4'], '4 msgs after the erase')
