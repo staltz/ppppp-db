@@ -26,9 +26,12 @@ test('identity.add()', async (t) => {
     domain: 'person',
   })
 
+  const consent = peer.db.identity.consent({ identity: id, keypair: keypair2 })
+
   const identityRec1 = await p(peer.db.identity.add)({
     identity: id,
     keypair: keypair2,
+    consent,
   })
   assert.ok(identityRec1, 'identityRec1 exists')
   const { hash, msg } = identityRec1
@@ -64,9 +67,12 @@ test('publish with a key in the identity', async (t) => {
     domain: 'person',
   })
   const identityMsg0 = peer.db.get(identity)
+
+  const consent = peer.db.identity.consent({ identity, keypair: keypair2 })
   const identityRec1 = await p(peer.db.identity.add)({
     identity,
     keypair: keypair2,
+    consent,
   })
 
   const postRec = await p(peer.db.feed.publish)({

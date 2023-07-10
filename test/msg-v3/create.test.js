@@ -95,7 +95,7 @@ test('MsgV3.create()', (t) => {
   )
   assert.equal(
     msg1.sig,
-    '2FhnKsDKCxEV4JUM1nmPp3oSFJ8zL7r4SjMNogDHeAzCWQLgVmKiexgUDSE4k9C3eT4Uy3SZbBhRY75WJAqvtHHf',
+    '3ucLkFxXJkbX6N7qZQm5PNop2tQ5Z1E9oCVB4HCZjeD3Mn7EXMrgZzCDZfpLTVUUBRqSBQJFxL1j5jNWKFeidHgV',
     'sig'
   )
 
@@ -155,7 +155,7 @@ test('MsgV3.create()', (t) => {
   )
   assert.equal(
     msg2.sig,
-    '3B6WQvDdKvRhZeZDfE9LY4HrnhZTJHRJ86FazBg1xxco2S1eHG44UwR9TSpthiXQ1X51h2VeDeGPV6Fdma69BMN9',
+    'RtHPPccZNp6c65SnCrfjsNVB6We6G4Ja1oi68AdLuzxSjWNayxepagYJQwgP635E4b55xNGckMiFvJF9Vsn3oAi',
     'sig'
   )
 
