@@ -70,6 +70,12 @@ interface Msg {
 }
 ```
 
+The `data` object varies:
+
+- In the first message: `{ add: <pubkey>, nonce: <nonce> }`
+- In subsequent messages: `{ add: <pubkey>, consent: <consent> }`
+  - Where `<consent>` is the base58-encoded signature of the string `:identity-add:<ID>` where `<ID>` is the identity's ID
+
 ## Feed root
 
 The root msg for a feed is special, its `metadata` is predictable and can be constructed by any peer. It is a data-less msg with the following shape:
