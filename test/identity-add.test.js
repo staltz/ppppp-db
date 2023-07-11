@@ -68,11 +68,10 @@ test('publish with a key in the identity', async (t) => {
   })
   const identityMsg0 = peer.db.get(identity)
 
-  const consent = peer.db.identity.consent({ identity, keypair: keypair2 })
+  // Consent is implicitly created because keypair2 has .private
   const identityRec1 = await p(peer.db.identity.add)({
     identity,
     keypair: keypair2,
-    consent,
   })
 
   const postRec = await p(peer.db.feed.publish)({
