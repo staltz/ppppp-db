@@ -19,10 +19,27 @@ test('identity.create() with just "domain"', async (t) => {
     .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
-  const identity = await p(peer.db.identity.create)({ domain: 'person' })
+  const identity = await p(peer.db.identity.create)({
+    domain: 'person',
+    _nonce: 'MYNONCE',
+  })
   assert.ok(identity, 'identityRec0 exists')
   const msg = peer.db.get(identity)
-  assert.equal(msg.data.add, keypair.public, 'msg.data.add')
+  assert.deepEqual(
+    msg.data,
+    {
+      action: 'add',
+      add: {
+        key: {
+          purpose: 'sig',
+          algorithm: 'ed25519',
+          bytes: keypair.public,
+        },
+        nonce: 'MYNONCE',
+      },
+    },
+    'msg.data.add'
+  )
   assert.equal(msg.metadata.identity, 'self', 'msg.metadata.identity')
   assert.equal(msg.metadata.identityTips, null, 'msg.metadata.identityTips')
   assert.deepEqual(
@@ -51,7 +68,7 @@ test('identity.create() with "keypair" and "domain"', async (t) => {
   })
   assert.ok(identity, 'identity created')
   const msg = peer.db.get(identity)
-  assert.equal(msg.data.add, keypair.public, 'msg.data.add')
+  assert.equal(msg.data.add.key.bytes, keypair.public, 'msg.data.add')
   assert.equal(msg.metadata.identity, 'self', 'msg.metadata.identity')
   assert.equal(msg.metadata.identityTips, null, 'msg.metadata.identityTips')
   assert.deepEqual(
@@ -117,8 +134,8 @@ test('identity.findOrCreate() can create', async (t) => {
   await peer.db.loaded()
 
   let gotError = false
-  await p(peer.db.identity.find)({ keypair, domain }).catch(err => {
-    assert.equal(err.cause, 'ENOENT');
+  await p(peer.db.identity.find)({ keypair, domain }).catch((err) => {
+    assert.equal(err.cause, 'ENOENT')
     gotError = true
   })
   assert.ok(gotError, 'identity not found')
@@ -126,7 +143,7 @@ test('identity.findOrCreate() can create', async (t) => {
   const identity = await p(peer.db.identity.findOrCreate)({ keypair, domain })
   assert.ok(identity, 'identity created')
   const msg = peer.db.get(identity)
-  assert.equal(msg.data.add, keypair.public, 'msg.data.add')
+  assert.equal(msg.data.add.key.bytes, keypair.public, 'msg.data.add')
   assert.equal(msg.metadata.identity, 'self', 'msg.metadata.identity')
   assert.equal(msg.metadata.identityTips, null, 'msg.metadata.identityTips')
   assert.deepEqual(
@@ -138,4 +155,3 @@ test('identity.findOrCreate() can create', async (t) => {
 
   await p(peer.close)()
 })
-

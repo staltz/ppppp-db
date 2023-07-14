@@ -36,7 +36,21 @@ test('identity.add()', async (t) => {
   assert.ok(identityRec1, 'identityRec1 exists')
   const { hash, msg } = identityRec1
   assert.ok(hash, 'hash exists')
-  assert.equal(msg.data.add, keypair2.public, 'msg.data.add NEW KEY')
+  assert.deepEqual(
+    msg.data,
+    {
+      action: 'add',
+      add: {
+        key: {
+          purpose: 'sig',
+          algorithm: 'ed25519',
+          bytes: keypair2.public,
+        },
+        consent,
+      },
+    },
+    'msg.data.add NEW KEY'
+  )
   assert.equal(msg.metadata.identity, 'self', 'msg.metadata.identity')
   assert.equal(msg.metadata.identityTips, null, 'msg.metadata.identityTips')
   assert.deepEqual(

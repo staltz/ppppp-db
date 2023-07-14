@@ -10,9 +10,23 @@ test('MsgV3.createIdentity()', (t) => {
   const identityMsg0 = MsgV3.createIdentity(keypair, 'person', 'MYNONCE')
   console.log(JSON.stringify(identityMsg0, null, 2))
 
-  assert.equal(identityMsg0.data.add, keypair.public, 'data.add')
-  assert.equal(identityMsg0.metadata.dataHash, 'THi3VkJeaf8aTkLSNJUdFD', 'hash')
-  assert.equal(identityMsg0.metadata.dataSize, 72, 'size')
+  assert.deepEqual(
+    identityMsg0.data,
+    {
+      action: 'add',
+      add: {
+        key: {
+          purpose: 'sig',
+          algorithm: 'ed25519',
+          bytes: keypair.public,
+        },
+        nonce: 'MYNONCE',
+      },
+    },
+    'data'
+  )
+  assert.equal(identityMsg0.metadata.dataHash, 'C9XZXiZV4kxD6MtVqNkuBw', 'hash')
+  assert.equal(identityMsg0.metadata.dataSize, 143, 'size')
   assert.equal(identityMsg0.metadata.identity, 'self', 'identity')
   assert.equal(identityMsg0.metadata.identityTips, null, 'identityTips')
   assert.deepEqual(identityMsg0.metadata.tangles, {}, 'tangles')
@@ -21,7 +35,7 @@ test('MsgV3.createIdentity()', (t) => {
   assert.equal(identityMsg0.pubkey, keypair.public, 'pubkey')
 
   identity = MsgV3.getMsgHash(identityMsg0)
-  assert.equal(identity, 'v7vBrnrCTahjgkpoaZrWm', 'identity ID')
+  assert.equal(identity, 'NwZbYERYSrShDwcKrrLVYe', 'identity ID')
 })
 
 let rootMsg = null
@@ -43,7 +57,7 @@ test('MsgV3.createRoot()', (t) => {
   assert.equal(rootMsg.pubkey, keypair.public, 'pubkey')
 
   rootHash = MsgV3.getMsgHash(rootMsg)
-  assert.equal(rootHash, 'HPtwPD552ajEurwpgQRfTX', 'root hash')
+  assert.equal(rootHash, '2yqmqJLffAeomD93izwjx9', 'root hash')
 })
 
 test('MsgV3.create()', (t) => {
@@ -68,7 +82,15 @@ test('MsgV3.create()', (t) => {
   assert.deepEqual(msg1.data, data, 'data')
   assert.deepEqual(
     Object.keys(msg1.metadata),
-    ['dataHash', 'dataSize', 'identity', 'identityTips', 'tangles', 'domain', 'v'],
+    [
+      'dataHash',
+      'dataSize',
+      'identity',
+      'identityTips',
+      'tangles',
+      'domain',
+      'v',
+    ],
     'metadata shape'
   )
   assert.deepEqual(
@@ -78,14 +100,22 @@ test('MsgV3.create()', (t) => {
   )
   assert.deepEqual(msg1.metadata.dataSize, 23, 'metadata.dataSize')
   assert.equal(msg1.metadata.identity, identity, 'metadata.identity')
-  assert.deepEqual(msg1.metadata.identityTips, [identity], 'metadata.identityTips')
+  assert.deepEqual(
+    msg1.metadata.identityTips,
+    [identity],
+    'metadata.identityTips'
+  )
   assert.deepEqual(
     Object.keys(msg1.metadata.tangles),
     [rootHash],
     'metadata.tangles'
   )
   assert.equal(msg1.metadata.tangles[rootHash].depth, 1, 'tangle depth')
-  assert.deepEqual(msg1.metadata.tangles[rootHash].prev, [rootHash], 'tangle prev')
+  assert.deepEqual(
+    msg1.metadata.tangles[rootHash].prev,
+    [rootHash],
+    'tangle prev'
+  )
   assert.equal(msg1.metadata.domain, 'post', 'metadata.domain')
   assert.deepEqual(msg1.metadata.v, 3, 'metadata.v')
   assert.equal(
@@ -95,11 +125,11 @@ test('MsgV3.create()', (t) => {
   )
   assert.equal(
     msg1.sig,
-    '3ucLkFxXJkbX6N7qZQm5PNop2tQ5Z1E9oCVB4HCZjeD3Mn7EXMrgZzCDZfpLTVUUBRqSBQJFxL1j5jNWKFeidHgV',
+    '2GsXePCkaJk1emgjRmwTrn9qqA5GozG8BrDa9je4SeCNJX8KVYr45MyZGmfkJsGBoMocZCMhP4jiFgdL1PqURhx6',
     'sig'
   )
 
-  const msgHash1 = 'FK4jCKFZDGwecydC8bitgR'
+  const msgHash1 = 'BTybPnRjVjVZMdWBr52kfz'
 
   assert.equal(
     MsgV3.getMsgId(msg1),
@@ -128,7 +158,15 @@ test('MsgV3.create()', (t) => {
   assert.deepEqual(msg2.data, data2, 'data')
   assert.deepEqual(
     Object.keys(msg2.metadata),
-    ['dataHash', 'dataSize', 'identity', 'identityTips', 'tangles', 'domain', 'v'],
+    [
+      'dataHash',
+      'dataSize',
+      'identity',
+      'identityTips',
+      'tangles',
+      'domain',
+      'v',
+    ],
     'metadata shape'
   )
   assert.deepEqual(
@@ -138,14 +176,22 @@ test('MsgV3.create()', (t) => {
   )
   assert.deepEqual(msg2.metadata.dataSize, 21, 'metadata.dataSize')
   assert.equal(msg2.metadata.identity, identity, 'metadata.identity')
-  assert.deepEqual(msg2.metadata.identityTips, [identity], 'metadata.identityTips')
+  assert.deepEqual(
+    msg2.metadata.identityTips,
+    [identity],
+    'metadata.identityTips'
+  )
   assert.deepEqual(
     Object.keys(msg2.metadata.tangles),
     [rootHash],
     'metadata.tangles'
   )
   assert.equal(msg2.metadata.tangles[rootHash].depth, 2, 'tangle depth')
-  assert.deepEqual(msg2.metadata.tangles[rootHash].prev, [msgHash1], 'tangle prev')
+  assert.deepEqual(
+    msg2.metadata.tangles[rootHash].prev,
+    [msgHash1],
+    'tangle prev'
+  )
   assert.equal(msg2.metadata.domain, 'post', 'metadata.domain')
   assert.deepEqual(msg2.metadata.v, 3, 'metadata.v')
   assert.equal(
@@ -155,13 +201,13 @@ test('MsgV3.create()', (t) => {
   )
   assert.equal(
     msg2.sig,
-    'RtHPPccZNp6c65SnCrfjsNVB6We6G4Ja1oi68AdLuzxSjWNayxepagYJQwgP635E4b55xNGckMiFvJF9Vsn3oAi',
+    'EA8PUp44ZBdgsXa4DRioejc4W5NMapoA9oUbgJwQSsvKDj9nh3oAHn7ScnZo2Hfw67JzHeZXeXVwgLCWzsKCFYw',
     'sig'
   )
 
   assert.deepEqual(
     MsgV3.getMsgId(msg2),
-    `ppppp:message/v3/${identity}/post/AYXun8rEc3SNGZYM252TAS`,
+    `ppppp:message/v3/${identity}/post/3bwFna3PvkSNxssPd9QDYe`,
     'getMsgId'
   )
 })

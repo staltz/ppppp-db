@@ -33,7 +33,7 @@
     "bs58": "~5.0.0",
     "json-canon": "~1.0.0",
     "obz": "~1.1.0",
-    "ppppp-keypair": "github:staltz/ppppp-keypair",
+    "ppppp-keypair": "file:../keypair",
     "promisify-4loc": "~1.0.0",
     "push-stream": "~11.2.0",
     "set.prototype.union": "~1.0.2"

@@ -47,10 +47,7 @@ Msgs in an identity tangle are special because they have empty `identity` and `i
 
 ```typescript
 interface Msg {
-  data: {
-    add: string // pubkey being added to the identity
-    nonce?: string // nonce required only on the identity tangle's root
-  }
+  data: IdentityData
   metadata: {
     dataHash: ContentHash
     dataSize: number
@@ -68,13 +65,82 @@ interface Msg {
   pubkey: Pubkey
   sig: Signature
 }
+
+type IdentityData =
+  | { action: 'add' add: IdentityAdd }
+  | { action: 'del' del: IdentityDel }
+
+type IdentityAdd = {
+  key: Key
+  nonce?: string // nonce required only on the identity tangle's root
+  consent?: string // base58 encoded signature of the string `:identity-add:<ID>` where `<ID>` is the identity's ID, required only on non-root msgs
+}
+
+type IdentityDel = {
+  key: Key
+}
+
+type Key =
+  | {
+      purpose: 'sig' // digital signatures
+      algorithm: 'ed25519' // libsodium crypto_sign_detached
+      bytes: string // base58 encoded string for the public key being added
+    }
+  | {
+      purpose: 'subidentity'
+      algorithm: 'tangle' // PPPPP tangle
+      bytes: string // subidentity ID
+    }
+  | {
+      // WIP!!
+      purpose: 'box' // asymmetric encryption
+      algorithm: 'x25519-xsalsa20-poly1305' // libsodium crypto_box_easy
+      bytes: string // base58 encoded string of the public key
+    }
 ```
 
-The `data` object varies:
+Examples of `IdentityData`:
 
-- In the first message: `{ add: <pubkey>, nonce: <nonce> }`
-- In subsequent messages: `{ add: <pubkey>, consent: <consent> }`
-  - Where `<consent>` is the base58-encoded signature of the string `:identity-add:<ID>` where `<ID>` is the identity's ID
+- Registering the first signing pubkey:
+  ```json
+  {
+    "action": "add",
+    "add": {
+      "key": {
+        "purpose": "sig",
+        "algorithm": "ed25519",
+        "bytes": "3JrJiHEQzRFMzEqWawfBgq2DSZDyihP1NHXshqcL8pB9"
+      },
+      "nonce": "6GHR1ZFFSB3C5qAGwmSwVH8f7byNo8Cqwn5PcyG3qDvS"
+    }
+  }
+  ```
+- Registering a subidentity:
+  ```json
+  {
+    "action": "add",
+    "add": {
+      "key": {
+        "purpose": "subidentity",
+        "algorithm": "tangle",
+        "bytes": "6yqq7iwyJEKdofJ3xpRLEq"
+      }
+    }
+  }
+  ```
+- Revoking a signing pubkey:
+  ```json
+  {
+    "action": "del",
+    "del": {
+      "key": {
+        "purpose": "sig",
+        "algorithm": "ed25519",
+        "bytes": "3JrJiHEQzRFMzEqWawfBgq2DSZDyihP1NHXshqcL8pB9"
+      }
+    }
+  }
+  ```
 
 ## Feed root
 
