@@ -26,6 +26,8 @@ test('identity.add()', async (t) => {
     domain: 'person',
   })
 
+  assert.equal(peer.db.identity.has({ identity: id, keypair: keypair2 }), false)
+
   const consent = peer.db.identity.consent({ identity: id, keypair: keypair2 })
 
   const identityRec1 = await p(peer.db.identity.add)({
@@ -59,6 +61,8 @@ test('identity.add()', async (t) => {
     'msg.metadata.tangles'
   )
   assert.equal(msg.pubkey, keypair1.public, 'msg.pubkey OLD KEY')
+
+  assert.equal(peer.db.identity.has({ identity: id, keypair: keypair2 }), true)
 
   await p(peer.close)()
 })
