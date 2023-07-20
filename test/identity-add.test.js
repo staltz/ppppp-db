@@ -55,6 +55,7 @@ test('identity.add()', async (t) => {
   )
   assert.equal(msg.metadata.identity, 'self', 'msg.metadata.identity')
   assert.equal(msg.metadata.identityTips, null, 'msg.metadata.identityTips')
+  assert.equal(msg.metadata.domain, 'person', 'msg.metadata.domain')
   assert.deepEqual(
     msg.metadata.tangles,
     { [id]: { depth: 1, prev: [id] } },
