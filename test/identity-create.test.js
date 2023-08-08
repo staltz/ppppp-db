@@ -36,6 +36,7 @@ test('identity.create() with just "domain"', async (t) => {
           bytes: keypair.public,
         },
         nonce: 'MYNONCE',
+        powers: ['add', 'del', 'box'],
       },
     },
     'msg.data.add'

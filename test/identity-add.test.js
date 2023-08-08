@@ -34,6 +34,7 @@ test('identity.add()', async (t) => {
     identity: id,
     keypair: keypair2,
     consent,
+    powers: ['box'],
   })
   assert.ok(identityRec1, 'identityRec1 exists')
   const { hash, msg } = identityRec1
@@ -49,6 +50,7 @@ test('identity.add()', async (t) => {
           bytes: keypair2.public,
         },
         consent,
+        powers: ['box'],
       },
     },
     'msg.data.add NEW KEY'
@@ -66,6 +68,86 @@ test('identity.add()', async (t) => {
   assert.equal(peer.db.identity.has({ identity: id, keypair: keypair2 }), true)
 
   await p(peer.close)()
+})
+
+test('keypair with no "add" powers cannot identity.add()', async (t) => {
+  rimraf.sync(DIR)
+  const keypair1 = Keypair.generate('ed25519', 'alice')
+  const keypair2 = Keypair.generate('ed25519', 'bob')
+  const keypair3 = Keypair.generate('ed25519', 'carol')
+
+  const peer1 = SecretStack({ appKey: caps.shse })
+    .use(require('../lib'))
+    .use(require('ssb-box'))
+    .call(null, { keypair: keypair1, path: DIR })
+
+  await peer1.db.loaded()
+  const id = await p(peer1.db.identity.create)({
+    keypair: keypair1,
+    domain: 'account',
+  })
+  const msg1 = peer1.db.get(id)
+
+  const { msg: msg2 } = await p(peer1.db.identity.add)({
+    identity: id,
+    keypair: keypair2,
+    powers: [],
+  })
+  assert.equal(msg2.data.add.key.bytes, keypair2.public)
+
+  assert.equal(peer1.db.identity.has({ identity: id, keypair: keypair2 }), true)
+
+  await p(peer1.close)()
+  rimraf.sync(DIR)
+
+  const peer2 = SecretStack({ appKey: caps.shse })
+    .use(require('../lib'))
+    .use(require('ssb-box'))
+    .call(null, { keypair: keypair2, path: DIR })
+
+  await peer2.db.loaded()
+  await p(peer2.db.add)(msg1, id)
+  await p(peer2.db.add)(msg2, id)
+
+  // Test author-side power validation
+  assert.rejects(
+    p(peer2.db.identity.add)({
+      identity: id,
+      keypair: keypair3,
+      powers: [],
+    }),
+    /signing keypair does not have the "add" power/
+  )
+
+  // Make the author disobey power validation
+  const { msg: msg3 } = await p(peer2.db.identity.add)({
+    identity: id,
+    keypair: keypair3,
+    powers: [],
+    _disobey: true,
+  })
+
+  assert.equal(msg3.data.add.key.bytes, keypair3.public)
+
+  await p(peer2.close)()
+  rimraf.sync(DIR)
+
+  const peer1again = SecretStack({ appKey: caps.shse })
+    .use(require('../lib'))
+    .use(require('ssb-box'))
+    .call(null, { keypair: keypair1, path: DIR })
+
+  await peer1again.db.loaded()
+  await p(peer1again.db.add)(msg1, id) // re-add because lost during rimraf
+  await p(peer1again.db.add)(msg2, id) // re-add because lost during rimraf
+
+  // Test replicator-side power validation
+  assert.rejects(
+    p(peer1again.db.add)(msg3, id),
+    /msg\.pubkey does not have "add" power/
+  )
+
+  await p(peer1again.close)()
 })
 
 test('publish with a key in the identity', async (t) => {

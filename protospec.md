@@ -24,7 +24,7 @@ interface Msg {
   metadata: {
     dataHash: ContentHash | null // blake3 hash of the `content` object serialized
     dataSize: number // byte size (unsigned integer) of the `content` object serialized
-    identity: string | 'self' | null // blake3 hash of an identity tangle root msg, or the string 'self', or null
+    identity: string | 'self' | 'any' // blake3 hash of an identity tangle root msg, or the string 'self', or 'any'
     identityTips: Array<string> | null // list of blake3 hashes of identity tangle tips, or null
     tangles: {
       // for each tangle this msg belongs to, identified by the tangle's root
@@ -67,13 +67,19 @@ interface Msg {
 }
 
 type IdentityData =
-  | { action: 'add' add: IdentityAdd }
-  | { action: 'del' del: IdentityDel }
+  | { action: 'add', add: IdentityAdd }
+  | { action: 'del', del: IdentityDel }
+
+// "add" means this keypair can validly add more keypairs to the identity tangle
+// "del" means this keypair can validly revoke other keypairs from the identity
+// "box" means the peer with this keypair should get access to the box keypair
+type IdentityPower = 'add' | 'del' | 'box'
 
 type IdentityAdd = {
   key: Key
   nonce?: string // nonce required only on the identity tangle's root
   consent?: string // base58 encoded signature of the string `:identity-add:<ID>` where `<ID>` is the identity's ID, required only on non-root msgs
+  identityPowers?: Array<IdentityPower> // list of powers granted to this key, defaults to []
 }
 
 type IdentityDel = {
@@ -84,10 +90,9 @@ type Key =
   | {
       purpose: 'sig' // digital signatures
       algorithm: 'ed25519' // libsodium crypto_sign_detached
-      bytes: string // base58 encoded string for the public key being added
+      bytes: string // base58 encoded string for the public key
     }
   | {
-      // WIP!!
       purpose: 'box' // asymmetric encryption
       algorithm: 'x25519-xsalsa20-poly1305' // libsodium crypto_box_easy
       bytes: string // base58 encoded string of the public key

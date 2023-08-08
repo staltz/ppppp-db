@@ -21,12 +21,13 @@ test('MsgV3.createIdentity()', (t) => {
           bytes: keypair.public,
         },
         nonce: 'MYNONCE',
+        powers: ['add', 'del', 'box'],
       },
     },
     'data'
   )
-  assert.equal(identityMsg0.metadata.dataHash, 'C9XZXiZV4kxD6MtVqNkuBw', 'hash')
-  assert.equal(identityMsg0.metadata.dataSize, 143, 'size')
+  assert.equal(identityMsg0.metadata.dataHash, 'R5az9nC1CB3Afd5Q57HYRQ', 'hash')
+  assert.equal(identityMsg0.metadata.dataSize, 172, 'size')
   assert.equal(identityMsg0.metadata.identity, 'self', 'identity')
   assert.equal(identityMsg0.metadata.identityTips, null, 'identityTips')
   assert.deepEqual(identityMsg0.metadata.tangles, {}, 'tangles')
@@ -35,7 +36,7 @@ test('MsgV3.createIdentity()', (t) => {
   assert.equal(identityMsg0.pubkey, keypair.public, 'pubkey')
 
   identity = MsgV3.getMsgHash(identityMsg0)
-  assert.equal(identity, 'NwZbYERYSrShDwcKrrLVYe', 'identity ID')
+  assert.equal(identity, 'GZJ1T864pFVHKJ2mRS2c5q', 'identity ID')
 })
 
 let rootMsg = null
@@ -57,7 +58,7 @@ test('MsgV3.createRoot()', (t) => {
   assert.equal(rootMsg.pubkey, keypair.public, 'pubkey')
 
   rootHash = MsgV3.getMsgHash(rootMsg)
-  assert.equal(rootHash, '2yqmqJLffAeomD93izwjx9', 'root hash')
+  assert.equal(rootHash, '4VfVj9DQArX5Vk6PVz5s5J', 'root hash')
 })
 
 test('MsgV3.create()', (t) => {
@@ -125,11 +126,11 @@ test('MsgV3.create()', (t) => {
   )
   assert.equal(
     msg1.sig,
-    '2GsXePCkaJk1emgjRmwTrn9qqA5GozG8BrDa9je4SeCNJX8KVYr45MyZGmfkJsGBoMocZCMhP4jiFgdL1PqURhx6',
+    '23CPZzKBAeRa6gb2ijwUJAd4VrYmokLSbQTmWEFMCiSogjViwqvms6ShyPq1UCzNWKAggmmJP4qETnVrY4iEMQ5J',
     'sig'
   )
 
-  const msgHash1 = 'BTybPnRjVjVZMdWBr52kfz'
+  const msgHash1 = 'kF6XHyi1LtJdttRDp54VM'
 
   assert.equal(
     MsgV3.getMsgId(msg1),
@@ -201,13 +202,13 @@ test('MsgV3.create()', (t) => {
   )
   assert.equal(
     msg2.sig,
-    'EA8PUp44ZBdgsXa4DRioejc4W5NMapoA9oUbgJwQSsvKDj9nh3oAHn7ScnZo2Hfw67JzHeZXeXVwgLCWzsKCFYw',
+    'tpMaMqV7t4hhYtLPZu7nFmUZej3pXVAYWf3pwXChThsQ8qT9Zxxym2TDDTUrT9VF7CNXRnLNoLMgYuZKAQrZ5bR',
     'sig'
   )
 
   assert.deepEqual(
     MsgV3.getMsgId(msg2),
-    `ppppp:message/v3/${identity}/post/3bwFna3PvkSNxssPd9QDYe`,
+    `ppppp:message/v3/${identity}/post/7W2nJCdpMeco7D8BYvRq7A`,
     'getMsgId'
   )
 })

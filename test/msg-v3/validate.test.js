@@ -43,7 +43,7 @@ test('validate identity tangle', (t) => {
   const keypair2 = Keypair.generate('ed25519', 'bob')
 
   const identityMsg1 = MsgV3.create({
-    identity: null,
+    identity: 'self',
     identityTips: null,
     domain: 'identity',
     data: { add: keypair2.public },
