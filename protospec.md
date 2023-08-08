@@ -34,7 +34,7 @@ interface Msg {
       }
     }
     domain: string // alphanumeric string, at least 3 chars, max 100 chars
-    v: 2 // hard-coded at 2, indicates the version of the feed format
+    v: 3 // hard-coded at 3, indicates the version of the feed format
   }
   pubkey: Pubkey // base58 encoded string for the author's public key
   sig: Signature // Signs the `metadata` object
@@ -60,7 +60,7 @@ interface Msg {
       }
     }
     domain: string // alphanumeric string, at least 3 chars, max 100 chars
-    v: 2
+    v: 3
   }
   pubkey: Pubkey
   sig: Signature
@@ -85,11 +85,6 @@ type Key =
       purpose: 'sig' // digital signatures
       algorithm: 'ed25519' // libsodium crypto_sign_detached
       bytes: string // base58 encoded string for the public key being added
-    }
-  | {
-      purpose: 'subidentity'
-      algorithm: 'tangle' // PPPPP tangle
-      bytes: string // subidentity ID
     }
   | {
       // WIP!!
