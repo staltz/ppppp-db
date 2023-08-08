@@ -6,26 +6,26 @@ const MsgV3 = require('../../lib/msg-v3')
 test('simple multi-author tangle', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
-  const identityA = MsgV3.getMsgHash(
-    MsgV3.createIdentity(keypairA, 'person', 'alice')
+  const accountA = MsgV3.getMsgHash(
+    MsgV3.createAccount(keypairA, 'person', 'alice')
   )
-  const identityB = MsgV3.getMsgHash(
-    MsgV3.createIdentity(keypairB, 'person', 'bob')
+  const accountB = MsgV3.getMsgHash(
+    MsgV3.createAccount(keypairB, 'person', 'bob')
   )
 
-  const rootMsgA = MsgV3.createRoot(identityA, 'post', keypairA)
+  const rootMsgA = MsgV3.createRoot(accountA, 'post', keypairA)
   const rootHashA = MsgV3.getMsgHash(rootMsgA)
   const tangleA = new MsgV3.Tangle(rootHashA)
   tangleA.add(rootHashA, rootMsgA)
 
-  const rootMsgB = MsgV3.createRoot(identityB, 'post', keypairB)
+  const rootMsgB = MsgV3.createRoot(accountB, 'post', keypairB)
   const rootHashB = MsgV3.getMsgHash(rootMsgB)
   const tangleB = new MsgV3.Tangle(rootHashB)
   tangleB.add(rootHashB, rootMsgB)
 
   const msg1 = MsgV3.create({
-    identity: identityA,
-    identityTips: [identityA],
+    account: accountA,
+    accountTips: [accountA],
     domain: 'post',
     data: { text: 'Hello world!' },
     tangles: {
@@ -44,8 +44,8 @@ test('simple multi-author tangle', (t) => {
   tangleX.add(msgHash1, msg1)
 
   const msg2 = MsgV3.create({
-    identity: identityB,
-    identityTips: [identityB],
+    account: accountB,
+    accountTips: [accountB],
     domain: 'post',
     data: { text: 'Hello world!' },
     tangles: {
@@ -86,28 +86,28 @@ test('simple multi-author tangle', (t) => {
 test('lipmaa in multi-author tangle', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
-  const identityA = MsgV3.getMsgHash(
-    MsgV3.createIdentity(keypairA, 'person', 'alice')
+  const accountA = MsgV3.getMsgHash(
+    MsgV3.createAccount(keypairA, 'person', 'alice')
   )
-  const identityB = MsgV3.getMsgHash(
-    MsgV3.createIdentity(keypairB, 'person', 'bob')
+  const accountB = MsgV3.getMsgHash(
+    MsgV3.createAccount(keypairB, 'person', 'bob')
   )
 
   const data = { text: 'Hello world!' }
 
-  const rootMsgA = MsgV3.createRoot(identityA, 'post', keypairA)
+  const rootMsgA = MsgV3.createRoot(accountA, 'post', keypairA)
   const rootHashA = MsgV3.getMsgHash(rootMsgA)
   const tangleA = new MsgV3.Tangle(rootHashA)
   tangleA.add(rootHashA, rootMsgA)
 
-  const rootMsgB = MsgV3.createRoot(identityB, 'post', keypairB)
+  const rootMsgB = MsgV3.createRoot(accountB, 'post', keypairB)
   const rootHashB = MsgV3.getMsgHash(rootMsgB)
   const tangleB = new MsgV3.Tangle(rootHashB)
   tangleB.add(rootHashB, rootMsgB)
 
   const msg1 = MsgV3.create({
-    identity: identityA,
-    identityTips: [identityA],
+    account: accountA,
+    accountTips: [accountA],
     domain: 'post',
     data,
     tangles: {
@@ -127,8 +127,8 @@ test('lipmaa in multi-author tangle', (t) => {
   )
 
   const msg2 = MsgV3.create({
-    identity: identityB,
-    identityTips: [identityB],
+    account: accountB,
+    accountTips: [accountB],
     domain: 'post',
     data,
     tangles: {
@@ -148,8 +148,8 @@ test('lipmaa in multi-author tangle', (t) => {
   )
 
   const msg3 = MsgV3.create({
-    identity: identityB,
-    identityTips: [identityB],
+    account: accountB,
+    accountTips: [accountB],
     domain: 'post',
     data,
     tangles: {
@@ -169,8 +169,8 @@ test('lipmaa in multi-author tangle', (t) => {
   )
 
   const msg4 = MsgV3.create({
-    identity: identityA,
-    identityTips: [identityA],
+    account: accountA,
+    accountTips: [accountA],
     domain: 'post',
     data,
     tangles: {

@@ -3,15 +3,15 @@ const assert = require('node:assert')
 const Keypair = require('ppppp-keypair')
 const MsgV3 = require('../../lib/msg-v3')
 
-let identity
-test('MsgV3.createIdentity()', (t) => {
+let account
+test('MsgV3.createAccount()', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  const identityMsg0 = MsgV3.createIdentity(keypair, 'person', 'MYNONCE')
-  console.log(JSON.stringify(identityMsg0, null, 2))
+  const accountMsg0 = MsgV3.createAccount(keypair, 'person', 'MYNONCE')
+  console.log(JSON.stringify(accountMsg0, null, 2))
 
   assert.deepEqual(
-    identityMsg0.data,
+    accountMsg0.data,
     {
       action: 'add',
       add: {
@@ -26,17 +26,17 @@ test('MsgV3.createIdentity()', (t) => {
     },
     'data'
   )
-  assert.equal(identityMsg0.metadata.dataHash, 'R5az9nC1CB3Afd5Q57HYRQ', 'hash')
-  assert.equal(identityMsg0.metadata.dataSize, 172, 'size')
-  assert.equal(identityMsg0.metadata.identity, 'self', 'identity')
-  assert.equal(identityMsg0.metadata.identityTips, null, 'identityTips')
-  assert.deepEqual(identityMsg0.metadata.tangles, {}, 'tangles')
-  assert.equal(identityMsg0.metadata.domain, 'person', 'domain')
-  assert.equal(identityMsg0.metadata.v, 3, 'v')
-  assert.equal(identityMsg0.pubkey, keypair.public, 'pubkey')
+  assert.equal(accountMsg0.metadata.dataHash, 'R5az9nC1CB3Afd5Q57HYRQ', 'hash')
+  assert.equal(accountMsg0.metadata.dataSize, 172, 'size')
+  assert.equal(accountMsg0.metadata.account, 'self', 'account')
+  assert.equal(accountMsg0.metadata.accountTips, null, 'accountTips')
+  assert.deepEqual(accountMsg0.metadata.tangles, {}, 'tangles')
+  assert.equal(accountMsg0.metadata.domain, 'person', 'domain')
+  assert.equal(accountMsg0.metadata.v, 3, 'v')
+  assert.equal(accountMsg0.pubkey, keypair.public, 'pubkey')
 
-  identity = MsgV3.getMsgHash(identityMsg0)
-  assert.equal(identity, 'GZJ1T864pFVHKJ2mRS2c5q', 'identity ID')
+  account = MsgV3.getMsgHash(accountMsg0)
+  assert.equal(account, 'J2SUr6XtJuFuTusNbagEW5', 'account ID')
 })
 
 let rootMsg = null
@@ -44,21 +44,21 @@ let rootHash = null
 test('MsgV3.createRoot()', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  rootMsg = MsgV3.createRoot(identity, 'post', keypair)
+  rootMsg = MsgV3.createRoot(account, 'post', keypair)
   console.log(JSON.stringify(rootMsg, null, 2))
 
   assert.equal(rootMsg.data, null, 'data')
   assert.equal(rootMsg.metadata.dataHash, null, 'hash')
   assert.equal(rootMsg.metadata.dataSize, 0, 'size')
-  assert.equal(rootMsg.metadata.identity, identity, 'identity')
-  assert.equal(rootMsg.metadata.identityTips, null, 'identityTips')
+  assert.equal(rootMsg.metadata.account, account, 'account')
+  assert.equal(rootMsg.metadata.accountTips, null, 'accountTips')
   assert.deepEqual(rootMsg.metadata.tangles, {}, 'tangles')
   assert.equal(rootMsg.metadata.domain, 'post', 'domain')
   assert.equal(rootMsg.metadata.v, 3, 'v')
   assert.equal(rootMsg.pubkey, keypair.public, 'pubkey')
 
   rootHash = MsgV3.getMsgHash(rootMsg)
-  assert.equal(rootHash, '4VfVj9DQArX5Vk6PVz5s5J', 'root hash')
+  assert.equal(rootHash, 'VsBFptgidvAspk4xTKZx6c', 'root hash')
 })
 
 test('MsgV3.create()', (t) => {
@@ -71,8 +71,8 @@ test('MsgV3.create()', (t) => {
   const msg1 = MsgV3.create({
     keypair,
     data,
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle1,
@@ -86,8 +86,8 @@ test('MsgV3.create()', (t) => {
     [
       'dataHash',
       'dataSize',
-      'identity',
-      'identityTips',
+      'account',
+      'accountTips',
       'tangles',
       'domain',
       'v',
@@ -100,11 +100,11 @@ test('MsgV3.create()', (t) => {
     'metadata.dataHash'
   )
   assert.deepEqual(msg1.metadata.dataSize, 23, 'metadata.dataSize')
-  assert.equal(msg1.metadata.identity, identity, 'metadata.identity')
+  assert.equal(msg1.metadata.account, account, 'metadata.account')
   assert.deepEqual(
-    msg1.metadata.identityTips,
-    [identity],
-    'metadata.identityTips'
+    msg1.metadata.accountTips,
+    [account],
+    'metadata.accountTips'
   )
   assert.deepEqual(
     Object.keys(msg1.metadata.tangles),
@@ -126,15 +126,15 @@ test('MsgV3.create()', (t) => {
   )
   assert.equal(
     msg1.sig,
-    '23CPZzKBAeRa6gb2ijwUJAd4VrYmokLSbQTmWEFMCiSogjViwqvms6ShyPq1UCzNWKAggmmJP4qETnVrY4iEMQ5J',
+    '46CjqZzC8RAanRHnUKs147PMNFvrQcc9Y7a8tMP3s4qQubCtgYsypgzNA7XkSxM6vqRCe2ZBSKM2WR9AoHN3VoDz',
     'sig'
   )
 
-  const msgHash1 = 'kF6XHyi1LtJdttRDp54VM'
+  const msgHash1 = 'R5G9WtDAQrco4FABRdvrUH'
 
   assert.equal(
     MsgV3.getMsgId(msg1),
-    `ppppp:message/v3/${identity}/post/${msgHash1}`,
+    `ppppp:message/v3/${account}/post/${msgHash1}`,
     'getMsgId'
   )
 
@@ -147,8 +147,8 @@ test('MsgV3.create()', (t) => {
   const msg2 = MsgV3.create({
     keypair,
     data: data2,
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle2,
@@ -162,8 +162,8 @@ test('MsgV3.create()', (t) => {
     [
       'dataHash',
       'dataSize',
-      'identity',
-      'identityTips',
+      'account',
+      'accountTips',
       'tangles',
       'domain',
       'v',
@@ -176,11 +176,11 @@ test('MsgV3.create()', (t) => {
     'metadata.dataHash'
   )
   assert.deepEqual(msg2.metadata.dataSize, 21, 'metadata.dataSize')
-  assert.equal(msg2.metadata.identity, identity, 'metadata.identity')
+  assert.equal(msg2.metadata.account, account, 'metadata.account')
   assert.deepEqual(
-    msg2.metadata.identityTips,
-    [identity],
-    'metadata.identityTips'
+    msg2.metadata.accountTips,
+    [account],
+    'metadata.accountTips'
   )
   assert.deepEqual(
     Object.keys(msg2.metadata.tangles),
@@ -202,13 +202,13 @@ test('MsgV3.create()', (t) => {
   )
   assert.equal(
     msg2.sig,
-    'tpMaMqV7t4hhYtLPZu7nFmUZej3pXVAYWf3pwXChThsQ8qT9Zxxym2TDDTUrT9VF7CNXRnLNoLMgYuZKAQrZ5bR',
+    '31StEDDnoDoDtRi49L94XPTGXxNtDJa9QXSJTd4o3wBtFAJvfQA1RsHvunU4CxdY9iC69WnxnkaW6QryrztJZkiA',
     'sig'
   )
 
   assert.deepEqual(
     MsgV3.getMsgId(msg2),
-    `ppppp:message/v3/${identity}/post/7W2nJCdpMeco7D8BYvRq7A`,
+    `ppppp:message/v3/${account}/post/LxWgRRr4wXd29sLDNGNTkr`,
     'getMsgId'
   )
 })
@@ -221,8 +221,8 @@ test('create() handles DAG tips correctly', (t) => {
   const msg1 = MsgV3.create({
     keypair,
     data: { text: '1' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,
@@ -231,7 +231,7 @@ test('create() handles DAG tips correctly', (t) => {
   const msgHash1 = MsgV3.getMsgHash(msg1)
   assert.deepEqual(
     msg1.metadata.tangles[rootHash].prev,
-    [MsgV3.getFeedRootHash(identity, 'post')],
+    [MsgV3.getFeedRootHash(account, 'post')],
     'msg1.prev is root'
   )
 
@@ -240,8 +240,8 @@ test('create() handles DAG tips correctly', (t) => {
   const msg2A = MsgV3.create({
     keypair,
     data: { text: '2A' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,
@@ -256,8 +256,8 @@ test('create() handles DAG tips correctly', (t) => {
   const msg2B = MsgV3.create({
     keypair,
     data: { text: '2B' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,
@@ -275,8 +275,8 @@ test('create() handles DAG tips correctly', (t) => {
   const msg3 = MsgV3.create({
     keypair,
     data: { text: '3' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,
@@ -297,8 +297,8 @@ test('create() handles DAG tips correctly', (t) => {
   const msg4 = MsgV3.create({
     keypair,
     data: { text: '4' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,

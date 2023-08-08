@@ -5,15 +5,15 @@ const Keypair = require('ppppp-keypair')
 const MsgV3 = require('../../lib/msg-v3')
 
 const keypair = Keypair.generate('ed25519', 'alice')
-const identity = MsgV3.getMsgHash(
-  MsgV3.createIdentity(keypair, 'person', 'MYNONCE')
+const account = MsgV3.getMsgHash(
+  MsgV3.createAccount(keypair, 'person', 'MYNONCE')
 )
 const pubkeys = new Set([keypair.public])
 
 test('invalid msg with non-array prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV3.createRoot(identity, 'post', keypair)
+  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
   const rootHash = MsgV3.getMsgHash(rootMsg)
 
   const tangle = new MsgV3.Tangle(rootHash)
@@ -22,8 +22,8 @@ test('invalid msg with non-array prev', (t) => {
   const msg = MsgV3.create({
     keypair,
     data: { text: 'Hello world!' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,
@@ -44,7 +44,7 @@ test('invalid msg with non-array prev', (t) => {
 test('invalid msg with bad prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV3.createRoot(identity, 'post', keypair)
+  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
   const rootHash = MsgV3.getMsgHash(rootMsg)
 
   const tangle = new MsgV3.Tangle(rootHash)
@@ -53,8 +53,8 @@ test('invalid msg with bad prev', (t) => {
   const msg1 = MsgV3.create({
     keypair,
     data: { text: 'Hello world!' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,
@@ -66,8 +66,8 @@ test('invalid msg with bad prev', (t) => {
   const msg2 = MsgV3.create({
     keypair,
     data: { text: 'Hello world!' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,
@@ -89,7 +89,7 @@ test('invalid msg with bad prev', (t) => {
 test('invalid msg with URI in prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV3.createRoot(identity, 'post', keypair)
+  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
   const rootHash = MsgV3.getMsgHash(rootMsg)
 
   const tangle = new MsgV3.Tangle(rootHash)
@@ -98,8 +98,8 @@ test('invalid msg with URI in prev', (t) => {
   const msg1 = MsgV3.create({
     keypair,
     data: { text: 'Hello world!' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,
@@ -111,8 +111,8 @@ test('invalid msg with URI in prev', (t) => {
   const msg2 = MsgV3.create({
     keypair,
     data: { text: 'Hello world!' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,
@@ -132,7 +132,7 @@ test('invalid msg with URI in prev', (t) => {
 test('invalid msg with unknown prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV3.createRoot(identity, 'post', keypair)
+  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
   const rootHash = MsgV3.getMsgHash(rootMsg)
 
   const tangle = new MsgV3.Tangle(rootHash)
@@ -141,8 +141,8 @@ test('invalid msg with unknown prev', (t) => {
   const msg1 = MsgV3.create({
     keypair,
     data: { text: 'Hello world!' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,
@@ -154,8 +154,8 @@ test('invalid msg with unknown prev', (t) => {
   const unknownMsg = MsgV3.create({
     keypair,
     data: { text: 'Alien' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,
@@ -171,8 +171,8 @@ test('invalid msg with unknown prev', (t) => {
   const msg2 = MsgV3.create({
     keypair,
     data: { text: 'Hello world!' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle2,
@@ -193,11 +193,11 @@ test('invalid feed msg with a different pubkey', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
 
-  const identityB = MsgV3.getMsgHash(
-    MsgV3.createIdentity(keypairB, 'person', 'MYNONCE')
+  const accountB = MsgV3.getMsgHash(
+    MsgV3.createAccount(keypairB, 'person', 'MYNONCE')
   )
 
-  const rootMsg = MsgV3.createRoot(identity, 'post', keypair)
+  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
   const rootHash = MsgV3.getMsgHash(rootMsg)
   const feedTangle = new MsgV3.Tangle(rootHash)
   feedTangle.add(rootHash, rootMsg)
@@ -205,8 +205,8 @@ test('invalid feed msg with a different pubkey', (t) => {
   const msg = MsgV3.create({
     keypair: keypairB,
     data: { text: 'Hello world!' },
-    identity: identityB,
-    identityTips: [identityB],
+    account: accountB,
+    accountTips: [accountB],
     domain: 'post',
     tangles: {
       [rootHash]: feedTangle,
@@ -218,7 +218,7 @@ test('invalid feed msg with a different pubkey', (t) => {
   assert.ok(err, 'invalid msg throws')
   assert.match(
     err,
-    /pubkey ".*" should have been one of ".*" from the identity ".*"/,
+    /pubkey ".*" should have been one of ".*" from the account ".*"/,
     'invalid msg'
   )
 })
@@ -226,7 +226,7 @@ test('invalid feed msg with a different pubkey', (t) => {
 test('invalid feed msg with a different domain', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV3.createRoot(identity, 'post', keypair)
+  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
   const rootHash = MsgV3.getMsgHash(rootMsg)
   const feedTangle = new MsgV3.Tangle(rootHash)
   feedTangle.add(rootHash, rootMsg)
@@ -234,8 +234,8 @@ test('invalid feed msg with a different domain', (t) => {
   const msg = MsgV3.create({
     keypair: keypairA,
     data: { text: 'Hello world!' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'comment',
     tangles: {
       [rootHash]: feedTangle,
@@ -255,7 +255,7 @@ test('invalid feed msg with a different domain', (t) => {
 test('invalid feed msg with non-alphabetical prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV3.createRoot(identity, 'post', keypair)
+  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
   const rootHash = MsgV3.getMsgHash(rootMsg)
 
   const tangle = new MsgV3.Tangle(rootHash)
@@ -264,8 +264,8 @@ test('invalid feed msg with non-alphabetical prev', (t) => {
   const msg1 = MsgV3.create({
     keypair,
     data: { text: '1' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,
@@ -276,8 +276,8 @@ test('invalid feed msg with non-alphabetical prev', (t) => {
   const msg2 = MsgV3.create({
     keypair,
     data: { text: '2' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,
@@ -291,8 +291,8 @@ test('invalid feed msg with non-alphabetical prev', (t) => {
   const msg3 = MsgV3.create({
     keypair,
     data: { text: '3' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,
@@ -320,7 +320,7 @@ test('invalid feed msg with non-alphabetical prev', (t) => {
 test('invalid feed msg with duplicate prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV3.createRoot(identity, 'post', keypair)
+  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
   const rootHash = MsgV3.getMsgHash(rootMsg)
 
   const tangle = new MsgV3.Tangle(rootHash)
@@ -329,8 +329,8 @@ test('invalid feed msg with duplicate prev', (t) => {
   const msg1 = MsgV3.create({
     keypair,
     data: { text: '1' },
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     tangles: {
       [rootHash]: tangle,

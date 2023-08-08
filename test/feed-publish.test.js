@@ -26,7 +26,7 @@ test('setup', async (t) => {
 
   await peer.db.loaded()
 
-  id = (await p(peer.db.identity.create)({domain: 'person'}))
+  id = (await p(peer.db.account.create)({domain: 'person'}))
   rootMsg = MsgV3.createRoot(id, 'post', keypair)
   rootHash = MsgV3.getMsgHash(rootMsg)
 })
@@ -36,7 +36,7 @@ let rec1
 let msgHash2
 test('feed.publish()', async (t) => {
   rec1 = await p(peer.db.feed.publish)({
-    identity: id,
+    account: id,
     domain: 'post',
     data: { text: 'I am 1st post' },
   })
@@ -55,7 +55,7 @@ test('feed.publish()', async (t) => {
   msgHash1 = MsgV3.getMsgHash(rec1.msg)
 
   const rec2 = await p(peer.db.feed.publish)({
-    identity: id,
+    account: id,
     domain: 'post',
     data: { text: 'I am 2nd post' },
   })
@@ -80,8 +80,8 @@ test('add() forked then feed.publish() merged', async (t) => {
 
   const msg3 = MsgV3.create({
     keypair,
-    identity: id,
-    identityTips: [id],
+    account: id,
+    accountTips: [id],
     domain: 'post',
     data: { text: '3rd post forked from 1st' },
     tangles: {
@@ -93,7 +93,7 @@ test('add() forked then feed.publish() merged', async (t) => {
   const msgHash3 = MsgV3.getMsgHash(rec3.msg)
 
   const rec4 = await p(peer.db.feed.publish)({
-    identity: id,
+    account: id,
     domain: 'post',
     data: { text: 'I am 4th post' },
   })
@@ -119,7 +119,7 @@ test('add() forked then feed.publish() merged', async (t) => {
 
 test('feed.publish() encrypted with box', async (t) => {
   const recEncrypted = await p(peer.db.feed.publish)({
-    identity: id,
+    account: id,
     domain: 'post',
     data: { text: 'I am chewing food', recps: [keypair.public] },
     encryptionFormat: 'box',
@@ -133,14 +133,14 @@ test('feed.publish() encrypted with box', async (t) => {
 
 test('feed.publish() with tangles', async (t) => {
   const recA = await p(peer.db.feed.publish)({
-    identity: id,
+    account: id,
     domain: 'comment',
     data: { text: 'I am root' },
   })
   assert.equal(recA.msg.data.text, 'I am root', 'root text correct')
 
   const recB = await p(peer.db.feed.publish)({
-    identity: id,
+    account: id,
     domain: 'comment',
     data: { text: 'I am comment 1' },
     tangles: [recA.hash],

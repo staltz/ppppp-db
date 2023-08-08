@@ -8,10 +8,10 @@ const SecretStack = require('secret-stack')
 const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
 
-const DIR = path.join(os.tmpdir(), 'ppppp-db-identity-create')
+const DIR = path.join(os.tmpdir(), 'ppppp-db-account-create')
 rimraf.sync(DIR)
 
-test('identity.create() with just "domain"', async (t) => {
+test('account.create() with just "domain"', async (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
@@ -19,12 +19,12 @@ test('identity.create() with just "domain"', async (t) => {
     .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
-  const identity = await p(peer.db.identity.create)({
+  const account = await p(peer.db.account.create)({
     domain: 'person',
     _nonce: 'MYNONCE',
   })
-  assert.ok(identity, 'identityRec0 exists')
-  const msg = peer.db.get(identity)
+  assert.ok(account, 'accountRec0 exists')
+  const msg = peer.db.get(account)
   assert.deepEqual(
     msg.data,
     {
@@ -41,8 +41,8 @@ test('identity.create() with just "domain"', async (t) => {
     },
     'msg.data.add'
   )
-  assert.equal(msg.metadata.identity, 'self', 'msg.metadata.identity')
-  assert.equal(msg.metadata.identityTips, null, 'msg.metadata.identityTips')
+  assert.equal(msg.metadata.account, 'self', 'msg.metadata.account')
+  assert.equal(msg.metadata.accountTips, null, 'msg.metadata.accountTips')
   assert.deepEqual(
     Object.keys(msg.metadata.tangles),
     [],
@@ -53,7 +53,7 @@ test('identity.create() with just "domain"', async (t) => {
   await p(peer.close)()
 })
 
-test('identity.create() with "keypair" and "domain"', async (t) => {
+test('account.create() with "keypair" and "domain"', async (t) => {
   rimraf.sync(DIR)
   const keypair = Keypair.generate('ed25519', 'alice')
 
@@ -63,15 +63,15 @@ test('identity.create() with "keypair" and "domain"', async (t) => {
     .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
-  const identity = await p(peer.db.identity.create)({
+  const account = await p(peer.db.account.create)({
     keypair,
     domain: 'person',
   })
-  assert.ok(identity, 'identity created')
-  const msg = peer.db.get(identity)
+  assert.ok(account, 'account created')
+  const msg = peer.db.get(account)
   assert.equal(msg.data.add.key.bytes, keypair.public, 'msg.data.add')
-  assert.equal(msg.metadata.identity, 'self', 'msg.metadata.identity')
-  assert.equal(msg.metadata.identityTips, null, 'msg.metadata.identityTips')
+  assert.equal(msg.metadata.account, 'self', 'msg.metadata.account')
+  assert.equal(msg.metadata.accountTips, null, 'msg.metadata.accountTips')
   assert.deepEqual(
     Object.keys(msg.metadata.tangles),
     [],
@@ -82,7 +82,7 @@ test('identity.create() with "keypair" and "domain"', async (t) => {
   await p(peer.close)()
 })
 
-test('identity.find() can find', async (t) => {
+test('account.find() can find', async (t) => {
   rimraf.sync(DIR)
   const keypair = Keypair.generate('ed25519', 'alice')
   const domain = 'person'
@@ -93,16 +93,16 @@ test('identity.find() can find', async (t) => {
     .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
-  const identity = await p(peer.db.identity.create)({ keypair, domain })
-  assert.ok(identity, 'identity created')
+  const account = await p(peer.db.account.create)({ keypair, domain })
+  assert.ok(account, 'account created')
 
-  const found = await p(peer.db.identity.find)({ keypair, domain })
-  assert.equal(found, identity, 'found')
+  const found = await p(peer.db.account.find)({ keypair, domain })
+  assert.equal(found, account, 'found')
 
   await p(peer.close)()
 })
 
-test('identity.findOrCreate() can find', async (t) => {
+test('account.findOrCreate() can find', async (t) => {
   rimraf.sync(DIR)
   const keypair = Keypair.generate('ed25519', 'alice')
   const domain = 'person'
@@ -113,16 +113,16 @@ test('identity.findOrCreate() can find', async (t) => {
     .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
-  const identity = await p(peer.db.identity.create)({ keypair, domain })
-  assert.ok(identity, 'identity created')
+  const account = await p(peer.db.account.create)({ keypair, domain })
+  assert.ok(account, 'account created')
 
-  const found = await p(peer.db.identity.findOrCreate)({ keypair, domain })
-  assert.equal(found, identity, 'found')
+  const found = await p(peer.db.account.findOrCreate)({ keypair, domain })
+  assert.equal(found, account, 'found')
 
   await p(peer.close)()
 })
 
-test('identity.findOrCreate() can create', async (t) => {
+test('account.findOrCreate() can create', async (t) => {
   rimraf.sync(DIR)
   const keypair = Keypair.generate('ed25519', 'alice')
   const domain = 'person'
@@ -135,18 +135,18 @@ test('identity.findOrCreate() can create', async (t) => {
   await peer.db.loaded()
 
   let gotError = false
-  await p(peer.db.identity.find)({ keypair, domain }).catch((err) => {
+  await p(peer.db.account.find)({ keypair, domain }).catch((err) => {
     assert.equal(err.cause, 'ENOENT')
     gotError = true
   })
-  assert.ok(gotError, 'identity not found')
+  assert.ok(gotError, 'account not found')
 
-  const identity = await p(peer.db.identity.findOrCreate)({ keypair, domain })
-  assert.ok(identity, 'identity created')
-  const msg = peer.db.get(identity)
+  const account = await p(peer.db.account.findOrCreate)({ keypair, domain })
+  assert.ok(account, 'account created')
+  const msg = peer.db.get(account)
   assert.equal(msg.data.add.key.bytes, keypair.public, 'msg.data.add')
-  assert.equal(msg.metadata.identity, 'self', 'msg.metadata.identity')
-  assert.equal(msg.metadata.identityTips, null, 'msg.metadata.identityTips')
+  assert.equal(msg.metadata.account, 'self', 'msg.metadata.account')
+  assert.equal(msg.metadata.accountTips, null, 'msg.metadata.accountTips')
   assert.deepEqual(
     Object.keys(msg.metadata.tangles),
     [],

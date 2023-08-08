@@ -5,19 +5,19 @@ const MsgV3 = require('../../lib/msg-v3')
 
 test('lipmaa prevs', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
-  const identity = MsgV3.getMsgHash(
-    MsgV3.createIdentity(keypair, 'person', 'MYNONCE')
+  const account = MsgV3.getMsgHash(
+    MsgV3.createAccount(keypair, 'person', 'MYNONCE')
   )
   const data = { text: 'Hello world!' }
 
-  const rootMsg = MsgV3.createRoot(identity, 'post', keypair)
+  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
   const rootHash = MsgV3.getMsgHash(rootMsg)
   const tangle = new MsgV3.Tangle(rootHash)
   tangle.add(rootHash, rootMsg)
 
   const msg1 = MsgV3.create({
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     data,
     tangles: {
@@ -35,8 +35,8 @@ test('lipmaa prevs', (t) => {
   )
 
   const msg2 = MsgV3.create({
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     data,
     tangles: {
@@ -54,8 +54,8 @@ test('lipmaa prevs', (t) => {
   )
 
   const msg3 = MsgV3.create({
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     data,
     tangles: {
@@ -73,8 +73,8 @@ test('lipmaa prevs', (t) => {
   )
 
   const msg4 = MsgV3.create({
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     keypair,
     tangles: {
@@ -92,8 +92,8 @@ test('lipmaa prevs', (t) => {
   )
 
   const msg5 = MsgV3.create({
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     data,
     tangles: {
@@ -111,8 +111,8 @@ test('lipmaa prevs', (t) => {
   )
 
   const msg6 = MsgV3.create({
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     data,
     tangles: {
@@ -130,8 +130,8 @@ test('lipmaa prevs', (t) => {
   )
 
   const msg7 = MsgV3.create({
-    identity,
-    identityTips: [identity],
+    account,
+    accountTips: [account],
     domain: 'post',
     data,
     tangles: {

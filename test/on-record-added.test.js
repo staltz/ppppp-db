@@ -19,7 +19,7 @@ test('onRecordAdded', async (t) => {
 
   await peer.db.loaded()
 
-  const identity = (await p(peer.db.identity.create)({domain: 'person'}))
+  const account = (await p(peer.db.account.create)({domain: 'person'}))
 
   const listened = []
   var remove = peer.db.onRecordAdded((ev) => {
@@ -27,7 +27,7 @@ test('onRecordAdded', async (t) => {
   })
 
   const rec1 = await p(peer.db.feed.publish)({
-    identity,
+    account,
     domain: 'post',
     data: { text: 'I am hungry' },
   })
@@ -36,7 +36,7 @@ test('onRecordAdded', async (t) => {
   await p(setTimeout)(500)
 
   assert.equal(listened.length, 3)
-  assert.equal(listened[0].msg.metadata.identity, 'self', 'identity root')
+  assert.equal(listened[0].msg.metadata.account, 'self', 'account root')
   assert.equal(listened[1].msg.data, null, 'root')
   assert.equal(listened[1].msg.metadata.dataSize, 0, 'root')
   assert.deepEqual(listened[2], rec1, 'actual record')

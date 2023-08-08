@@ -21,10 +21,10 @@ test('add()', async (t) => {
 
   await peer.db.loaded()
 
-  const identityMsg0 = MsgV3.createIdentity(keypair, 'person')
-  const id = MsgV3.getMsgHash(identityMsg0)
+  const accountMsg0 = MsgV3.createAccount(keypair, 'person')
+  const id = MsgV3.getMsgHash(accountMsg0)
 
-  await p(peer.db.add)(identityMsg0, id)
+  await p(peer.db.add)(accountMsg0, id)
 
   const rootMsg = MsgV3.createRoot(id, 'post', keypair)
   const rootHash = MsgV3.getMsgHash(rootMsg)
@@ -38,8 +38,8 @@ test('add()', async (t) => {
     keypair,
     domain: 'post',
     data: { text: 'This is the first post!' },
-    identity: id,
-    identityTips: [id],
+    account: id,
+    accountTips: [id],
     tangles: {
       [rootHash]: tangle,
     },

@@ -10,9 +10,9 @@ Background: https://github.com/ssbc/ssb2-discussion-forum/issues/24
 - **Tangle Root** = the origin msg of a tangle
 - **Tangle Tips** = tangle msgs that are not yet referenced by any other msg in the tangle
 - **Tangle ID** = Msg hash of the tangle's root msg
-- **Identity tangle** = tangle with msgs that add (or remove?) asymmetric-crypto public keys
-- **ID** = tangle ID of the identity tangle, refers to the "identity" of a person or a group
-- **Feed** = tangle with msgs authored by (any pubkey in) an identity
+- **Account tangle** = tangle with msgs that add (or remove?) asymmetric-crypto public keys
+- **Account ID** = tangle ID of the account tangle
+- **Feed** = tangle with msgs authored by (any pubkey in) an account
 - **Feed root** = a msg that is deterministically predictable and empty, so to allow others to pre-know its hash
 - **Feed ID** = ID of a feed (Msg ID of the feed's root msg)
 
@@ -24,8 +24,8 @@ interface Msg {
   metadata: {
     dataHash: ContentHash | null // blake3 hash of the `content` object serialized
     dataSize: number // byte size (unsigned integer) of the `content` object serialized
-    identity: string | 'self' | 'any' // blake3 hash of an identity tangle root msg, or the string 'self', or 'any'
-    identityTips: Array<string> | null // list of blake3 hashes of identity tangle tips, or null
+    account: string | 'self' | 'any' // blake3 hash of an account tangle root msg, or the string 'self', or 'any'
+    accountTips: Array<string> | null // list of blake3 hashes of account tangle tips, or null
     tangles: {
       // for each tangle this msg belongs to, identified by the tangle's root
       [rootMsgHash: string]: {
@@ -41,20 +41,20 @@ interface Msg {
 }
 ```
 
-## Identity tangle msgs
+## Account tangle msgs
 
-Msgs in an identity tangle are special because they have empty `identity` and `identityTips` fields.
+Msgs in an account tangle are special because they have empty `account` and `accountTips` fields.
 
 ```typescript
 interface Msg {
-  data: IdentityData
+  data: AccountData
   metadata: {
     dataHash: ContentHash
     dataSize: number
-    identity: 'self' // MUST be the string 'self'
-    identityTips: null // MUST be null
+    account: 'self' // MUST be the string 'self'
+    accountTips: null // MUST be null
     tangles: {
-      [identityTangleId: string]: {
+      [accountTangleId: string]: {
         depth: number // maximum distance (positive integer) from this msg to the root
         prev: Array<MsgHash> // list of msg hashes of existing msgs, unique set and ordered alphabetically
       }
@@ -66,23 +66,23 @@ interface Msg {
   sig: Signature
 }
 
-type IdentityData =
-  | { action: 'add', add: IdentityAdd }
-  | { action: 'del', del: IdentityDel }
+type AccountData =
+  | { action: 'add', add: AccountAdd }
+  | { action: 'del', del: AccountDel }
 
-// "add" means this keypair can validly add more keypairs to the identity tangle
-// "del" means this keypair can validly revoke other keypairs from the identity
+// "add" means this keypair can validly add more keypairs to the account tangle
+// "del" means this keypair can validly revoke other keypairs from the account
 // "box" means the peer with this keypair should get access to the box keypair
-type IdentityPower = 'add' | 'del' | 'box'
+type AccountPower = 'add' | 'del' | 'box'
 
-type IdentityAdd = {
+type AccountAdd = {
   key: Key
-  nonce?: string // nonce required only on the identity tangle's root
-  consent?: string // base58 encoded signature of the string `:identity-add:<ID>` where `<ID>` is the identity's ID, required only on non-root msgs
-  identityPowers?: Array<IdentityPower> // list of powers granted to this key, defaults to []
+  nonce?: string // nonce required only on the account tangle's root
+  consent?: string // base58 encoded signature of the string `:account-add:<ID>` where `<ID>` is the account's ID, required only on non-root msgs
+  accountPowers?: Array<AccountPower> // list of powers granted to this key, defaults to []
 }
 
-type IdentityDel = {
+type AccountDel = {
   key: Key
 }
 
@@ -99,7 +99,7 @@ type Key =
     }
 ```
 
-Examples of `IdentityData`:
+Examples of `AccountData`:
 
 - Registering the first signing pubkey:
   ```json
@@ -112,19 +112,6 @@ Examples of `IdentityData`:
         "bytes": "3JrJiHEQzRFMzEqWawfBgq2DSZDyihP1NHXshqcL8pB9"
       },
       "nonce": "6GHR1ZFFSB3C5qAGwmSwVH8f7byNo8Cqwn5PcyG3qDvS"
-    }
-  }
-  ```
-- Registering a subidentity:
-  ```json
-  {
-    "action": "add",
-    "add": {
-      "key": {
-        "purpose": "subidentity",
-        "algorithm": "tangle",
-        "bytes": "6yqq7iwyJEKdofJ3xpRLEq"
-      }
     }
   }
   ```
@@ -152,8 +139,8 @@ interface Msg {
   metadata: {
     dataHash: null // MUST be null
     dataSize: 0 // MUST be 0
-    identity: string // MUST be an ID
-    identityTips: null // MUST be null
+    account: string // MUST be an ID
+    accountTips: null // MUST be null
     tangles: {} // MUST be empty object
     domain: string
     v: 2
@@ -163,7 +150,7 @@ interface Msg {
 }
 ```
 
-Thus, given a `identity` and a `domain`, any peer can construct the `metadata` part of the feed root msg, and thus can derive the "msg ID" for the root based on that `metadata`.
+Thus, given a `account` and a `domain`, any peer can construct the `metadata` part of the feed root msg, and thus can derive the "msg ID" for the root based on that `metadata`.
 
 Given the root msg ID, any peer can thus refer to the feed tangle, because the root msg ID is the tangle ID for the feed tangle.
 

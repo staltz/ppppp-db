@@ -25,7 +25,7 @@ test('setup', async (t) => {
 
   await peer.db.loaded()
 
-  id = (await p(peer.db.identity.create)({domain: 'person'}))
+  id = (await p(peer.db.account.create)({domain: 'person'}))
   rootMsg = MsgV3.createRoot(id, 'post', keypair)
   rootHash = MsgV3.getMsgHash(rootMsg)
 

@@ -19,13 +19,13 @@ test('publish some msgs, close, re-open', async (t) => {
     .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
-  const identity = await p(peer.db.identity.create)({ domain: 'person' })
+  const account = await p(peer.db.account.create)({ domain: 'person' })
   // t.pass('opened db')
 
   const msgHashes = []
   for (let i = 0; i < 6; i++) {
     const rec = await p(peer.db.feed.publish)({
-      identity,
+      account,
       domain: 'post',
       data: { text: 'hello ' + i },
     })
@@ -49,7 +49,7 @@ test('publish some msgs, close, re-open', async (t) => {
 
   const texts = []
   for (const msg of peer2.db.msgs()) {
-    if (!msg.data || !(msg.metadata.identity?.length > 4)) continue
+    if (!msg.data || !(msg.metadata.account?.length > 4)) continue
     texts.push(msg.data.text)
   }
 
