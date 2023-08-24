@@ -22,10 +22,11 @@ JSON
 interface Msg {
   data: any | null // any object, or null
   metadata: {
-    dataHash: ContentHash | null // blake3 hash of the `content` object serialized
-    dataSize: number // byte size (unsigned integer) of the `content` object serialized
     account: string | 'self' | 'any' // blake3 hash of an account tangle root msg, or the string 'self', or 'any'
     accountTips: Array<string> | null // list of blake3 hashes of account tangle tips, or null
+    dataHash: DataHash | null // blake3 hash of the `content` object serialized
+    dataSize: number // byte size (unsigned integer) of the `content` object serialized
+    domain: string // alphanumeric string, at least 3 chars, max 100 chars
     tangles: {
       // for each tangle this msg belongs to, identified by the tangle's root
       [rootMsgHash: string]: {
@@ -33,7 +34,6 @@ interface Msg {
         prev: Array<MsgHash> // list of msg hashes of existing msgs, unique set and ordered alphabetically
       }
     }
-    domain: string // alphanumeric string, at least 3 chars, max 100 chars
     v: 3 // hard-coded at 3, indicates the version of the feed format
   }
   pubkey: Pubkey // base58 encoded string for the author's public key
@@ -49,17 +49,17 @@ Msgs in an account tangle are special because they have empty `account` and `acc
 interface Msg {
   data: AccountData
   metadata: {
-    dataHash: ContentHash
-    dataSize: number
     account: 'self' // MUST be the string 'self'
     accountTips: null // MUST be null
+    dataHash: DataHash
+    dataSize: number
+    domain: string // alphanumeric string, at least 3 chars, max 100 chars
     tangles: {
       [accountTangleId: string]: {
         depth: number // maximum distance (positive integer) from this msg to the root
         prev: Array<MsgHash> // list of msg hashes of existing msgs, unique set and ordered alphabetically
       }
     }
-    domain: string // alphanumeric string, at least 3 chars, max 100 chars
     v: 3
   }
   pubkey: Pubkey
@@ -70,10 +70,11 @@ type AccountData =
   | { action: 'add', add: AccountAdd }
   | { action: 'del', del: AccountDel }
 
-// "add" means this keypair can validly add more keypairs to the account tangle
-// "del" means this keypair can validly revoke other keypairs from the account
-// "box" means the peer with this keypair should get access to the box keypair
-type AccountPower = 'add' | 'del' | 'box'
+// "add" means this shs peer can validly add more keys to the account tangle
+// "del" means this shs peer can validly revoke keys from the account tangle
+// "internal-encryption" means this shs peer should get access to symmetric key
+// "external-encryption" means this shs peer should get access to asymmetric key
+type AccountPower = 'add' | 'del' | 'internal-encryption' | 'external-encryption'
 
 type AccountAdd = {
   key: Key
@@ -88,14 +89,19 @@ type AccountDel = {
 
 type Key =
   | {
-      purpose: 'sig' // digital signatures
+      purpose: 'shs-and-external-signature' // secret-handshake and digital signatures
       algorithm: 'ed25519' // libsodium crypto_sign_detached
       bytes: string // base58 encoded string for the public key
     }
   | {
-      purpose: 'box' // asymmetric encryption
+      purpose: 'external-encryption' // asymmetric encryption
       algorithm: 'x25519-xsalsa20-poly1305' // libsodium crypto_box_easy
       bytes: string // base58 encoded string of the public key
+    }
+  | {
+      purpose: 'internal-signature', // digital signatures of internal msgs
+      algorithm: 'ed25519', // libsodium crypto_sign_detached
+      bytes: string // base58 encoded string for the public key
     }
 ```
 
@@ -107,7 +113,7 @@ Examples of `AccountData`:
     "action": "add",
     "add": {
       "key": {
-        "purpose": "sig",
+        "purpose": "shs-and-external-signature",
         "algorithm": "ed25519",
         "bytes": "3JrJiHEQzRFMzEqWawfBgq2DSZDyihP1NHXshqcL8pB9"
       },
@@ -121,7 +127,7 @@ Examples of `AccountData`:
     "action": "del",
     "del": {
       "key": {
-        "purpose": "sig",
+        "purpose": "shs-and-external-signature",
         "algorithm": "ed25519",
         "bytes": "3JrJiHEQzRFMzEqWawfBgq2DSZDyihP1NHXshqcL8pB9"
       }
