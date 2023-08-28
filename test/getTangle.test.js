@@ -113,8 +113,8 @@ test('Tangle.getDepth', (t) => {
   assert.equal(tangle.getDepth(reply3Hi), 3, 'depth of reply3Hi is 3')
 })
 
-test('Tangle.getMaxDepth', (t) => {
-  assert.equal(tangle.getMaxDepth(), 3, 'max depth is 3')
+test('Tangle.maxDepth', (t) => {
+  assert.equal(tangle.maxDepth, 3, 'max depth is 3')
 })
 
 test('Tangle.topoSort', (t) => {
@@ -173,8 +173,8 @@ test('Tangle.precedes', (t) => {
   )
 })
 
-test('Tangle.getTips', (t) => {
-  const tips = tangle.getTips()
+test('Tangle.tips', (t) => {
+  const tips = tangle.tips
 
   assert.equal(tips.size, 2, 'there are 2 tips')
   assert.equal(tips.has(reply3Lo), true, 'tips contains reply3Lo')
