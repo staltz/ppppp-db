@@ -13,6 +13,7 @@ test('validate root msg', (t) => {
   const moot = MsgV3.createMoot(account, 'post', keypair)
   const mootID = MsgV3.getMsgID(moot)
   const tangle = new MsgV3.Tangle(mootID)
+  tangle.add(mootID, moot)
 
   const err = MsgV3.validate(moot, tangle, pubkeys, mootID, mootID)
   assert.ifError(err, 'valid root msg')
@@ -28,6 +29,7 @@ test('validate account tangle', (t) => {
   const accountMsg0ID = account
 
   const tangle = new MsgV3.Tangle(account)
+  tangle.add(accountMsg0ID, accountMsg0)
 
   let err = MsgV3.validate(
     accountMsg0,
