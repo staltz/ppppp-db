@@ -144,7 +144,7 @@ test('keypair with no "add" powers cannot account.add()', async (t) => {
   // Test replicator-side power validation
   assert.rejects(
     p(peer1again.db.add)(msg3, id),
-    /msg\.pubkey does not have "add" power/
+    /add\(\) failed msg account validation/
   )
 
   await p(peer1again.close)()
