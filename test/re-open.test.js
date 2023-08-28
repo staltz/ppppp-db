@@ -22,18 +22,18 @@ test('publish some msgs, close, re-open', async (t) => {
   const account = await p(peer.db.account.create)({ domain: 'person' })
   // t.pass('opened db')
 
-  const msgHashes = []
+  const msgIDs = []
   for (let i = 0; i < 6; i++) {
     const rec = await p(peer.db.feed.publish)({
       account,
       domain: 'post',
       data: { text: 'hello ' + i },
     })
-    msgHashes.push(rec.hash)
+    msgIDs.push(rec.id)
   }
   // t.pass('created some msgs')
 
-  await p(peer.db.del)(msgHashes[2])
+  await p(peer.db.del)(msgIDs[2])
   // t.pass('deleted the 3rd msg')
 
   await p(peer.close)(true)

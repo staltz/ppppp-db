@@ -22,17 +22,17 @@ test('add()', async (t) => {
   await peer.db.loaded()
 
   const accountMsg0 = MsgV3.createAccount(keypair, 'person')
-  const id = MsgV3.getMsgHash(accountMsg0)
+  const id = MsgV3.getMsgID(accountMsg0)
 
   await p(peer.db.add)(accountMsg0, id)
 
-  const rootMsg = MsgV3.createRoot(id, 'post', keypair)
-  const rootHash = MsgV3.getMsgHash(rootMsg)
+  const rootMsg = MsgV3.createMoot(id, 'post', keypair)
+  const rootID = MsgV3.getMsgID(rootMsg)
 
-  const recRoot = await p(peer.db.add)(rootMsg, rootHash)
+  const recRoot = await p(peer.db.add)(rootMsg, rootID)
   assert.equal(recRoot.msg.metadata.dataSize, 0, 'root msg added')
-  const tangle = new MsgV3.Tangle(rootHash)
-  tangle.add(recRoot.hash, recRoot.msg)
+  const tangle = new MsgV3.Tangle(rootID)
+  tangle.add(recRoot.id, recRoot.msg)
 
   const inputMsg = MsgV3.create({
     keypair,
@@ -41,11 +41,11 @@ test('add()', async (t) => {
     account: id,
     accountTips: [id],
     tangles: {
-      [rootHash]: tangle,
+      [rootID]: tangle,
     },
   })
 
-  const rec = await p(peer.db.add)(inputMsg, rootHash)
+  const rec = await p(peer.db.add)(inputMsg, rootID)
   assert.equal(rec.msg.data.text, 'This is the first post!')
 
   await p(peer.close)(true)

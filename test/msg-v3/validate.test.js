@@ -5,16 +5,16 @@ const MsgV3 = require('../../lib/msg-v3')
 
 test('validate root msg', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
-  const account = MsgV3.getMsgHash(
+  const account = MsgV3.getMsgID(
     MsgV3.createAccount(keypair, 'person', 'alice')
   )
   const pubkeys = new Set([keypair.public])
 
-  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
-  const rootHash = MsgV3.getMsgHash(rootMsg)
-  const tangle = new MsgV3.Tangle(rootHash)
+  const moot = MsgV3.createMoot(account, 'post', keypair)
+  const mootID = MsgV3.getMsgID(moot)
+  const tangle = new MsgV3.Tangle(mootID)
 
-  const err = MsgV3.validate(rootMsg, tangle, pubkeys, rootHash, rootHash)
+  const err = MsgV3.validate(moot, tangle, pubkeys, mootID, mootID)
   assert.ifError(err, 'valid root msg')
 })
 
@@ -24,8 +24,8 @@ test('validate account tangle', (t) => {
   pubkeys.add(keypair1.public)
 
   const accountMsg0 = MsgV3.createAccount(keypair1, 'person', 'alice')
-  const account = MsgV3.getMsgHash(accountMsg0)
-  const accountMsg0Hash = account
+  const account = MsgV3.getMsgID(accountMsg0)
+  const accountMsg0ID = account
 
   const tangle = new MsgV3.Tangle(account)
 
@@ -33,7 +33,7 @@ test('validate account tangle', (t) => {
     accountMsg0,
     tangle,
     pubkeys,
-    accountMsg0Hash,
+    accountMsg0ID,
     account
   )
   assert.ifError(err, 'valid account root msg')
@@ -52,13 +52,13 @@ test('validate account tangle', (t) => {
     },
     keypair: keypair1, // announcing keypair2 but signing with keypair1
   })
-  const accountMsg1Hash = MsgV3.getMsgHash(accountMsg1)
+  const accountMsg1ID = MsgV3.getMsgID(accountMsg1)
 
   err = MsgV3.validate(
     accountMsg1,
     tangle,
     pubkeys,
-    accountMsg1Hash,
+    accountMsg1ID,
     account
   )
   assert.ifError(err, 'valid account msg')
@@ -66,15 +66,15 @@ test('validate account tangle', (t) => {
 
 test('validate 2nd msg with existing root', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
-  const account = MsgV3.getMsgHash(
+  const account = MsgV3.getMsgID(
     MsgV3.createAccount(keypair, 'person', 'alice')
   )
   const pubkeys = new Set([keypair.public])
 
-  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
-  const rootHash = MsgV3.getMsgHash(rootMsg)
-  const tangle = new MsgV3.Tangle(rootHash)
-  tangle.add(rootHash, rootMsg)
+  const moot = MsgV3.createMoot(account, 'post', keypair)
+  const mootID = MsgV3.getMsgID(moot)
+  const tangle = new MsgV3.Tangle(mootID)
+  tangle.add(mootID, moot)
 
   const msg1 = MsgV3.create({
     account,
@@ -82,28 +82,28 @@ test('validate 2nd msg with existing root', (t) => {
     domain: 'post',
     data: { text: 'Hello world!' },
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
     keypair,
   })
-  const msgHash1 = MsgV3.getMsgHash(msg1)
-  tangle.add(msgHash1, msg1)
+  const msgID1 = MsgV3.getMsgID(msg1)
+  tangle.add(msgID1, msg1)
 
-  const err = MsgV3.validate(msg1, tangle, pubkeys, msgHash1, rootHash)
+  const err = MsgV3.validate(msg1, tangle, pubkeys, msgID1, mootID)
   assert.ifError(err, 'valid 2nd msg')
 })
 
 test('validate 2nd forked msg', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
-  const account = MsgV3.getMsgHash(
+  const account = MsgV3.getMsgID(
     MsgV3.createAccount(keypair, 'person', 'alice')
   )
   const pubkeys = new Set([keypair.public])
 
-  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
-  const rootHash = MsgV3.getMsgHash(rootMsg)
-  const tangle = new MsgV3.Tangle(rootHash)
-  tangle.add(rootHash, rootMsg)
+  const moot = MsgV3.createMoot(account, 'post', keypair)
+  const mootID = MsgV3.getMsgID(moot)
+  const tangle = new MsgV3.Tangle(mootID)
+  tangle.add(mootID, moot)
 
   const msg1A = MsgV3.create({
     account,
@@ -111,11 +111,11 @@ test('validate 2nd forked msg', (t) => {
     domain: 'post',
     data: { text: 'Hello world!' },
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
     keypair,
   })
-  const msgHash1A = MsgV3.getMsgHash(msg1A)
+  const msgID1A = MsgV3.getMsgID(msg1A)
 
   const msg1B = MsgV3.create({
     account,
@@ -123,14 +123,14 @@ test('validate 2nd forked msg', (t) => {
     domain: 'post',
     data: { text: 'Hello world!' },
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
     keypair,
   })
-  const msgHash1B = MsgV3.getMsgHash(msg1B)
+  const msgID1B = MsgV3.getMsgID(msg1B)
 
-  tangle.add(msgHash1A, msg1A)
-  tangle.add(msgHash1B, msg1B)
-  const err = MsgV3.validate(msg1B, tangle, pubkeys, msgHash1B, rootHash)
+  tangle.add(msgID1A, msg1A)
+  tangle.add(msgID1B, msg1B)
+  const err = MsgV3.validate(msg1B, tangle, pubkeys, msgID1B, mootID)
   assert.ifError(err, 'valid 2nd forked msg')
 })

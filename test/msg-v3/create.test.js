@@ -35,38 +35,38 @@ test('MsgV3.createAccount()', (t) => {
   assert.equal(accountMsg0.metadata.v, 3, 'v')
   assert.equal(accountMsg0.pubkey, keypair.public, 'pubkey')
 
-  account = MsgV3.getMsgHash(accountMsg0)
+  account = MsgV3.getMsgID(accountMsg0)
   assert.equal(account, 'J2SUr6XtJuFuTusNbagEW5', 'account ID')
 })
 
-let rootMsg = null
-let rootHash = null
-test('MsgV3.createRoot()', (t) => {
+let moot = null
+let mootID = null
+test('MsgV3.createMoot()', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  rootMsg = MsgV3.createRoot(account, 'post', keypair)
-  console.log(JSON.stringify(rootMsg, null, 2))
+  moot = MsgV3.createMoot(account, 'post', keypair)
+  console.log(JSON.stringify(moot, null, 2))
 
-  assert.equal(rootMsg.data, null, 'data')
-  assert.equal(rootMsg.metadata.dataHash, null, 'hash')
-  assert.equal(rootMsg.metadata.dataSize, 0, 'size')
-  assert.equal(rootMsg.metadata.account, account, 'account')
-  assert.equal(rootMsg.metadata.accountTips, null, 'accountTips')
-  assert.deepEqual(rootMsg.metadata.tangles, {}, 'tangles')
-  assert.equal(rootMsg.metadata.domain, 'post', 'domain')
-  assert.equal(rootMsg.metadata.v, 3, 'v')
-  assert.equal(rootMsg.pubkey, keypair.public, 'pubkey')
+  assert.equal(moot.data, null, 'data')
+  assert.equal(moot.metadata.dataHash, null, 'hash')
+  assert.equal(moot.metadata.dataSize, 0, 'size')
+  assert.equal(moot.metadata.account, account, 'account')
+  assert.equal(moot.metadata.accountTips, null, 'accountTips')
+  assert.deepEqual(moot.metadata.tangles, {}, 'tangles')
+  assert.equal(moot.metadata.domain, 'post', 'domain')
+  assert.equal(moot.metadata.v, 3, 'v')
+  assert.equal(moot.pubkey, keypair.public, 'pubkey')
 
-  rootHash = MsgV3.getMsgHash(rootMsg)
-  assert.equal(rootHash, 'VsBFptgidvAspk4xTKZx6c', 'root hash')
+  mootID = MsgV3.getMsgID(moot)
+  assert.equal(mootID, 'VsBFptgidvAspk4xTKZx6c', 'moot ID')
 })
 
 test('MsgV3.create()', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const data = { text: 'Hello world!' }
 
-  const tangle1 = new MsgV3.Tangle(rootHash)
-  tangle1.add(rootHash, rootMsg)
+  const tangle1 = new MsgV3.Tangle(mootID)
+  tangle1.add(mootID, moot)
 
   const msg1 = MsgV3.create({
     keypair,
@@ -75,7 +75,7 @@ test('MsgV3.create()', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle1,
+      [mootID]: tangle1,
     },
   })
   console.log(JSON.stringify(msg1, null, 2))
@@ -101,22 +101,14 @@ test('MsgV3.create()', (t) => {
   )
   assert.deepEqual(msg1.metadata.dataSize, 23, 'metadata.dataSize')
   assert.equal(msg1.metadata.account, account, 'metadata.account')
-  assert.deepEqual(
-    msg1.metadata.accountTips,
-    [account],
-    'metadata.accountTips'
-  )
+  assert.deepEqual(msg1.metadata.accountTips, [account], 'metadata.accountTips')
   assert.deepEqual(
     Object.keys(msg1.metadata.tangles),
-    [rootHash],
+    [mootID],
     'metadata.tangles'
   )
-  assert.equal(msg1.metadata.tangles[rootHash].depth, 1, 'tangle depth')
-  assert.deepEqual(
-    msg1.metadata.tangles[rootHash].prev,
-    [rootHash],
-    'tangle prev'
-  )
+  assert.equal(msg1.metadata.tangles[mootID].depth, 1, 'tangle depth')
+  assert.deepEqual(msg1.metadata.tangles[mootID].prev, [mootID], 'tangle prev')
   assert.equal(msg1.metadata.domain, 'post', 'metadata.domain')
   assert.deepEqual(msg1.metadata.v, 3, 'metadata.v')
   assert.equal(
@@ -130,17 +122,13 @@ test('MsgV3.create()', (t) => {
     'sig'
   )
 
-  const msgHash1 = 'R5G9WtDAQrco4FABRdvrUH'
+  const msgID1 = 'R5G9WtDAQrco4FABRdvrUH'
 
-  assert.equal(
-    MsgV3.getMsgId(msg1),
-    `ppppp:message/v3/${account}/post/${msgHash1}`,
-    'getMsgId'
-  )
+  assert.equal(MsgV3.getMsgID(msg1), msgID1, 'getMsgID')
 
-  const tangle2 = new MsgV3.Tangle(rootHash)
-  tangle2.add(rootHash, rootMsg)
-  tangle2.add(msgHash1, msg1)
+  const tangle2 = new MsgV3.Tangle(mootID)
+  tangle2.add(mootID, moot)
+  tangle2.add(msgID1, msg1)
 
   const data2 = { text: 'Ola mundo!' }
 
@@ -151,7 +139,7 @@ test('MsgV3.create()', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle2,
+      [mootID]: tangle2,
     },
   })
   console.log(JSON.stringify(msg2, null, 2))
@@ -177,22 +165,14 @@ test('MsgV3.create()', (t) => {
   )
   assert.deepEqual(msg2.metadata.dataSize, 21, 'metadata.dataSize')
   assert.equal(msg2.metadata.account, account, 'metadata.account')
-  assert.deepEqual(
-    msg2.metadata.accountTips,
-    [account],
-    'metadata.accountTips'
-  )
+  assert.deepEqual(msg2.metadata.accountTips, [account], 'metadata.accountTips')
   assert.deepEqual(
     Object.keys(msg2.metadata.tangles),
-    [rootHash],
+    [mootID],
     'metadata.tangles'
   )
-  assert.equal(msg2.metadata.tangles[rootHash].depth, 2, 'tangle depth')
-  assert.deepEqual(
-    msg2.metadata.tangles[rootHash].prev,
-    [msgHash1],
-    'tangle prev'
-  )
+  assert.equal(msg2.metadata.tangles[mootID].depth, 2, 'tangle depth')
+  assert.deepEqual(msg2.metadata.tangles[mootID].prev, [msgID1], 'tangle prev')
   assert.equal(msg2.metadata.domain, 'post', 'metadata.domain')
   assert.deepEqual(msg2.metadata.v, 3, 'metadata.v')
   assert.equal(
@@ -206,17 +186,13 @@ test('MsgV3.create()', (t) => {
     'sig'
   )
 
-  assert.deepEqual(
-    MsgV3.getMsgId(msg2),
-    `ppppp:message/v3/${account}/post/LxWgRRr4wXd29sLDNGNTkr`,
-    'getMsgId'
-  )
+  assert.deepEqual(MsgV3.getMsgID(msg2), 'LxWgRRr4wXd29sLDNGNTkr', 'getMsgID')
 })
 
 test('create() handles DAG tips correctly', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
-  const tangle = new MsgV3.Tangle(rootHash)
-  tangle.add(rootHash, rootMsg)
+  const tangle = new MsgV3.Tangle(mootID)
+  tangle.add(mootID, moot)
 
   const msg1 = MsgV3.create({
     keypair,
@@ -225,17 +201,17 @@ test('create() handles DAG tips correctly', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
-  const msgHash1 = MsgV3.getMsgHash(msg1)
+  const msgID1 = MsgV3.getMsgID(msg1)
   assert.deepEqual(
-    msg1.metadata.tangles[rootHash].prev,
-    [MsgV3.getFeedRootHash(account, 'post')],
+    msg1.metadata.tangles[mootID].prev,
+    [MsgV3.getMootID(account, 'post')],
     'msg1.prev is root'
   )
 
-  tangle.add(msgHash1, msg1)
+  tangle.add(msgID1, msg1)
 
   const msg2A = MsgV3.create({
     keypair,
@@ -244,12 +220,12 @@ test('create() handles DAG tips correctly', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
   assert.deepEqual(
-    msg2A.metadata.tangles[rootHash].prev,
-    [msgHash1],
+    msg2A.metadata.tangles[mootID].prev,
+    [msgID1],
     'msg2A.prev is msg1'
   )
 
@@ -260,17 +236,17 @@ test('create() handles DAG tips correctly', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
-  const msgHash2B = MsgV3.getMsgHash(msg2B)
+  const msgID2B = MsgV3.getMsgID(msg2B)
   assert.deepEqual(
-    msg2B.metadata.tangles[rootHash].prev,
-    [msgHash1],
+    msg2B.metadata.tangles[mootID].prev,
+    [msgID1],
     'msg2B.prev is msg1'
   )
 
-  tangle.add(msgHash2B, msg2B)
+  tangle.add(msgID2B, msg2B)
 
   const msg3 = MsgV3.create({
     keypair,
@@ -279,19 +255,19 @@ test('create() handles DAG tips correctly', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
-  const msgHash3 = MsgV3.getMsgHash(msg3)
+  const msgID3 = MsgV3.getMsgID(msg3)
   assert.deepEqual(
-    msg3.metadata.tangles[rootHash].prev,
-    [rootHash, msgHash2B].sort(),
+    msg3.metadata.tangles[mootID].prev,
+    [mootID, msgID2B].sort(),
     'msg3.prev is [root(lipmaa),msg2B(previous)], sorted'
   )
-  tangle.add(msgHash3, msg3)
+  tangle.add(msgID3, msg3)
 
-  const msgHash2A = MsgV3.getMsgHash(msg2A)
-  tangle.add(msgHash2A, msg2A)
+  const msgID2A = MsgV3.getMsgID(msg2A)
+  tangle.add(msgID2A, msg2A)
   // t.pass('msg2A comes into awareness')
 
   const msg4 = MsgV3.create({
@@ -301,12 +277,12 @@ test('create() handles DAG tips correctly', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
   assert.deepEqual(
-    msg4.metadata.tangles[rootHash].prev,
-    [msgHash3, msgHash2A].sort(),
+    msg4.metadata.tangles[mootID].prev,
+    [msgID3, msgID2A].sort(),
     'msg4.prev is [msg3(previous),msg2A(old fork as tip)], sorted'
   )
 })

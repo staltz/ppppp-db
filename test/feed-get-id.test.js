@@ -15,8 +15,8 @@ rimraf.sync(DIR)
 const keypair = Keypair.generate('ed25519', 'alice')
 let peer
 let id
-let rootMsg
-let rootHash
+let moot
+let mootID
 test('setup', async (t) => {
   peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
@@ -26,15 +26,15 @@ test('setup', async (t) => {
   await peer.db.loaded()
 
   id = (await p(peer.db.account.create)({domain: 'person'}))
-  rootMsg = MsgV3.createRoot(id, 'post', keypair)
-  rootHash = MsgV3.getMsgHash(rootMsg)
+  moot = MsgV3.createMoot(id, 'post', keypair)
+  mootID = MsgV3.getMsgID(moot)
 
-  await p(peer.db.add)(rootMsg, rootHash)
+  await p(peer.db.add)(moot, mootID)
 })
 
-test('feed.getId()', async (t) => {
-  const feedId = peer.db.feed.getId(id, 'post')
-  assert.equal(feedId, rootHash, 'feed.getId() returns root hash')
+test('feed.getID()', async (t) => {
+  const feedID = peer.db.feed.getID(id, 'post')
+  assert.equal(feedID, mootID, 'feed.getID() returns moot ID')
 })
 
 test('teardown', (t) => {

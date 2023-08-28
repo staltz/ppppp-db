@@ -55,7 +55,7 @@ interface Msg {
     dataSize: number
     domain: string // alphanumeric string, at least 3 chars, max 100 chars
     tangles: {
-      [accountTangleId: string]: {
+      [accountTangleID: string]: {
         depth: number // maximum distance (positive integer) from this msg to the root
         prev: Array<MsgHash> // list of msg hashes of existing msgs, unique set and ordered alphabetically
       }

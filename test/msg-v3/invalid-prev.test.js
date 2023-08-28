@@ -5,7 +5,7 @@ const Keypair = require('ppppp-keypair')
 const MsgV3 = require('../../lib/msg-v3')
 
 const keypair = Keypair.generate('ed25519', 'alice')
-const account = MsgV3.getMsgHash(
+const account = MsgV3.getMsgID(
   MsgV3.createAccount(keypair, 'person', 'MYNONCE')
 )
 const pubkeys = new Set([keypair.public])
@@ -13,11 +13,11 @@ const pubkeys = new Set([keypair.public])
 test('invalid msg with non-array prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
-  const rootHash = MsgV3.getMsgHash(rootMsg)
+  const moot = MsgV3.createMoot(account, 'post', keypair)
+  const mootID = MsgV3.getMsgID(moot)
 
-  const tangle = new MsgV3.Tangle(rootHash)
-  tangle.add(rootHash, rootMsg)
+  const tangle = new MsgV3.Tangle(mootID)
+  tangle.add(mootID, moot)
 
   const msg = MsgV3.create({
     keypair,
@@ -26,13 +26,13 @@ test('invalid msg with non-array prev', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
-  msg.metadata.tangles[rootHash].prev = null
-  const msgHash = MsgV3.getMsgHash(msg)
+  msg.metadata.tangles[mootID].prev = null
+  const msgID = MsgV3.getMsgID(msg)
 
-  const err = MsgV3.validate(msg, tangle, pubkeys, msgHash, rootHash)
+  const err = MsgV3.validate(msg, tangle, pubkeys, msgID, mootID)
   assert.ok(err, 'invalid 2nd msg throws')
   assert.match(
     err,
@@ -44,11 +44,11 @@ test('invalid msg with non-array prev', (t) => {
 test('invalid msg with bad prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
-  const rootHash = MsgV3.getMsgHash(rootMsg)
+  const moot = MsgV3.createMoot(account, 'post', keypair)
+  const mootID = MsgV3.getMsgID(moot)
 
-  const tangle = new MsgV3.Tangle(rootHash)
-  tangle.add(rootHash, rootMsg)
+  const tangle = new MsgV3.Tangle(mootID)
+  tangle.add(mootID, moot)
 
   const msg1 = MsgV3.create({
     keypair,
@@ -57,11 +57,11 @@ test('invalid msg with bad prev', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
-  const msgHash1 = MsgV3.getMsgHash(msg1)
-  tangle.add(msgHash1, msg1)
+  const msgID1 = MsgV3.getMsgID(msg1)
+  tangle.add(msgID1, msg1)
 
   const msg2 = MsgV3.create({
     keypair,
@@ -70,14 +70,14 @@ test('invalid msg with bad prev', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
-  msg2.metadata.tangles[rootHash].depth = 1
-  msg2.metadata.tangles[rootHash].prev = [1234]
-  const msgHash2 = MsgV3.getMsgHash(msg2)
+  msg2.metadata.tangles[mootID].depth = 1
+  msg2.metadata.tangles[mootID].prev = [1234]
+  const msgID2 = MsgV3.getMsgID(msg2)
 
-  const err = MsgV3.validate(msg2, tangle, pubkeys, msgHash2, rootHash)
+  const err = MsgV3.validate(msg2, tangle, pubkeys, msgID2, mootID)
   assert.ok(err, 'invalid 2nd msg throws')
   assert.match(
     err,
@@ -89,11 +89,11 @@ test('invalid msg with bad prev', (t) => {
 test('invalid msg with URI in prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
-  const rootHash = MsgV3.getMsgHash(rootMsg)
+  const moot = MsgV3.createMoot(account, 'post', keypair)
+  const mootID = MsgV3.getMsgID(moot)
 
-  const tangle = new MsgV3.Tangle(rootHash)
-  tangle.add(rootHash, rootMsg)
+  const tangle = new MsgV3.Tangle(mootID)
+  tangle.add(mootID, moot)
 
   const msg1 = MsgV3.create({
     keypair,
@@ -102,11 +102,11 @@ test('invalid msg with URI in prev', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
-  const msgHash1 = MsgV3.getMsgHash(msg1)
-  tangle.add(msgHash1, msg1)
+  const msgID1 = MsgV3.getMsgID(msg1)
+  tangle.add(msgID1, msg1)
 
   const msg2 = MsgV3.create({
     keypair,
@@ -115,16 +115,16 @@ test('invalid msg with URI in prev', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
-  const msgHash2 = MsgV3.getMsgHash(msg2)
+  const msgID2 = MsgV3.getMsgID(msg2)
   const randBuf = Buffer.alloc(16).fill(16)
   const fakeMsgKey1 = `ppppp:message/v3/${base58.encode(randBuf)}`
-  msg2.metadata.tangles[rootHash].depth = 1
-  msg2.metadata.tangles[rootHash].prev = [fakeMsgKey1]
+  msg2.metadata.tangles[mootID].depth = 1
+  msg2.metadata.tangles[mootID].prev = [fakeMsgKey1]
 
-  const err = MsgV3.validate(msg2, tangle, pubkeys, msgHash2, rootHash)
+  const err = MsgV3.validate(msg2, tangle, pubkeys, msgID2, mootID)
   assert.ok(err, 'invalid 2nd msg throws')
   assert.match(err, /prev item ".*" is a URI/, 'invalid 2nd msg description')
 })
@@ -132,11 +132,11 @@ test('invalid msg with URI in prev', (t) => {
 test('invalid msg with unknown prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
-  const rootHash = MsgV3.getMsgHash(rootMsg)
+  const moot = MsgV3.createMoot(account, 'post', keypair)
+  const mootID = MsgV3.getMsgID(moot)
 
-  const tangle = new MsgV3.Tangle(rootHash)
-  tangle.add(rootHash, rootMsg)
+  const tangle = new MsgV3.Tangle(mootID)
+  tangle.add(mootID, moot)
 
   const msg1 = MsgV3.create({
     keypair,
@@ -145,11 +145,11 @@ test('invalid msg with unknown prev', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
-  const msgHash1 = MsgV3.getMsgHash(msg1)
-  tangle.add(msgHash1, msg1)
+  const msgID1 = MsgV3.getMsgID(msg1)
+  tangle.add(msgID1, msg1)
 
   const unknownMsg = MsgV3.create({
     keypair,
@@ -158,15 +158,15 @@ test('invalid msg with unknown prev', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
-  const unknownMsgHash = MsgV3.getMsgHash(unknownMsg)
+  const unknownMsgID = MsgV3.getMsgID(unknownMsg)
 
-  const fakeRootHash = 'ABCDEabcde' + rootHash.substring(10)
-  const tangle2 = new MsgV3.Tangle(fakeRootHash)
-  tangle2.add(fakeRootHash, rootMsg)
-  tangle2.add(unknownMsgHash, unknownMsg)
+  const fakeMootID = 'ABCDEabcde' + mootID.substring(10)
+  const tangle2 = new MsgV3.Tangle(fakeMootID)
+  tangle2.add(fakeMootID, moot)
+  tangle2.add(unknownMsgID, unknownMsg)
 
   const msg2 = MsgV3.create({
     keypair,
@@ -175,12 +175,12 @@ test('invalid msg with unknown prev', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle2,
+      [mootID]: tangle2,
     },
   })
-  const msgHash2 = MsgV3.getMsgHash(msg2)
+  const msgID2 = MsgV3.getMsgID(msg2)
 
-  const err = MsgV3.validate(msg2, tangle, pubkeys, msgHash2, rootHash)
+  const err = MsgV3.validate(msg2, tangle, pubkeys, msgID2, mootID)
   assert.ok(err, 'invalid 2nd msg throws')
   assert.match(
     err,
@@ -193,14 +193,14 @@ test('invalid feed msg with a different pubkey', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
 
-  const accountB = MsgV3.getMsgHash(
+  const accountB = MsgV3.getMsgID(
     MsgV3.createAccount(keypairB, 'person', 'MYNONCE')
   )
 
-  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
-  const rootHash = MsgV3.getMsgHash(rootMsg)
-  const feedTangle = new MsgV3.Tangle(rootHash)
-  feedTangle.add(rootHash, rootMsg)
+  const moot = MsgV3.createMoot(account, 'post', keypair)
+  const mootID = MsgV3.getMsgID(moot)
+  const feedTangle = new MsgV3.Tangle(mootID)
+  feedTangle.add(mootID, moot)
 
   const msg = MsgV3.create({
     keypair: keypairB,
@@ -209,12 +209,12 @@ test('invalid feed msg with a different pubkey', (t) => {
     accountTips: [accountB],
     domain: 'post',
     tangles: {
-      [rootHash]: feedTangle,
+      [mootID]: feedTangle,
     },
   })
-  const msgHash = MsgV3.getMsgHash(msg)
+  const msgID = MsgV3.getMsgID(msg)
 
-  const err = MsgV3.validate(msg, feedTangle, pubkeys, msgHash, rootHash)
+  const err = MsgV3.validate(msg, feedTangle, pubkeys, msgID, mootID)
   assert.ok(err, 'invalid msg throws')
   assert.match(
     err,
@@ -226,10 +226,10 @@ test('invalid feed msg with a different pubkey', (t) => {
 test('invalid feed msg with a different domain', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
-  const rootHash = MsgV3.getMsgHash(rootMsg)
-  const feedTangle = new MsgV3.Tangle(rootHash)
-  feedTangle.add(rootHash, rootMsg)
+  const moot = MsgV3.createMoot(account, 'post', keypair)
+  const mootID = MsgV3.getMsgID(moot)
+  const feedTangle = new MsgV3.Tangle(mootID)
+  feedTangle.add(mootID, moot)
 
   const msg = MsgV3.create({
     keypair: keypairA,
@@ -238,12 +238,12 @@ test('invalid feed msg with a different domain', (t) => {
     accountTips: [account],
     domain: 'comment',
     tangles: {
-      [rootHash]: feedTangle,
+      [mootID]: feedTangle,
     },
   })
-  const msgHash = MsgV3.getMsgHash(msg)
+  const msgID = MsgV3.getMsgID(msg)
 
-  const err = MsgV3.validate(msg, feedTangle, pubkeys, msgHash, rootHash)
+  const err = MsgV3.validate(msg, feedTangle, pubkeys, msgID, mootID)
   assert.ok(err, 'invalid msg throws')
   assert.match(
     err,
@@ -255,11 +255,11 @@ test('invalid feed msg with a different domain', (t) => {
 test('invalid feed msg with non-alphabetical prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
-  const rootHash = MsgV3.getMsgHash(rootMsg)
+  const moot = MsgV3.createMoot(account, 'post', keypair)
+  const mootID = MsgV3.getMsgID(moot)
 
-  const tangle = new MsgV3.Tangle(rootHash)
-  tangle.add(rootHash, rootMsg)
+  const tangle = new MsgV3.Tangle(mootID)
+  tangle.add(mootID, moot)
 
   const msg1 = MsgV3.create({
     keypair,
@@ -268,10 +268,10 @@ test('invalid feed msg with non-alphabetical prev', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
-  const msgHash1 = MsgV3.getMsgHash(msg1)
+  const msgID1 = MsgV3.getMsgID(msg1)
 
   const msg2 = MsgV3.create({
     keypair,
@@ -280,13 +280,13 @@ test('invalid feed msg with non-alphabetical prev', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
-  const msgHash2 = MsgV3.getMsgHash(msg2)
+  const msgID2 = MsgV3.getMsgID(msg2)
 
-  tangle.add(msgHash1, msg1)
-  tangle.add(msgHash2, msg2)
+  tangle.add(msgID1, msg1)
+  tangle.add(msgID2, msg2)
 
   const msg3 = MsgV3.create({
     keypair,
@@ -295,20 +295,20 @@ test('invalid feed msg with non-alphabetical prev', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
-  const msgHash3 = MsgV3.getMsgHash(msg3)
+  const msgID3 = MsgV3.getMsgID(msg3)
 
-  let prevHashes = msg3.metadata.tangles[rootHash].prev
-  if (prevHashes[0] < prevHashes[1]) {
-    prevHashes = [prevHashes[1], prevHashes[0]]
+  let prevMsgIDs = msg3.metadata.tangles[mootID].prev
+  if (prevMsgIDs[0] < prevMsgIDs[1]) {
+    prevMsgIDs = [prevMsgIDs[1], prevMsgIDs[0]]
   } else {
-    prevHashes = [prevHashes[0], prevHashes[1]]
+    prevMsgIDs = [prevMsgIDs[0], prevMsgIDs[1]]
   }
-  msg3.metadata.tangles[rootHash].prev = prevHashes
+  msg3.metadata.tangles[mootID].prev = prevMsgIDs
 
-  const err = MsgV3.validate(msg3, tangle, pubkeys, msgHash3, rootHash)
+  const err = MsgV3.validate(msg3, tangle, pubkeys, msgID3, mootID)
   assert.ok(err, 'invalid 3rd msg throws')
   assert.match(
     err,
@@ -320,11 +320,11 @@ test('invalid feed msg with non-alphabetical prev', (t) => {
 test('invalid feed msg with duplicate prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
-  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
-  const rootHash = MsgV3.getMsgHash(rootMsg)
+  const moot = MsgV3.createMoot(account, 'post', keypair)
+  const mootID = MsgV3.getMsgID(moot)
 
-  const tangle = new MsgV3.Tangle(rootHash)
-  tangle.add(rootHash, rootMsg)
+  const tangle = new MsgV3.Tangle(mootID)
+  tangle.add(mootID, moot)
 
   const msg1 = MsgV3.create({
     keypair,
@@ -333,15 +333,15 @@ test('invalid feed msg with duplicate prev', (t) => {
     accountTips: [account],
     domain: 'post',
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
   })
-  const msgHash1 = MsgV3.getMsgHash(msg1)
+  const msgID1 = MsgV3.getMsgID(msg1)
 
-  const [prevHash] = msg1.metadata.tangles[rootHash].prev
-  msg1.metadata.tangles[rootHash].prev = [prevHash, prevHash]
+  const [prevID] = msg1.metadata.tangles[mootID].prev
+  msg1.metadata.tangles[mootID].prev = [prevID, prevID]
 
-  const err = MsgV3.validate(msg1, tangle, pubkeys, msgHash1, rootHash)
+  const err = MsgV3.validate(msg1, tangle, pubkeys, msgID1, mootID)
   assert.ok(err, 'invalid 1st msg throws')
   assert.match(err, /prev ".*" contains duplicates/, 'invalid error message')
 })

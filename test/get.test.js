@@ -15,8 +15,7 @@ rimraf.sync(DIR)
 const keypair = Keypair.generate('ed25519', 'alice')
 let peer
 let id
-let msgHash1
-let msgId1
+let msgID1
 test('setup', async (t) => {
   peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
@@ -32,18 +31,11 @@ test('setup', async (t) => {
     domain: 'post',
     data: { text: 'I am 1st post' },
   })
-  msgHash1 = MsgV3.getMsgHash(rec1.msg)
-  msgId1 = MsgV3.getMsgId(rec1.msg)
+  msgID1 = MsgV3.getMsgID(rec1.msg)
 })
 
-test('get() supports ppppp URIs', async (t) => {
-  const msg = peer.db.get(msgId1)
-  assert.ok(msg, 'msg exists')
-  assert.equal(msg.data.text, 'I am 1st post')
-})
-
-test('get() supports msg hashes', async (t) => {
-  const msg = peer.db.get(msgHash1)
+test('get() supports msg IDs', async (t) => {
+  const msg = peer.db.get(msgID1)
   assert.ok(msg, 'msg exists')
   assert.equal(msg.data.text, 'I am 1st post')
 })

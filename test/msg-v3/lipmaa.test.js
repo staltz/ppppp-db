@@ -5,15 +5,15 @@ const MsgV3 = require('../../lib/msg-v3')
 
 test('lipmaa prevs', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
-  const account = MsgV3.getMsgHash(
+  const account = MsgV3.getMsgID(
     MsgV3.createAccount(keypair, 'person', 'MYNONCE')
   )
   const data = { text: 'Hello world!' }
 
-  const rootMsg = MsgV3.createRoot(account, 'post', keypair)
-  const rootHash = MsgV3.getMsgHash(rootMsg)
-  const tangle = new MsgV3.Tangle(rootHash)
-  tangle.add(rootHash, rootMsg)
+  const moot = MsgV3.createMoot(account, 'post', keypair)
+  const mootID = MsgV3.getMsgID(moot)
+  const tangle = new MsgV3.Tangle(mootID)
+  tangle.add(mootID, moot)
 
   const msg1 = MsgV3.create({
     account,
@@ -21,16 +21,16 @@ test('lipmaa prevs', (t) => {
     domain: 'post',
     data,
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
     keypair,
   })
-  const msgHash1 = MsgV3.getMsgHash(msg1)
-  tangle.add(msgHash1, msg1)
-  assert.equal(msg1.metadata.tangles[rootHash].depth, 1, 'msg1 depth')
+  const msgID1 = MsgV3.getMsgID(msg1)
+  tangle.add(msgID1, msg1)
+  assert.equal(msg1.metadata.tangles[mootID].depth, 1, 'msg1 depth')
   assert.deepEqual(
-    msg1.metadata.tangles[rootHash].prev,
-    [rootHash],
+    msg1.metadata.tangles[mootID].prev,
+    [mootID],
     'msg1 prev'
   )
 
@@ -40,16 +40,16 @@ test('lipmaa prevs', (t) => {
     domain: 'post',
     data,
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
     keypair,
   })
-  const msgHash2 = MsgV3.getMsgHash(msg2)
-  tangle.add(msgHash2, msg2)
-  assert.equal(msg2.metadata.tangles[rootHash].depth, 2, 'msg2 depth')
+  const msgID2 = MsgV3.getMsgID(msg2)
+  tangle.add(msgID2, msg2)
+  assert.equal(msg2.metadata.tangles[mootID].depth, 2, 'msg2 depth')
   assert.deepEqual(
-    msg2.metadata.tangles[rootHash].prev,
-    [msgHash1],
+    msg2.metadata.tangles[mootID].prev,
+    [msgID1],
     'msg2 prev'
   )
 
@@ -59,16 +59,16 @@ test('lipmaa prevs', (t) => {
     domain: 'post',
     data,
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
     keypair,
   })
-  const msgHash3 = MsgV3.getMsgHash(msg3)
-  tangle.add(msgHash3, msg3)
-  assert.equal(msg3.metadata.tangles[rootHash].depth, 3, 'msg3 depth')
+  const msgID3 = MsgV3.getMsgID(msg3)
+  tangle.add(msgID3, msg3)
+  assert.equal(msg3.metadata.tangles[mootID].depth, 3, 'msg3 depth')
   assert.deepEqual(
-    msg3.metadata.tangles[rootHash].prev,
-    [rootHash, msgHash2].sort(),
+    msg3.metadata.tangles[mootID].prev,
+    [mootID, msgID2].sort(),
     'msg3 prev (has lipmaa!)'
   )
 
@@ -78,16 +78,16 @@ test('lipmaa prevs', (t) => {
     domain: 'post',
     keypair,
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
     data,
   })
-  const msgHash4 = MsgV3.getMsgHash(msg4)
-  tangle.add(msgHash4, msg4)
-  assert.equal(msg4.metadata.tangles[rootHash].depth, 4, 'msg4 depth')
+  const msgID4 = MsgV3.getMsgID(msg4)
+  tangle.add(msgID4, msg4)
+  assert.equal(msg4.metadata.tangles[mootID].depth, 4, 'msg4 depth')
   assert.deepEqual(
-    msg4.metadata.tangles[rootHash].prev,
-    [msgHash3],
+    msg4.metadata.tangles[mootID].prev,
+    [msgID3],
     'msg4 prev'
   )
 
@@ -97,16 +97,16 @@ test('lipmaa prevs', (t) => {
     domain: 'post',
     data,
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
     keypair,
   })
-  const msgHash5 = MsgV3.getMsgHash(msg5)
-  tangle.add(msgHash5, msg5)
-  assert.equal(msg5.metadata.tangles[rootHash].depth, 5, 'msg5 depth')
+  const msgID5 = MsgV3.getMsgID(msg5)
+  tangle.add(msgID5, msg5)
+  assert.equal(msg5.metadata.tangles[mootID].depth, 5, 'msg5 depth')
   assert.deepEqual(
-    msg5.metadata.tangles[rootHash].prev,
-    [msgHash4],
+    msg5.metadata.tangles[mootID].prev,
+    [msgID4],
     'msg5 prev'
   )
 
@@ -116,16 +116,16 @@ test('lipmaa prevs', (t) => {
     domain: 'post',
     data,
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
     keypair,
   })
-  const msgHash6 = MsgV3.getMsgHash(msg6)
-  tangle.add(msgHash6, msg6)
-  assert.equal(msg6.metadata.tangles[rootHash].depth, 6, 'msg6 depth')
+  const msgID6 = MsgV3.getMsgID(msg6)
+  tangle.add(msgID6, msg6)
+  assert.equal(msg6.metadata.tangles[mootID].depth, 6, 'msg6 depth')
   assert.deepEqual(
-    msg6.metadata.tangles[rootHash].prev,
-    [msgHash5],
+    msg6.metadata.tangles[mootID].prev,
+    [msgID5],
     'msg6 prev'
   )
 
@@ -135,16 +135,16 @@ test('lipmaa prevs', (t) => {
     domain: 'post',
     data,
     tangles: {
-      [rootHash]: tangle,
+      [mootID]: tangle,
     },
     keypair,
   })
-  const msgHash7 = MsgV3.getMsgHash(msg7)
-  tangle.add(msgHash7, msg7)
-  assert.equal(msg7.metadata.tangles[rootHash].depth, 7, 'msg7 depth')
+  const msgID7 = MsgV3.getMsgID(msg7)
+  tangle.add(msgID7, msg7)
+  assert.equal(msg7.metadata.tangles[mootID].depth, 7, 'msg7 depth')
   assert.deepEqual(
-    msg7.metadata.tangles[rootHash].prev,
-    [msgHash3, msgHash6].sort(),
+    msg7.metadata.tangles[mootID].prev,
+    [msgID3, msgID6].sort(),
     'msg7 prev (has lipmaa!)'
   )
 })

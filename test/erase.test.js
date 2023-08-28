@@ -23,14 +23,14 @@ test('erase', async (t) => {
 
   const id = await p(peer.db.account.create)({ domain: 'person' })
 
-  const msgHashes = []
+  const msgIDs = []
   for (let i = 0; i < 5; i++) {
     const rec = await p(peer.db.feed.publish)({
       account: id,
       domain: 'post',
       data: { text: 'm' + i },
     })
-    msgHashes.push(rec.hash)
+    msgIDs.push(rec.id)
   }
 
   const before = []
@@ -46,7 +46,7 @@ test('erase', async (t) => {
     '5 msgs before the erase'
   )
 
-  await p(peer.db.erase)(msgHashes[2])
+  await p(peer.db.erase)(msgIDs[2])
 
   const after = []
   for (const msg of peer.db.msgs()) {
@@ -59,8 +59,8 @@ test('erase', async (t) => {
 
   const after2 = []
   for (const msg of peer.db.msgs()) {
-    for (const tangleId in msg.metadata.tangles) {
-      after2.push(msg.metadata.tangles[tangleId].depth)
+    for (const tangleID in msg.metadata.tangles) {
+      after2.push(msg.metadata.tangles[tangleID].depth)
     }
   }
 

@@ -41,9 +41,9 @@ test('setup', async (t) => {
       domain: 'comment',
       data: { text: 'root' },
     })
-  ).hash
+  ).id
 
-  const [{ hash: reply1B }, { hash: reply1C }] = await Promise.all([
+  const [{ id: reply1B }, { id: reply1C }] = await Promise.all([
     p(peer.db.feed.publish)({
       account: id,
       keypair: keypairB,
@@ -70,9 +70,9 @@ test('setup', async (t) => {
       data: { text: 'reply 2' },
       tangles: [rootPost],
     })
-  ).hash
+  ).id
 
-  const [{ hash: reply3B }, { hash: reply3C }] = await Promise.all([
+  const [{ id: reply3B }, { id: reply3C }] = await Promise.all([
     p(peer.db.feed.publish)({
       account: id,
       keypair: keypairB,
@@ -217,11 +217,11 @@ test('Tangle.getDeletablesAndErasables with lipmaa', (t) => {
 
 test('Tangle.topoSort after some have been deleted and erased', async (t) => {
   const { deletables, erasables } = tangle.getDeletablesAndErasables(reply3Lo)
-  for (const msgHash of deletables) {
-    await p(peer.db.del)(msgHash)
+  for (const msgID of deletables) {
+    await p(peer.db.del)(msgID)
   }
-  for (const msgHash of erasables) {
-    await p(peer.db.erase)(msgHash)
+  for (const msgID of erasables) {
+    await p(peer.db.erase)(msgID)
   }
 
   const tangle2 = peer.db.getTangle(rootPost)

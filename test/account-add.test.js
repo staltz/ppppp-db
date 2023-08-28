@@ -21,24 +21,24 @@ test('account.add()', async (t) => {
     .call(null, { keypair: keypair1, path: DIR })
 
   await peer.db.loaded()
-  const id = await p(peer.db.account.create)({
+  const account = await p(peer.db.account.create)({
     keypair: keypair1,
     domain: 'person',
   })
 
-  assert.equal(peer.db.account.has({ account: id, keypair: keypair2 }), false)
+  assert.equal(peer.db.account.has({ account, keypair: keypair2 }), false)
 
-  const consent = peer.db.account.consent({ account: id, keypair: keypair2 })
+  const consent = peer.db.account.consent({ account, keypair: keypair2 })
 
   const accountRec1 = await p(peer.db.account.add)({
-    account: id,
+    account,
     keypair: keypair2,
     consent,
     powers: ['box'],
   })
   assert.ok(accountRec1, 'accountRec1 exists')
-  const { hash, msg } = accountRec1
-  assert.ok(hash, 'hash exists')
+  const { id, msg } = accountRec1
+  assert.ok(account, 'id exists')
   assert.deepEqual(
     msg.data,
     {
@@ -60,12 +60,12 @@ test('account.add()', async (t) => {
   assert.equal(msg.metadata.domain, 'person', 'msg.metadata.domain')
   assert.deepEqual(
     msg.metadata.tangles,
-    { [id]: { depth: 1, prev: [id] } },
+    { [account]: { depth: 1, prev: [account] } },
     'msg.metadata.tangles'
   )
   assert.equal(msg.pubkey, keypair1.public, 'msg.pubkey OLD KEY')
 
-  assert.equal(peer.db.account.has({ account: id, keypair: keypair2 }), true)
+  assert.equal(peer.db.account.has({ account, keypair: keypair2 }), true)
 
   await p(peer.close)()
 })
@@ -182,8 +182,8 @@ test('publish with a key in the account', async (t) => {
     keypair: keypair2,
   })
   assert.equal(postRec.msg.data.text, 'hello', 'post text correct')
-  const postsId = peer.db.feed.getId(account, 'post')
-  assert.ok(postsId, 'postsId exists')
+  const postsID = peer.db.feed.getID(account, 'post')
+  assert.ok(postsID, 'postsID exists')
 
   const recs = [...peer.db.records()]
   assert.equal(recs.length, 4, '4 records')
@@ -220,8 +220,8 @@ test('publish with a key in the account', async (t) => {
 
   await p(carol.db.add)(accountMsg0, account)
   await p(carol.db.add)(accountRec1.msg, account)
-  await p(carol.db.add)(postsRoot.msg, postsId)
-  await p(carol.db.add)(postRec.msg, postsId)
+  await p(carol.db.add)(postsRoot.msg, postsID)
+  await p(carol.db.add)(postRec.msg, postsID)
   // t.pass('carol added all messages successfully')
 
   await p(carol.close)()
