@@ -222,7 +222,7 @@ test('publish with a key in the account', async (t) => {
   await p(carol.db.add)(accountRec1.msg, account)
   await p(carol.db.add)(postsRoot.msg, postsID)
   await p(carol.db.add)(postRec.msg, postsID)
-  // t.pass('carol added all messages successfully')
+  // t.pass('carol added all msgs successfully')
 
   await p(carol.close)()
 })
