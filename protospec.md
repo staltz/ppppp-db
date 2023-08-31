@@ -41,6 +41,8 @@ interface Msg {
 }
 ```
 
+**Depth:** we NEED this field because it is the most reliable way of calculating lipmaa distances between msgs, in the face of sliced replication. For example, given that older messages (except the certificate pool) would be deleted, the "graph depth" calculation for a msg may change over time, but we need a way of keeping this calculation stable and deterministic.
+
 ## Account tangle msgs
 
 Msgs in an account tangle are special because they have empty `account` and `accountTips` fields.
