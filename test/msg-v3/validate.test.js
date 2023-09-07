@@ -136,3 +136,32 @@ test('validate 2nd forked msg', (t) => {
   const err = MsgV3.validate(msg1B, tangle, pubkeys, msgID1B, mootID)
   assert.ifError(err, 'valid 2nd forked msg')
 })
+
+test('validate erased msg', (t) => {
+  const keypair = Keypair.generate('ed25519', 'alice')
+  const account = MsgV3.getMsgID(
+    MsgV3.createAccount(keypair, 'person', 'alice')
+  )
+  const pubkeys = new Set([keypair.public])
+
+  const moot = MsgV3.createMoot(account, 'post', keypair)
+  const mootID = MsgV3.getMsgID(moot)
+  const tangle = new MsgV3.Tangle(mootID)
+  tangle.add(mootID, moot)
+
+  const msg1 = MsgV3.create({
+    account,
+    accountTips: [account],
+    domain: 'post',
+    data: { text: 'Hello world!' },
+    tangles: {
+      [mootID]: tangle,
+    },
+    keypair,
+  })
+  msg1.data = null
+  const msgID1 = MsgV3.getMsgID(msg1)
+
+  const err = MsgV3.validate(msg1, tangle, pubkeys, msgID1, mootID)
+  assert.ifError(err, 'valid erased msg')
+})
