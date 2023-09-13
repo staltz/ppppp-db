@@ -21,7 +21,7 @@ test('add()', async (t) => {
 
   await peer.db.loaded()
 
-  const accountMsg0 = MsgV3.createAccount(keypair, 'person')
+  const accountMsg0 = MsgV3.createAccount(keypair, 'person', 'aliceNonce')
   const id = MsgV3.getMsgID(accountMsg0)
 
   await p(peer.db.add)(accountMsg0, id)
@@ -47,6 +47,10 @@ test('add()', async (t) => {
 
   const rec = await p(peer.db.add)(inputMsg, rootID)
   assert.equal(rec.msg.data.text, 'This is the first post!')
+
+  await p(peer.db._getLog().onDrain)()
+  const stats = await p(peer.db.logStats)()
+  assert.deepEqual(stats, { totalBytes: 974, deletedBytes: 0 })
 
   await p(peer.close)(true)
 })
