@@ -12,7 +12,7 @@ const DIR = path.join(os.tmpdir(), 'ppppp-db-tangle')
 rimraf.sync(DIR)
 
 let peer
-let rootPost, reply1Lo, reply1Hi, reply2A, reply3Lo, reply3Hi
+let rootPost, reply1Lo, reply1Hi, reply2, reply3Lo, reply3Hi
 let tangle
 test('setup', async (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
@@ -26,7 +26,7 @@ test('setup', async (t) => {
 
   await peer.db.loaded()
 
-  const id = (await p(peer.db.account.create)({domain: 'person'}))
+  const id = await p(peer.db.account.create)({ domain: 'person' })
 
   // Slow down append so that we can trigger msg creation in parallel
   const originalAppend = peer.db._getLog().append
@@ -62,7 +62,7 @@ test('setup', async (t) => {
   reply1Lo = reply1B.localeCompare(reply1C) < 0 ? reply1B : reply1C
   reply1Hi = reply1B.localeCompare(reply1C) < 0 ? reply1C : reply1B
 
-  reply2A = (
+  reply2 = (
     await p(peer.db.feed.publish)({
       account: id,
       keypair: keypairA,
@@ -98,7 +98,7 @@ test('Tangle.has', (t) => {
   assert.equal(tangle.has(rootPost), true, 'has rootPost')
   assert.equal(tangle.has(reply1Lo), true, 'has reply1Lo')
   assert.equal(tangle.has(reply1Hi), true, 'has reply1Hi')
-  assert.equal(tangle.has(reply2A), true, 'has reply2A')
+  assert.equal(tangle.has(reply2), true, 'has reply2A')
   assert.equal(tangle.has(reply3Lo), true, 'has reply3Lo')
   assert.equal(tangle.has(reply3Hi), true, 'has reply3Hi')
   assert.equal(tangle.has('nonsense'), false, 'does not have nonsense')
@@ -108,7 +108,7 @@ test('Tangle.getDepth', (t) => {
   assert.equal(tangle.getDepth(rootPost), 0, 'depth of rootPost is 0')
   assert.equal(tangle.getDepth(reply1Lo), 1, 'depth of reply1Lo is 1')
   assert.equal(tangle.getDepth(reply1Hi), 1, 'depth of reply1Hi is 1')
-  assert.equal(tangle.getDepth(reply2A), 2, 'depth of reply2A is 2')
+  assert.equal(tangle.getDepth(reply2), 2, 'depth of reply2A is 2')
   assert.equal(tangle.getDepth(reply3Lo), 3, 'depth of reply3Lo is 3')
   assert.equal(tangle.getDepth(reply3Hi), 3, 'depth of reply3Hi is 3')
 })
@@ -124,7 +124,7 @@ test('Tangle.topoSort', (t) => {
     rootPost,
     reply1Lo,
     reply1Hi,
-    reply2A,
+    reply2,
     reply3Lo,
     reply3Hi,
   ])
@@ -162,7 +162,7 @@ test('Tangle.precedes', (t) => {
     'reply1Lo precedes reply3Hi'
   )
   assert.equal(
-    tangle.precedes(reply1Hi, reply2A),
+    tangle.precedes(reply1Hi, reply2),
     true,
     'reply1Hi precedes reply2A'
   )
@@ -202,17 +202,55 @@ test('Tangle.getLipmaaSet', (t) => {
 })
 
 test('Tangle.getDeletablesAndErasables basic', (t) => {
-  const { deletables, erasables } = tangle.getDeletablesAndErasables(reply2A)
+  const { deletables, erasables } = tangle.getDeletablesAndErasables(reply2)
 
   assert.deepEqual(deletables, [reply1Hi], 'deletables')
   assert.deepEqual(erasables, [reply1Lo, rootPost], 'erasables')
 })
 
+test('Tangle.getDeletablesAndErasables with many inputs', (t) => {
+  const { deletables, erasables } = tangle.getDeletablesAndErasables(
+    reply3Lo,
+    reply2
+  )
+
+  assert.deepEqual(deletables, [reply1Hi], 'deletables')
+  assert.deepEqual(erasables, [reply1Lo, rootPost], 'erasables')
+})
+
+test('Tangle.getDeletablesAndErasables with many inputs again', (t) => {
+  const { deletables, erasables } = tangle.getDeletablesAndErasables(
+    reply3Lo,
+    reply3Hi
+  )
+
+  assert.deepEqual(deletables, [reply1Lo, reply1Hi, reply2], 'deletables')
+  assert.deepEqual(erasables, [rootPost], 'erasables')
+})
+
 test('Tangle.getDeletablesAndErasables with lipmaa', (t) => {
   const { deletables, erasables } = tangle.getDeletablesAndErasables(reply3Lo)
 
-  assert.deepEqual(deletables, [reply1Lo, reply1Hi, reply2A], 'deletables')
+  assert.deepEqual(deletables, [reply1Lo, reply1Hi, reply2], 'deletables')
   assert.deepEqual(erasables, [rootPost], 'erasables')
+})
+
+test('Tangle.getMinimumAmong', (t) => {
+  const actual1 = tangle.getMinimumAmong([reply1Lo, reply1Hi])
+  const expected1 = [reply1Lo, reply1Hi]
+  assert.deepEqual(actual1, expected1)
+
+  const actual2 = tangle.getMinimumAmong([reply1Lo, reply1Hi, reply2])
+  const expected2 = [reply1Lo, reply1Hi]
+  assert.deepEqual(actual2, expected2)
+
+  const actual3 = tangle.getMinimumAmong([reply2, reply3Lo, reply3Hi])
+  const expected3 = [reply2]
+  assert.deepEqual(actual3, expected3)
+
+  const actual4 = tangle.getMinimumAmong([reply1Hi, reply3Lo])
+  const expected4 = [reply1Hi]
+  assert.deepEqual(actual4, expected4)
 })
 
 test('Tangle.topoSort after some have been deleted and erased', async (t) => {
