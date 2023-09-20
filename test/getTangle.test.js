@@ -204,8 +204,8 @@ test('Tangle.getLipmaaSet', (t) => {
 test('Tangle.getDeletablesAndErasables basic', (t) => {
   const { deletables, erasables } = tangle.getDeletablesAndErasables(reply2)
 
-  assert.deepEqual(deletables, [reply1Hi], 'deletables')
-  assert.deepEqual(erasables, [reply1Lo, rootPost], 'erasables')
+  assert.deepEqual([...deletables], [reply1Hi], 'deletables')
+  assert.deepEqual([...erasables], [reply1Lo, rootPost], 'erasables')
 })
 
 test('Tangle.getDeletablesAndErasables with many inputs', (t) => {
@@ -214,8 +214,8 @@ test('Tangle.getDeletablesAndErasables with many inputs', (t) => {
     reply2
   )
 
-  assert.deepEqual(deletables, [reply1Hi], 'deletables')
-  assert.deepEqual(erasables, [reply1Lo, rootPost], 'erasables')
+  assert.deepEqual([...deletables], [reply1Hi], 'deletables')
+  assert.deepEqual([...erasables], [reply1Lo, rootPost], 'erasables')
 })
 
 test('Tangle.getDeletablesAndErasables with many inputs again', (t) => {
@@ -224,15 +224,15 @@ test('Tangle.getDeletablesAndErasables with many inputs again', (t) => {
     reply3Hi
   )
 
-  assert.deepEqual(deletables, [reply1Lo, reply1Hi, reply2], 'deletables')
-  assert.deepEqual(erasables, [rootPost], 'erasables')
+  assert.deepEqual([...deletables], [reply1Lo, reply1Hi, reply2], 'deletables')
+  assert.deepEqual([...erasables], [rootPost], 'erasables')
 })
 
 test('Tangle.getDeletablesAndErasables with lipmaa', (t) => {
   const { deletables, erasables } = tangle.getDeletablesAndErasables(reply3Lo)
 
-  assert.deepEqual(deletables, [reply1Lo, reply1Hi, reply2], 'deletables')
-  assert.deepEqual(erasables, [rootPost], 'erasables')
+  assert.deepEqual([...deletables], [reply1Lo, reply1Hi, reply2], 'deletables')
+  assert.deepEqual([...erasables], [rootPost], 'erasables')
 })
 
 test('Tangle.getMinimumAmong', (t) => {
