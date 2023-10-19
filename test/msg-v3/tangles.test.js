@@ -16,6 +16,7 @@ test('simple multi-author tangle', (t) => {
   const mootA = MsgV3.createMoot(accountA, 'post', keypairA)
   const mootAID = MsgV3.getMsgID(mootA)
   const tangleA = new MsgV3.Tangle(mootAID)
+  assert.equal(tangleA.id, mootAID, 'tangle.id')
   tangleA.add(mootAID, mootA)
 
   const mootB = MsgV3.createMoot(accountB, 'post', keypairB)
