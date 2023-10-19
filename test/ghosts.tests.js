@@ -34,6 +34,9 @@ test('ghosts.add, ghosts.get, ghosts.getMinDepth', async (t) => {
   }
   const feedID = peer.db.feed.getID(account, 'post')
 
+  const ghosts0 = await p(peer.db.ghosts.get)(feedID)
+  assert.deepEqual(ghosts0, [], 'no ghosts so far')
+
   await p(peer.db.ghosts.add)({ msg: msgIDs[0], tangle: feedID, max: MAX })
   await p(peer.db.ghosts.add)({ msg: msgIDs[1], tangle: feedID, max: MAX })
   await p(peer.db.ghosts.add)({ msg: msgIDs[2], tangle: feedID, max: MAX })
