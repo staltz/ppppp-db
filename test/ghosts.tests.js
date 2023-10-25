@@ -37,18 +37,18 @@ test('ghosts.add, ghosts.get, ghosts.getMinDepth', async (t) => {
   const ghosts0 = peer.db.ghosts.get(feedID)
   assert.deepEqual(ghosts0, [], 'no ghosts so far')
 
-  await p(peer.db.ghosts.add)({ msg: msgIDs[0], tangle: feedID, max: MAX })
-  await p(peer.db.ghosts.add)({ msg: msgIDs[1], tangle: feedID, max: MAX })
-  await p(peer.db.ghosts.add)({ msg: msgIDs[2], tangle: feedID, max: MAX })
-  await p(peer.db.ghosts.add)({ msg: msgIDs[3], tangle: feedID, max: MAX })
-  await p(peer.db.ghosts.add)({ msg: msgIDs[4], tangle: feedID, max: MAX })
+  await p(peer.db.ghosts.add)({ msgID: msgIDs[0], tangleID: feedID, max: MAX })
+  await p(peer.db.ghosts.add)({ msgID: msgIDs[1], tangleID: feedID, max: MAX })
+  await p(peer.db.ghosts.add)({ msgID: msgIDs[2], tangleID: feedID, max: MAX })
+  await p(peer.db.ghosts.add)({ msgID: msgIDs[3], tangleID: feedID, max: MAX })
+  await p(peer.db.ghosts.add)({ msgID: msgIDs[4], tangleID: feedID, max: MAX })
 
   const ghostsA = peer.db.ghosts.get(feedID)
   assert.deepEqual(ghostsA, msgIDs.slice(0, 5), 'ghosts so far')
   const depthA = peer.db.ghosts.getMinDepth(feedID)
   assert.equal(depthA, 1, 'min depth so far')
 
-  await p(peer.db.ghosts.add)({ msg: msgIDs[5], tangle: feedID, max: MAX })
+  await p(peer.db.ghosts.add)({ msgID: msgIDs[5], tangleID: feedID, max: MAX })
 
   const ghostsB = peer.db.ghosts.get(feedID)
   assert.deepEqual(ghostsB, msgIDs.slice(1, 6), 'ghosts so far')
