@@ -33,6 +33,7 @@
     "b4a": "~1.6.4",
     "bs58": "~5.0.0",
     "json-canon": "~1.0.0",
+    "multicb": "~1.2.2",
     "obz": "~1.1.0",
     "ppppp-keypair": "github:staltz/ppppp-keypair",
     "promisify-4loc": "~1.0.0",
