@@ -34,6 +34,7 @@
     "bs58": "~5.0.0",
     "json-canon": "~1.0.0",
     "multicb": "~1.2.2",
+    "mutexify": "~1.4.0",
     "obz": "~1.1.0",
     "ppppp-keypair": "github:staltz/ppppp-keypair",
     "promisify-4loc": "~1.0.0",
