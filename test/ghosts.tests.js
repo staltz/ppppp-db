@@ -21,7 +21,7 @@ test('ghosts.add, ghosts.get, ghosts.getMinDepth', async (t) => {
   await peer.db.loaded()
 
   const account = await p(peer.db.account.create)({ domain: 'person' })
-  const MAX = 5
+  const SPAN = 5
 
   let msgIDs = []
   for (let i = 0; i < 10; i++) {
@@ -32,27 +32,27 @@ test('ghosts.add, ghosts.get, ghosts.getMinDepth', async (t) => {
     })
     msgIDs.push(rec.id)
   }
-  const feedID = peer.db.feed.getID(account, 'post')
+  const tangleID = peer.db.feed.getID(account, 'post')
 
-  const ghosts0 = peer.db.ghosts.get(feedID)
+  const ghosts0 = peer.db.ghosts.get(tangleID)
   assert.deepEqual(ghosts0, [], 'no ghosts so far')
 
-  await p(peer.db.ghosts.add)({ msgID: msgIDs[0], tangleID: feedID, max: MAX })
-  await p(peer.db.ghosts.add)({ msgID: msgIDs[1], tangleID: feedID, max: MAX })
-  await p(peer.db.ghosts.add)({ msgID: msgIDs[2], tangleID: feedID, max: MAX })
-  await p(peer.db.ghosts.add)({ msgID: msgIDs[3], tangleID: feedID, max: MAX })
-  await p(peer.db.ghosts.add)({ msgID: msgIDs[4], tangleID: feedID, max: MAX })
+  await p(peer.db.ghosts.add)({ msgID: msgIDs[0], tangleID, span: SPAN })
+  await p(peer.db.ghosts.add)({ msgID: msgIDs[1], tangleID, span: SPAN })
+  await p(peer.db.ghosts.add)({ msgID: msgIDs[2], tangleID, span: SPAN })
+  await p(peer.db.ghosts.add)({ msgID: msgIDs[3], tangleID, span: SPAN })
+  await p(peer.db.ghosts.add)({ msgID: msgIDs[4], tangleID, span: SPAN })
 
-  const ghostsA = peer.db.ghosts.get(feedID)
+  const ghostsA = peer.db.ghosts.get(tangleID)
   assert.deepEqual(ghostsA, msgIDs.slice(0, 5), 'ghosts so far')
-  const depthA = peer.db.ghosts.getMinDepth(feedID)
+  const depthA = peer.db.ghosts.getMinDepth(tangleID)
   assert.equal(depthA, 1, 'min depth so far')
 
-  await p(peer.db.ghosts.add)({ msgID: msgIDs[5], tangleID: feedID, max: MAX })
+  await p(peer.db.ghosts.add)({ msgID: msgIDs[5], tangleID, span: SPAN })
 
-  const ghostsB = peer.db.ghosts.get(feedID)
+  const ghostsB = peer.db.ghosts.get(tangleID)
   assert.deepEqual(ghostsB, msgIDs.slice(1, 6), 'ghosts so far')
-  const depthB = peer.db.ghosts.getMinDepth(feedID)
+  const depthB = peer.db.ghosts.getMinDepth(tangleID)
   assert.equal(depthB, 2, 'min depth so far')
 
   await p(peer.close)(true)
