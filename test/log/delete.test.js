@@ -28,16 +28,16 @@ test('Log performing simple delete', async (t) => {
   const offset3 = await p(log.append)(msg3)
   assert.ok(offset3 > offset2)
 
-  const buf1 = await p(log.get)(offset1)
+  const buf1 = await p(log._get)(offset1)
   assert.equal(buf1.toString(), msg1.toString())
-  const buf2 = await p(log.get)(offset2)
+  const buf2 = await p(log._get)(offset2)
   assert.equal(buf2.toString(), msg2.toString())
-  const buf3 = await p(log.get)(offset3)
+  const buf3 = await p(log._get)(offset3)
   assert.equal(buf3.toString(), msg3.toString())
 
   await p(log.del)(offset2)
   await p(log.onDeletesFlushed)()
-  await assert.rejects(p(log.get)(offset2), (err) => {
+  await assert.rejects(p(log._get)(offset2), (err) => {
     assert.ok(err)
     assert.equal(err.message, 'Record has been deleted')
     assert.equal(err.code, 'ERR_AAOL_DELETED_RECORD')
@@ -99,7 +99,7 @@ test('Log deleted records are not invalid upon re-opening', async (t) => {
     )
   })
 
-  await assert.rejects(p(log2.get)(offset2), (err) => {
+  await assert.rejects(p(log2._get)(offset2), (err) => {
     assert.ok(err)
     assert.equal(err.message, 'Record has been deleted')
     assert.equal(err.code, 'ERR_AAOL_DELETED_RECORD')

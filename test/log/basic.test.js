@@ -20,10 +20,10 @@ test('Log handles basic binary records', async function (t) {
   const offset2 = await p(log.append)(msg2)
   assert.equal(offset2, msg1.length + 2)
 
-  const b1 = await p(log.get)(offset1)
+  const b1 = await p(log._get)(offset1)
   assert.equal(b1.toString(), msg1.toString())
 
-  const b2 = await p(log.get)(offset2)
+  const b2 = await p(log._get)(offset2)
   assert.equal(b2.toString(), msg2.toString())
 
   await p(log.close)()
@@ -48,10 +48,10 @@ test('Log handles basic json records', async function (t) {
   const offset2 = await p(log.append)(json2)
   assert.equal(offset2, 20)
 
-  const rec1 = await p(log.get)(offset1)
+  const rec1 = await p(log._get)(offset1)
   assert.deepEqual(rec1, json1)
 
-  const rec2 = await p(log.get)(offset2)
+  const rec2 = await p(log._get)(offset2)
   assert.deepEqual(rec2, json2)
 
   await p(log.close)()
@@ -67,10 +67,10 @@ test('Log handles basic json record re-reading', async function (t) {
   await p(log.onDrain)()
   assert.equal(log.since.value, 20)
 
-  const rec1 = await p(log.get)(0)
+  const rec1 = await p(log._get)(0)
   assert.deepEqual(rec1, json1)
 
-  const rec2 = await p(log.get)(20)
+  const rec2 = await p(log._get)(20)
   assert.deepEqual(rec2, json2)
 
   await p(log.close)()
