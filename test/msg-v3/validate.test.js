@@ -3,7 +3,7 @@ const assert = require('node:assert')
 const Keypair = require('ppppp-keypair')
 const MsgV3 = require('../../lib/msg-v3')
 
-test('validate root msg', (t) => {
+test('MsgV3 validate root msg', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const account = MsgV3.getMsgID(
     MsgV3.createAccount(keypair, 'person', 'alice')
@@ -19,7 +19,7 @@ test('validate root msg', (t) => {
   assert.ifError(err, 'valid root msg')
 })
 
-test('validate account tangle', (t) => {
+test('MsgV3 validate account tangle', (t) => {
   const pubkeys = new Set()
   const keypair1 = Keypair.generate('ed25519', 'alice')
   pubkeys.add(keypair1.public)
@@ -66,7 +66,7 @@ test('validate account tangle', (t) => {
   assert.ifError(err, 'valid account msg')
 })
 
-test('validate 2nd msg with existing root', (t) => {
+test('MsgV3 validate 2nd msg with existing root', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const account = MsgV3.getMsgID(
     MsgV3.createAccount(keypair, 'person', 'alice')
@@ -95,7 +95,7 @@ test('validate 2nd msg with existing root', (t) => {
   assert.ifError(err, 'valid 2nd msg')
 })
 
-test('validate 2nd forked msg', (t) => {
+test('MsgV3 validate 2nd forked msg', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const account = MsgV3.getMsgID(
     MsgV3.createAccount(keypair, 'person', 'alice')
@@ -137,7 +137,7 @@ test('validate 2nd forked msg', (t) => {
   assert.ifError(err, 'valid 2nd forked msg')
 })
 
-test('validate erased msg', (t) => {
+test('MsgV3 validate erased msg', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const account = MsgV3.getMsgID(
     MsgV3.createAccount(keypair, 'person', 'alice')

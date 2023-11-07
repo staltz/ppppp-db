@@ -8,7 +8,7 @@ test('MsgV3.createAccount()', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   const accountMsg0 = MsgV3.createAccount(keypair, 'person', 'MYNONCE')
-  console.log(JSON.stringify(accountMsg0, null, 2))
+  if (process.env.VERBOSE) console.log(JSON.stringify(accountMsg0, null, 2))
 
   assert.deepEqual(
     accountMsg0.data,
@@ -45,7 +45,7 @@ test('MsgV3.createMoot()', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   moot = MsgV3.createMoot(account, 'post', keypair)
-  console.log(JSON.stringify(moot, null, 2))
+  if (process.env.VERBOSE) console.log(JSON.stringify(moot, null, 2))
 
   assert.equal(moot.data, null, 'data')
   assert.equal(moot.metadata.dataHash, null, 'hash')
@@ -78,7 +78,7 @@ test('MsgV3.create()', (t) => {
       [mootID]: tangle1,
     },
   })
-  console.log(JSON.stringify(msg1, null, 2))
+  if (process.env.VERBOSE) console.log(JSON.stringify(msg1, null, 2))
 
   assert.deepEqual(msg1.data, data, 'data')
   assert.deepEqual(
@@ -142,7 +142,7 @@ test('MsgV3.create()', (t) => {
       [mootID]: tangle2,
     },
   })
-  console.log(JSON.stringify(msg2, null, 2))
+  if (process.env.VERBOSE) console.log(JSON.stringify(msg2, null, 2))
 
   assert.deepEqual(msg2.data, data2, 'data')
   assert.deepEqual(
@@ -189,7 +189,7 @@ test('MsgV3.create()', (t) => {
   assert.deepEqual(MsgV3.getMsgID(msg2), 'LxWgRRr4wXd29sLDNGNTkr', 'getMsgID')
 })
 
-test('create() handles DAG tips correctly', (t) => {
+test('MsgV3.create() handles DAG tips correctly', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const tangle = new MsgV3.Tangle(mootID)
   tangle.add(mootID, moot)

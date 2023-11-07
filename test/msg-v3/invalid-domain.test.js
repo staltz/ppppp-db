@@ -3,7 +3,7 @@ const assert = require('node:assert')
 const Keypair = require('ppppp-keypair')
 const MsgV3 = require('../../lib/msg-v3')
 
-test('invalid domain not a string', (t) => {
+test('MsgV3 invalid domain not a string', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   assert.throws(
@@ -19,7 +19,7 @@ test('invalid domain not a string', (t) => {
   )
 })
 
-test('invalid domain with "/" character', (t) => {
+test('MsgV3 invalid domain with "/" character', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   assert.throws(
@@ -35,7 +35,7 @@ test('invalid domain with "/" character', (t) => {
   )
 })
 
-test('invalid domain with "*" character', (t) => {
+test('MsgV3 invalid domain with "*" character', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   assert.throws(
@@ -51,7 +51,7 @@ test('invalid domain with "*" character', (t) => {
   )
 })
 
-test('invalid domain too short', (t) => {
+test('MsgV3 invalid domain too short', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   assert.throws(
@@ -67,7 +67,7 @@ test('invalid domain too short', (t) => {
   )
 })
 
-test('invalid domain too long', (t) => {
+test('MsgV3 invalid domain too long', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   assert.throws(

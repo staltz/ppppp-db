@@ -3,7 +3,7 @@ const assert = require('node:assert')
 const Keypair = require('ppppp-keypair')
 const MsgV3 = require('../../lib/msg-v3')
 
-test('lipmaa prevs', (t) => {
+test('MsgV3 lipmaa prevs', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const account = MsgV3.getMsgID(
     MsgV3.createAccount(keypair, 'person', 'MYNONCE')

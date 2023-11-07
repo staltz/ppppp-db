@@ -3,7 +3,7 @@ const assert = require('node:assert')
 const Keypair = require('ppppp-keypair')
 const MsgV3 = require('../../lib/msg-v3')
 
-test('simple multi-author tangle', (t) => {
+test('MsgV3.Tangle simple multi-author tangle', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
   const accountA = MsgV3.getMsgID(
@@ -86,7 +86,7 @@ test('simple multi-author tangle', (t) => {
   )
 })
 
-test('lipmaa in multi-author tangle', (t) => {
+test('MsgV3.Tangle lipmaa in multi-author tangle', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
   const accountA = MsgV3.getMsgID(

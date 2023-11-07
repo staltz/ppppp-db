@@ -10,7 +10,7 @@ const account = MsgV3.getMsgID(
 )
 const pubkeys = new Set([keypair.public])
 
-test('invalid msg with non-array prev', (t) => {
+test('MsgV3 invalid msg with non-array prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   const moot = MsgV3.createMoot(account, 'post', keypair)
@@ -41,7 +41,7 @@ test('invalid msg with non-array prev', (t) => {
   )
 })
 
-test('invalid msg with bad prev', (t) => {
+test('MsgV3 invalid msg with bad prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   const moot = MsgV3.createMoot(account, 'post', keypair)
@@ -86,7 +86,7 @@ test('invalid msg with bad prev', (t) => {
   )
 })
 
-test('invalid msg with URI in prev', (t) => {
+test('MsgV3 invalid msg with URI in prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   const moot = MsgV3.createMoot(account, 'post', keypair)
@@ -129,7 +129,7 @@ test('invalid msg with URI in prev', (t) => {
   assert.match(err, /prev item ".*" is a URI/, 'invalid 2nd msg description')
 })
 
-test('invalid msg with unknown prev', (t) => {
+test('MsgV3 invalid msg with unknown prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   const moot = MsgV3.createMoot(account, 'post', keypair)
@@ -189,7 +189,7 @@ test('invalid msg with unknown prev', (t) => {
   )
 })
 
-test('invalid feed msg with a different pubkey', (t) => {
+test('MsgV3 invalid feed msg with a different pubkey', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
 
@@ -223,7 +223,7 @@ test('invalid feed msg with a different pubkey', (t) => {
   )
 })
 
-test('invalid feed msg with a different domain', (t) => {
+test('MsgV3 invalid feed msg with a different domain', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
 
   const moot = MsgV3.createMoot(account, 'post', keypair)
@@ -252,7 +252,7 @@ test('invalid feed msg with a different domain', (t) => {
   )
 })
 
-test('invalid feed msg with non-alphabetical prev', (t) => {
+test('MsgV3 invalid feed msg with non-alphabetical prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   const moot = MsgV3.createMoot(account, 'post', keypair)
@@ -317,7 +317,7 @@ test('invalid feed msg with non-alphabetical prev', (t) => {
   )
 })
 
-test('invalid feed msg with duplicate prev', (t) => {
+test('MsgV3 invalid feed msg with duplicate prev', (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
 
   const moot = MsgV3.createMoot(account, 'post', keypair)

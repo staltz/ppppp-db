@@ -27,16 +27,20 @@
     }
   },
   "dependencies": {
-    "async-append-only-log": "~4.3.10",
+    "@alloc/quick-lru": "^5.2.0",
     "atomic-file-rw": "~0.3.0",
     "blake3": "~2.1.7",
     "b4a": "~1.6.4",
     "bs58": "~5.0.0",
+    "debug": "^4.3.0",
+    "is-buffer-zero": "^1.0.0",
     "json-canon": "~1.0.0",
+    "lodash.debounce": "~4.0.8",
     "multicb": "~1.2.2",
     "mutexify": "~1.4.0",
     "obz": "~1.1.0",
     "ppppp-keypair": "github:staltz/ppppp-keypair",
+    "polyraf": "^1.1.0",
     "promisify-4loc": "~1.0.0",
     "push-stream": "~11.2.0",
     "set.prototype.union": "~1.0.2"
@@ -44,6 +48,7 @@
   "devDependencies": {
     "@types/b4a": "^1.6.0",
     "c8": "^7.11.0",
+    "flumecodec": "~0.0.1",
     "husky": "^4.3.0",
     "ppppp-caps": "github:staltz/ppppp-caps",
     "prettier": "^2.6.2",
@@ -58,6 +63,7 @@
     "prepublishOnly": "npm run clean-check && tsc --build",
     "postpublish": "npm run clean-check",
     "test": "npm run clean-check && node --test",
+    "test-verbose": "VERBOSE=1 npm run test",
     "format-code": "prettier --write \"(lib|test)/**/*.js\"",
     "format-code-staged": "pretty-quick --staged --pattern \"(lib|test)/**/*.js\"",
     "coverage": "c8 --reporter=lcov npm run test"
