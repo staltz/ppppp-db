@@ -5,7 +5,7 @@ const os = require('node:os')
 const p = require('node:util').promisify
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
-const AAOL = require('async-append-only-log')
+const Log = require('../lib/log')
 const push = require('push-stream')
 const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
@@ -59,7 +59,7 @@ test('del', async (t) => {
 
   await p(peer.close)(true)
 
-  const log = AAOL(path.join(DIR, 'db.bin'), {
+  const log = Log(path.join(DIR, 'db.bin'), {
     cacheSize: 1,
     blockSize: 64 * 1024,
     codec: {
@@ -74,18 +74,16 @@ test('del', async (t) => {
 
   const persistedMsgs = await new Promise((resolve, reject) => {
     let persistedMsgs = []
-    log.stream({ offsets: true, values: true, sizes: true }).pipe(
-      push.drain(
-        function drainEach({ offset, value, size }) {
-          if (value) {
-            persistedMsgs.push(value.msg)
-          }
-        },
-        function drainEnd(err) {
-          if (err) return reject(err)
-          resolve(persistedMsgs)
+    log.scan(
+      function drainEach(offset, rec, size) {
+        if (rec) {
+          persistedMsgs.push(rec.msg)
         }
-      )
+      },
+      function drainEnd(err) {
+        if (err) return reject(err)
+        resolve(persistedMsgs)
+      }
     )
   })
 
