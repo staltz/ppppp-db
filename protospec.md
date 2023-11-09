@@ -20,7 +20,7 @@ JSON
 
 ```typescript
 interface Msg {
-  data: any | null // any object, or null
+  data: Record<string, any> | string | null // a plaintext object, or ciphertext string, or null
   metadata: {
     account: string | 'self' | 'any' // blake3 hash of an account tangle root msg, or the string 'self', or 'any'
     accountTips: Array<string> | null // list of blake3 hashes of account tangle tips, or null
