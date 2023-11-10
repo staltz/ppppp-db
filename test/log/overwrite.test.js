@@ -26,6 +26,7 @@ test('Log overwrites', async (t) => {
     assert.equal(buf2.toString(), msg2.toString())
 
     await p(log.overwrite)(offset1, Buffer.from('hi world'))
+    await p(log.onOverwritesFlushed)()
     const buf = await p(log._get)(offset1)
     assert.equal(buf.toString(), 'hi world')
 

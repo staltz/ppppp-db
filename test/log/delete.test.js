@@ -37,7 +37,7 @@ test('Log deletes', async (t) => {
     assert.equal(buf3.toString(), msg3.toString())
 
     await p(log.del)(offset2)
-    await p(log.onDeletesFlushed)()
+    await p(log.onOverwritesFlushed)()
     await assert.rejects(p(log._get)(offset2), (err) => {
       assert.ok(err)
       assert.equal(err.message, 'Record has been deleted')
@@ -80,7 +80,7 @@ test('Log deletes', async (t) => {
     const offset3 = await p(log.append)({ text: 'm2' })
 
     await p(log.del)(offset2)
-    await p(log.onDeletesFlushed)()
+    await p(log.onOverwritesFlushed)()
 
     await p(log.close)()
 
@@ -122,7 +122,7 @@ test('Log deletes', async (t) => {
 
     await p(log.del)(offset1)
     await p(log.onDrain)()
-    await p(log.onDeletesFlushed)()
+    await p(log.onOverwritesFlushed)()
 
     const arr = []
     await new Promise((resolve) => {
@@ -166,7 +166,7 @@ test('Log deletes', async (t) => {
     if (process.env.VERBOSE) console.timeEnd('delete ' + TOTAL / 2)
     assert('deleted messages')
 
-    await p(log.onDeletesFlushed)()
+    await p(log.onOverwritesFlushed)()
 
     await new Promise((resolve) => {
       let i = 0
