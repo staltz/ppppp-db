@@ -68,40 +68,44 @@ test('erase()', async (t) => {
 
   await p(peer.close)(true)
 
-  // FIXME:
-  // const log = AAOL(path.join(DIR, 'db.bin'), {
-  //   cacheSize: 1,
-  //   blockSize: 64 * 1024,
-  //   codec: {
-  //     encode(msg) {
-  //       return Buffer.from(JSON.stringify(msg), 'utf8')
-  //     },
-  //     decode(buf) {
-  //       return JSON.parse(buf.toString('utf8'))
-  //     },
-  //   },
-  // })
+  const log = Log(path.join(DIR, 'db.bin'), {
+    cacheSize: 1,
+    blockSize: 64 * 1024,
+    codec: {
+      encode(msg) {
+        return Buffer.from(JSON.stringify(msg), 'utf8')
+      },
+      decode(buf) {
+        return JSON.parse(buf.toString('utf8'))
+      },
+    },
+  })
 
-  // const persistedMsgs = await new Promise((resolve, reject) => {
-  //   let persistedMsgs = []
-  //   log.stream({ offsets: true, values: true, sizes: true }).pipe(
-  //     push.drain(
-  //       function drainEach({ offset, value, size }) {
-  //         if (value) {
-  //           persistedMsgs.push(value.msg)
-  //         }
-  //       },
-  //       function drainEnd(err) {
-  //         if (err) return reject(err)
-  //         resolve(persistedMsgs)
-  //       }
-  //     )
-  //   )
-  // })
+  const persistedMsgs = await new Promise((resolve, reject) => {
+    let persistedMsgs = []
+    log.scan(
+      function drainEach(offset, rec, size) {
+        if (rec) {
+          persistedMsgs.push(rec.msg)
+        }
+      },
+      function drainEnd(err) {
+        if (err) return reject(err)
+        resolve(persistedMsgs)
+      }
+    )
+  })
 
-  // t.deepEqual(
-  //   persistedMsgs.filter((msg) => msg.content).map((msg) => msg.content.text),
-  //   ['m0', 'm1', 'm3', 'm4'],
-  //   'msgs in disk after the delete'
-  // )
+  const afterReopen = []
+  for (const msg of persistedMsgs) {
+    if (msg.data && msg.metadata.account?.length > 4) {
+      afterReopen.push(msg.data.text)
+    }
+  }
+
+  assert.deepEqual(
+    afterReopen,
+    ['m0', 'm1', 'm3', 'm4'],
+    '4 msgs after the erase'
+  )
 })

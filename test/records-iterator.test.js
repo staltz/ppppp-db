@@ -35,7 +35,7 @@ test('records() iterator', async (t) => {
   for (const rec of peer.db.records()) {
     if (!rec.msg.data) continue
     if (rec.msg.metadata.account === 'self') continue
-    assert.ok(rec.misc.size > rec.msg.metadata.dataSize, 'size > dataSize')
+    assert.ok(rec.received, 'received')
     count++
   }
   assert.equal(count, 6)
