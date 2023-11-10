@@ -13,7 +13,7 @@ const Keypair = require('ppppp-keypair')
 const DIR = path.join(os.tmpdir(), 'ppppp-db-erase')
 rimraf.sync(DIR)
 
-test('erase', async (t) => {
+test('erase()', async (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
