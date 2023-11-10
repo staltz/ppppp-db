@@ -22,7 +22,7 @@ test('Log fix buggy write', async (t) => {
     const offset1 = await p(log.append)(msg1)
     assert.equal(offset1, 0)
     const offset2 = await p(log.append)(msg2)
-    assert.equal(offset2, 36)
+    assert.equal(offset2, 38)
 
     await p(log.onDrain)()
     let arr = []

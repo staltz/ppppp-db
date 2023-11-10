@@ -19,7 +19,7 @@ test('Log basics', async function (t) {
     assert.equal(offset1, 0)
 
     const offset2 = await p(log.append)(msg2)
-    assert.equal(offset2, msg1.length + 2)
+    assert.equal(offset2, msg1.length + 4)
 
     const b1 = await p(log._get)(offset1)
     assert.equal(b1.toString(), msg1.toString())
@@ -47,7 +47,7 @@ test('Log basics', async function (t) {
     assert.equal(offset1, 0)
 
     const offset2 = await p(log.append)(json2)
-    assert.equal(offset2, 20)
+    assert.equal(offset2, 22)
 
     const rec1 = await p(log._get)(offset1)
     assert.deepEqual(rec1, json1)
@@ -66,12 +66,12 @@ test('Log basics', async function (t) {
     })
 
     await p(log.onDrain)()
-    assert.equal(log.since.value, 20)
+    assert.equal(log.since.value, 22)
 
     const rec1 = await p(log._get)(0)
     assert.deepEqual(rec1, json1)
 
-    const rec2 = await p(log._get)(20)
+    const rec2 = await p(log._get)(22)
     assert.deepEqual(rec2, json2)
 
     await p(log.close)()

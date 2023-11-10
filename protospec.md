@@ -177,6 +177,8 @@ The `prev` array for a tangle should list:
 
 Whenever we need to serialize any JSON in the context of creating a Feed V1 message, we follow the "JSON Canonicalization Scheme" (JSC) defined by [RFC 8785](https://tools.ietf.org/html/rfc8785).
 
+A serialized msg must not be larger than 65535 UTF-8 bytes.
+
 # Msg V2
 
 Background: https://github.com/ssbc/ssb2-discussion-forum/issues/24

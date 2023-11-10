@@ -107,9 +107,9 @@ test('Log handles corrupted length', async (t) => {
     const msg2 = encode({ bool: true, test: 'testing2' })
 
     block.writeUInt16LE(msg1.length, 0)
-    msg1.copy(block, 2)
-    block.writeUInt16LE(65534, 2 + msg1.length) // corrupt!
-    msg2.copy(block, 2 + msg1.length + 2)
+    msg1.copy(block, 4)
+    block.writeUInt16LE(65534, 4 + msg1.length) // corrupt!
+    msg2.copy(block, 4 + msg1.length + 4)
 
     await p(raf.write.bind(raf))(0, block)
 
