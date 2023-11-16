@@ -19,7 +19,7 @@ test('onRecordAdded', async (t) => {
 
   await peer.db.loaded()
 
-  const account = (await p(peer.db.account.create)({domain: 'person'}))
+  const account = (await p(peer.db.account.create)({subdomain: 'person'}))
 
   const listened = []
   var remove = peer.db.onRecordAdded((ev) => {

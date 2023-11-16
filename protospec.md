@@ -55,7 +55,7 @@ interface Msg {
     accountTips: null // MUST be null
     dataHash: DataHash
     dataSize: number
-    domain: string // alphanumeric string, at least 3 chars, max 100 chars
+    domain: string // alphanumeric string, must start with "account__"
     tangles: {
       [accountTangleID: string]: {
         depth: number // maximum distance (positive integer) from this msg to the root

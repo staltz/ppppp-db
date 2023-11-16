@@ -19,7 +19,7 @@ test('msgs() iterator', async (t) => {
 
   await peer.db.loaded()
 
-  const account = (await p(peer.db.account.create)({domain: 'person'}))
+  const account = (await p(peer.db.account.create)({subdomain: 'person'}))
 
   for (let i = 0; i < 6; i++) {
     await p(peer.db.feed.publish)({

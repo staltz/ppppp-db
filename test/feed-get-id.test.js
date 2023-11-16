@@ -21,7 +21,7 @@ test('feed.getID()', async (t) => {
 
   await peer.db.loaded()
 
-  const id = await p(peer.db.account.create)({ domain: 'person' })
+  const id = await p(peer.db.account.create)({ subdomain: 'person' })
   const moot = MsgV3.createMoot(id, 'post', keypair)
   const mootID = MsgV3.getMsgID(moot)
 

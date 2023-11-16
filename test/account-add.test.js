@@ -24,7 +24,7 @@ test('account.add()', async (t) => {
     await peer.db.loaded()
     const account = await p(peer.db.account.create)({
       keypair: keypair1,
-      domain: 'person',
+      subdomain: 'person',
     })
 
     assert.equal(peer.db.account.has({ account, keypair: keypair2 }), false)
@@ -56,7 +56,7 @@ test('account.add()', async (t) => {
     )
     assert.equal(msg.metadata.account, 'self', 'msg.metadata.account')
     assert.equal(msg.metadata.accountTips, null, 'msg.metadata.accountTips')
-    assert.equal(msg.metadata.domain, 'person', 'msg.metadata.domain')
+    assert.equal(msg.metadata.domain, 'account__person', 'msg.metadata.domain')
     assert.deepEqual(
       msg.metadata.tangles,
       { [account]: { depth: 1, prev: [account] } },
@@ -83,7 +83,7 @@ test('account.add()', async (t) => {
     await peer1.db.loaded()
     const id = await p(peer1.db.account.create)({
       keypair: keypair1,
-      domain: 'account',
+      subdomain: 'account',
     })
     const msg1 = peer1.db.get(id)
 
@@ -164,7 +164,7 @@ test('account.add()', async (t) => {
 
     const account = await p(peer.db.account.create)({
       keypair: keypair1,
-      domain: 'person',
+      subdomain: 'person',
     })
     const accountMsg0 = peer.db.get(account)
 

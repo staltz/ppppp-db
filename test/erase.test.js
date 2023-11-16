@@ -21,7 +21,7 @@ test('erase()', async (t) => {
 
   await peer.db.loaded()
 
-  const id = await p(peer.db.account.create)({ domain: 'person' })
+  const id = await p(peer.db.account.create)({ subdomain: 'person' })
 
   const msgIDs = []
   for (let i = 0; i < 5; i++) {

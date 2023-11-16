@@ -18,7 +18,7 @@ test('records() iterator', async (t) => {
     .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
-  const account = (await p(peer.db.account.create)({ domain: 'person' }))
+  const account = (await p(peer.db.account.create)({ subdomain: 'person' }))
 
   for (let i = 0; i < 6; i++) {
     await p(peer.db.feed.publish)({

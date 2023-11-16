@@ -19,7 +19,7 @@ test('publish some msgs, close, re-open', async (t) => {
     .call(null, { keypair, path: DIR })
 
   await peer.db.loaded()
-  const account = await p(peer.db.account.create)({ domain: 'person' })
+  const account = await p(peer.db.account.create)({ subdomain: 'person' })
   // t.pass('opened db')
 
   const msgIDs = []

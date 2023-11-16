@@ -20,7 +20,7 @@ test('ghosts.add, ghosts.get, ghosts.getMinDepth', async (t) => {
 
   await peer.db.loaded()
 
-  const account = await p(peer.db.account.create)({ domain: 'person' })
+  const account = await p(peer.db.account.create)({ subdomain: 'person' })
   const SPAN = 5
 
   let msgIDs = []
@@ -66,7 +66,7 @@ test('ghosts.add queues very-concurrent calls', async (t) => {
 
   await peer.db.loaded()
 
-  const account = await p(peer.db.account.create)({ domain: 'person' })
+  const account = await p(peer.db.account.create)({ subdomain: 'person' })
   const SPAN = 5
 
   let msgIDs = []

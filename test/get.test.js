@@ -21,7 +21,7 @@ test('get()', async (t) => {
 
   await peer.db.loaded()
 
-  const id = await p(peer.db.account.create)({ domain: 'person' })
+  const id = await p(peer.db.account.create)({ subdomain: 'person' })
 
   const rec1 = await p(peer.db.feed.publish)({
     account: id,

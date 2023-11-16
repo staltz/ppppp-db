@@ -29,7 +29,7 @@ test('feed.publish()', async (t) => {
 
     await peer.db.loaded()
 
-    id = await p(peer.db.account.create)({ domain: 'person' })
+    id = await p(peer.db.account.create)({ subdomain: 'person' })
     moot = MsgV3.createMoot(id, 'post', keypair)
     mootID = MsgV3.getMsgID(moot)
   }

@@ -21,7 +21,7 @@ test('account.create() ', async (t) => {
 
     await peer.db.loaded()
     const account = await p(peer.db.account.create)({
-      domain: 'person',
+      subdomain: 'person',
       _nonce: 'MYNONCE',
     })
     assert.ok(account, 'accountRec0 exists')
@@ -64,7 +64,7 @@ test('account.create() ', async (t) => {
     await peer.db.loaded()
     const account = await p(peer.db.account.create)({
       keypair,
-      domain: 'person',
+      subdomain: 'person',
     })
     assert.ok(account, 'account created')
     const msg = peer.db.get(account)
@@ -84,7 +84,7 @@ test('account.create() ', async (t) => {
   await t.test('account.find() can find', async (t) => {
     rimraf.sync(DIR)
     const keypair = Keypair.generate('ed25519', 'alice')
-    const domain = 'person'
+    const subdomain = 'person'
 
     const peer = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
@@ -92,10 +92,10 @@ test('account.create() ', async (t) => {
       .call(null, { keypair, path: DIR })
 
     await peer.db.loaded()
-    const account = await p(peer.db.account.create)({ keypair, domain })
+    const account = await p(peer.db.account.create)({ keypair, subdomain })
     assert.ok(account, 'account created')
 
-    const found = await p(peer.db.account.find)({ keypair, domain })
+    const found = await p(peer.db.account.find)({ keypair, subdomain })
     assert.equal(found, account, 'found')
 
     await p(peer.close)()
@@ -104,7 +104,7 @@ test('account.create() ', async (t) => {
   await t.test('account.findOrCreate() can find', async (t) => {
     rimraf.sync(DIR)
     const keypair = Keypair.generate('ed25519', 'alice')
-    const domain = 'person'
+    const subdomain = 'person'
 
     const peer = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
@@ -112,10 +112,10 @@ test('account.create() ', async (t) => {
       .call(null, { keypair, path: DIR })
 
     await peer.db.loaded()
-    const account = await p(peer.db.account.create)({ keypair, domain })
+    const account = await p(peer.db.account.create)({ keypair, subdomain })
     assert.ok(account, 'account created')
 
-    const found = await p(peer.db.account.findOrCreate)({ keypair, domain })
+    const found = await p(peer.db.account.findOrCreate)({ keypair, subdomain })
     assert.equal(found, account, 'found')
 
     await p(peer.close)()
@@ -124,7 +124,7 @@ test('account.create() ', async (t) => {
   await t.test('account.findOrCreate() can create', async (t) => {
     rimraf.sync(DIR)
     const keypair = Keypair.generate('ed25519', 'alice')
-    const domain = 'person'
+    const subdomain = 'person'
 
     const peer = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
@@ -134,13 +134,13 @@ test('account.create() ', async (t) => {
     await peer.db.loaded()
 
     let gotError = false
-    await p(peer.db.account.find)({ keypair, domain }).catch((err) => {
+    await p(peer.db.account.find)({ keypair, subdomain }).catch((err) => {
       assert.equal(err.cause, 'ENOENT')
       gotError = true
     })
     assert.ok(gotError, 'account not found')
 
-    const account = await p(peer.db.account.findOrCreate)({ keypair, domain })
+    const account = await p(peer.db.account.findOrCreate)({ keypair, subdomain })
     assert.ok(account, 'account created')
     const msg = peer.db.get(account)
     assert.equal(msg.data.key.bytes, keypair.public, 'msg.data')

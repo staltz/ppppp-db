@@ -29,7 +29,7 @@ test('getTangle()', async (t) => {
 
     await peer.db.loaded()
 
-    const id = await p(peer.db.account.create)({ domain: 'person' })
+    const id = await p(peer.db.account.create)({ subdomain: 'person' })
 
     // Slow down append so that we can trigger msg creation in parallel
     const originalAppend = peer.db._getLog().append
