@@ -44,15 +44,13 @@ test('account.add()', async (t) => {
       msg.data,
       {
         action: 'add',
-        add: {
-          key: {
-            purpose: 'sig',
-            algorithm: 'ed25519',
-            bytes: keypair2.public,
-          },
-          consent,
-          powers: ['box'],
+        key: {
+          purpose: 'sig',
+          algorithm: 'ed25519',
+          bytes: keypair2.public,
         },
+        consent,
+        powers: ['box'],
       },
       'msg.data.add NEW KEY'
     )
@@ -94,7 +92,7 @@ test('account.add()', async (t) => {
       keypair: keypair2,
       powers: [],
     })
-    assert.equal(msg2.data.add.key.bytes, keypair2.public)
+    assert.equal(msg2.data.key.bytes, keypair2.public)
 
     assert.equal(peer1.db.account.has({ account: id, keypair: keypair2 }), true)
 
@@ -128,7 +126,7 @@ test('account.add()', async (t) => {
       _disobey: true,
     })
 
-    assert.equal(msg3.data.add.key.bytes, keypair3.public)
+    assert.equal(msg3.data.key.bytes, keypair3.public)
 
     await p(peer2.close)()
     rimraf.sync(DIR)

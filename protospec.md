@@ -4,9 +4,9 @@ Background: https://github.com/ssbc/ssb2-discussion-forum/issues/24
 
 ## Terminology
 
-- **Msg** = published data that is signed and shareable
-- **Msg hash** = hash(msg.metadata)
-- **Tangle** = any single-root DAG of msgs that can be replicated by peers
+- **Msg** = `{data,metadata,pubkey,sig}` published by a peer
+- **Msg ID** = `hash(msg.metadata)`
+- **Tangle** = a single-root DAG of msgs that can be replicated by peers
 - **Tangle Root** = the origin msg of a tangle
 - **Tangle Tips** = tangle msgs that are not yet referenced by any other msg in the tangle
 - **Tangle ID** = Msg hash of the tangle's root msg
@@ -68,9 +68,7 @@ interface Msg {
   sig: Signature
 }
 
-type AccountData =
-  | { action: 'add', add: AccountAdd }
-  | { action: 'del', del: AccountDel }
+type AccountData = AccountAdd | AccountDel
 
 // "add" means this shs peer can validly add more keys to the account tangle
 // "del" means this shs peer can validly revoke keys from the account tangle
@@ -79,6 +77,7 @@ type AccountData =
 type AccountPower = 'add' | 'del' | 'internal-encryption' | 'external-encryption'
 
 type AccountAdd = {
+  action: 'add'
   key: Key
   nonce?: string // nonce required only on the account tangle's root
   consent?: string // base58 encoded signature of the string `:account-add:<ID>` where `<ID>` is the account's ID, required only on non-root msgs
@@ -86,6 +85,7 @@ type AccountAdd = {
 }
 
 type AccountDel = {
+  action: 'del'
   key: Key
 }
 
@@ -113,26 +113,22 @@ Examples of `AccountData`:
   ```json
   {
     "action": "add",
-    "add": {
-      "key": {
-        "purpose": "shs-and-external-signature",
-        "algorithm": "ed25519",
-        "bytes": "3JrJiHEQzRFMzEqWawfBgq2DSZDyihP1NHXshqcL8pB9"
-      },
-      "nonce": "6GHR1ZFFSB3C5qAGwmSwVH8f7byNo8Cqwn5PcyG3qDvS"
-    }
+    "key": {
+      "purpose": "shs-and-external-signature",
+      "algorithm": "ed25519",
+      "bytes": "3JrJiHEQzRFMzEqWawfBgq2DSZDyihP1NHXshqcL8pB9"
+    },
+    "nonce": "6GHR1ZFFSB3C5qAGwmSwVH8f7byNo8Cqwn5PcyG3qDvS"
   }
   ```
 - Revoking a signing pubkey:
   ```json
   {
     "action": "del",
-    "del": {
-      "key": {
-        "purpose": "shs-and-external-signature",
-        "algorithm": "ed25519",
-        "bytes": "3JrJiHEQzRFMzEqWawfBgq2DSZDyihP1NHXshqcL8pB9"
-      }
+    "key": {
+      "purpose": "shs-and-external-signature",
+      "algorithm": "ed25519",
+      "bytes": "3JrJiHEQzRFMzEqWawfBgq2DSZDyihP1NHXshqcL8pB9"
     }
   }
   ```

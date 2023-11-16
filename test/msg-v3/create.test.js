@@ -14,20 +14,18 @@ test('MsgV3.createAccount()', (t) => {
     accountMsg0.data,
     {
       action: 'add',
-      add: {
-        key: {
-          purpose: 'sig',
-          algorithm: 'ed25519',
-          bytes: keypair.public,
-        },
-        nonce: 'MYNONCE',
-        powers: ['add', 'del', 'box'],
+      key: {
+        purpose: 'sig',
+        algorithm: 'ed25519',
+        bytes: keypair.public,
       },
+      nonce: 'MYNONCE',
+      powers: ['add', 'del', 'box'],
     },
     'data'
   )
-  assert.equal(accountMsg0.metadata.dataHash, 'R5az9nC1CB3Afd5Q57HYRQ', 'hash')
-  assert.equal(accountMsg0.metadata.dataSize, 172, 'size')
+  assert.equal(accountMsg0.metadata.dataHash, 'DQCPxgzni6UTZ5DSCms9Y', 'hash')
+  assert.equal(accountMsg0.metadata.dataSize, 164, 'size')
   assert.equal(accountMsg0.metadata.account, 'self', 'account')
   assert.equal(accountMsg0.metadata.accountTips, null, 'accountTips')
   assert.deepEqual(accountMsg0.metadata.tangles, {}, 'tangles')
@@ -36,7 +34,7 @@ test('MsgV3.createAccount()', (t) => {
   assert.equal(accountMsg0.pubkey, keypair.public, 'pubkey')
 
   account = MsgV3.getMsgID(accountMsg0)
-  assert.equal(account, 'J2SUr6XtJuFuTusNbagEW5', 'account ID')
+  assert.equal(account, 'Hx9Fuitrg3WQCCcBaPqpeo', 'account ID')
 })
 
 let moot = null
@@ -58,7 +56,7 @@ test('MsgV3.createMoot()', (t) => {
   assert.equal(moot.pubkey, keypair.public, 'pubkey')
 
   mootID = MsgV3.getMsgID(moot)
-  assert.equal(mootID, 'VsBFptgidvAspk4xTKZx6c', 'moot ID')
+  assert.equal(mootID, 'YYrum2aUPGLarrVnjM5o93', 'moot ID')
 })
 
 test('MsgV3.create()', (t) => {
@@ -118,11 +116,11 @@ test('MsgV3.create()', (t) => {
   )
   assert.equal(
     msg1.sig,
-    '46CjqZzC8RAanRHnUKs147PMNFvrQcc9Y7a8tMP3s4qQubCtgYsypgzNA7XkSxM6vqRCe2ZBSKM2WR9AoHN3VoDz',
+    '5wrhPju22NHuq1qFK9qMrNafUMAhCHnLurGfASCVhPTjQTVQE4SqdV9G3zmUTesxFmynn7a1P6nJFgfvWGuSw86h',
     'sig'
   )
 
-  const msgID1 = 'R5G9WtDAQrco4FABRdvrUH'
+  const msgID1 = '7qfYPwQ1qYHYHLSXzGQCCy'
 
   assert.equal(MsgV3.getMsgID(msg1), msgID1, 'getMsgID')
 
@@ -182,11 +180,11 @@ test('MsgV3.create()', (t) => {
   )
   assert.equal(
     msg2.sig,
-    '31StEDDnoDoDtRi49L94XPTGXxNtDJa9QXSJTd4o3wBtFAJvfQA1RsHvunU4CxdY9iC69WnxnkaW6QryrztJZkiA',
+    '2xsdFCPsUzmaGzoQaANJSJHkCAZt3qyVUDW88RBV3r1PCspzU3BbKdQxHoxKYKcwLrpxxi4cSd5eyfcEt3DV61ge',
     'sig'
   )
 
-  assert.deepEqual(MsgV3.getMsgID(msg2), 'LxWgRRr4wXd29sLDNGNTkr', 'getMsgID')
+  assert.deepEqual(MsgV3.getMsgID(msg2), '38GT4SxtEqfZffkCrNYLtY', 'getMsgID')
 })
 
 test('MsgV3.create() handles DAG tips correctly', (t) => {

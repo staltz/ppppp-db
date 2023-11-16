@@ -30,17 +30,15 @@ test('account.create() ', async (t) => {
       msg.data,
       {
         action: 'add',
-        add: {
-          key: {
-            purpose: 'sig',
-            algorithm: 'ed25519',
-            bytes: keypair.public,
-          },
-          nonce: 'MYNONCE',
-          powers: ['add', 'del', 'box'],
+        key: {
+          purpose: 'sig',
+          algorithm: 'ed25519',
+          bytes: keypair.public,
         },
+        nonce: 'MYNONCE',
+        powers: ['add', 'del', 'box'],
       },
-      'msg.data.add'
+      'msg.data'
     )
     assert.equal(msg.metadata.account, 'self', 'msg.metadata.account')
     assert.equal(msg.metadata.accountTips, null, 'msg.metadata.accountTips')
@@ -70,7 +68,7 @@ test('account.create() ', async (t) => {
     })
     assert.ok(account, 'account created')
     const msg = peer.db.get(account)
-    assert.equal(msg.data.add.key.bytes, keypair.public, 'msg.data.add')
+    assert.equal(msg.data.key.bytes, keypair.public, 'msg.data')
     assert.equal(msg.metadata.account, 'self', 'msg.metadata.account')
     assert.equal(msg.metadata.accountTips, null, 'msg.metadata.accountTips')
     assert.deepEqual(
@@ -145,7 +143,7 @@ test('account.create() ', async (t) => {
     const account = await p(peer.db.account.findOrCreate)({ keypair, domain })
     assert.ok(account, 'account created')
     const msg = peer.db.get(account)
-    assert.equal(msg.data.add.key.bytes, keypair.public, 'msg.data.add')
+    assert.equal(msg.data.key.bytes, keypair.public, 'msg.data')
     assert.equal(msg.metadata.account, 'self', 'msg.metadata.account')
     assert.equal(msg.metadata.accountTips, null, 'msg.metadata.accountTips')
     assert.deepEqual(
