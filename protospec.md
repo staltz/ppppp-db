@@ -70,10 +70,10 @@ interface Msg {
 
 type AccountData = AccountAdd | AccountDel
 
-// "add" means this shs peer can validly add more keys to the account tangle
-// "del" means this shs peer can validly revoke keys from the account tangle
-// "internal-encryption" means this shs peer should get access to symmetric key
-// "external-encryption" means this shs peer should get access to asymmetric key
+// (if key is sig) "add" means this key can validly add more keys to the account
+// (if key is sig) "del" means this key can validly revoke keys from the account
+// (if key is shs) "internal-encryption" means this peer can get symmetric key
+// (if key is shs) "external-encryption" means this peer can get asymmetric key
 type AccountPower = 'add' | 'del' | 'internal-encryption' | 'external-encryption'
 
 type AccountAdd = {
@@ -91,7 +91,7 @@ type AccountDel = {
 
 type Key =
   | {
-      purpose: 'shs-and-external-signature' // secret-handshake and digital signatures
+      purpose: 'shs-and-sig' // secret-handshake and digital signatures
       algorithm: 'ed25519' // libsodium crypto_sign_detached
       bytes: string // base58 encoded string for the public key
     }
@@ -101,8 +101,8 @@ type Key =
       bytes: string // base58 encoded string of the public key
     }
   | {
-      purpose: 'internal-signature', // digital signatures of internal msgs
-      algorithm: 'ed25519', // libsodium crypto_sign_detached
+      purpose: 'sig' // secret-handshake and digital signatures
+      algorithm: 'ed25519' // libsodium crypto_sign_detached
       bytes: string // base58 encoded string for the public key
     }
 ```

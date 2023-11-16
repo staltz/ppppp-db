@@ -31,12 +31,12 @@ test('account.create() ', async (t) => {
       {
         action: 'add',
         key: {
-          purpose: 'sig',
+          purpose: 'shs-and-sig',
           algorithm: 'ed25519',
           bytes: keypair.public,
         },
         nonce: 'MYNONCE',
-        powers: ['add', 'del', 'box'],
+        powers: ['add', 'del', 'external-encryption', 'internal-encryption'],
       },
       'msg.data'
     )
