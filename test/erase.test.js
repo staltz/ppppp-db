@@ -6,7 +6,6 @@ const p = require('node:util').promisify
 const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const Log = require('../lib/log')
-const push = require('push-stream')
 const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
 
@@ -21,7 +20,10 @@ test('erase()', async (t) => {
 
   await peer.db.loaded()
 
-  const id = await p(peer.db.account.create)({ subdomain: 'person' })
+  const id = await p(peer.db.account.create)({
+    subdomain: 'person',
+    _nonce: 'alice',
+  })
 
   const msgIDs = []
   for (let i = 0; i < 5; i++) {
@@ -32,6 +34,7 @@ test('erase()', async (t) => {
     })
     msgIDs.push(rec.id)
   }
+  const SAVED_UPON_ERASE = '{"text":"m*"}'.length - 'null'.length
 
   const before = []
   for (const msg of peer.db.msgs()) {
@@ -44,6 +47,14 @@ test('erase()', async (t) => {
     before,
     ['m0', 'm1', 'm2', 'm3', 'm4'],
     '5 msgs before the erase'
+  )
+
+  const EXPECTED_TOTAL_BYTES = 3399
+  const stats1 = await p(peer.db.log.stats)()
+  assert.deepEqual(
+    stats1,
+    { totalBytes: EXPECTED_TOTAL_BYTES, deletedBytes: 0 },
+    'stats before erase and compact'
   )
 
   await p(peer.db.erase)(msgIDs[2])
@@ -102,6 +113,13 @@ test('erase()', async (t) => {
       afterReopen.push(msg.data.text)
     }
   }
+
+  const stats2 = await p(log.stats)()
+  assert.deepEqual(
+    stats2,
+    { totalBytes: EXPECTED_TOTAL_BYTES - SAVED_UPON_ERASE, deletedBytes: 0 },
+    'stats after erase and compact'
+  )
 
   assert.deepEqual(
     afterReopen,

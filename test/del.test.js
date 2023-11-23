@@ -20,7 +20,10 @@ test('del()', async (t) => {
 
   await peer.db.loaded()
 
-  const id = await p(peer.db.account.create)({ subdomain: 'person' })
+  const id = await p(peer.db.account.create)({
+    subdomain: 'person',
+    _nonce: 'alice',
+  })
 
   const msgIDs = []
   for (let i = 0; i < 5; i++) {
@@ -43,6 +46,13 @@ test('del()', async (t) => {
     before,
     ['m0', 'm1', 'm2', 'm3', 'm4'],
     'msgs before the delete'
+  )
+
+  const stats1 = await p(peer.db.log.stats)()
+  assert.deepEqual(
+    stats1,
+    { totalBytes: 3399, deletedBytes: 0 },
+    'stats before delete and compact'
   )
 
   await p(peer.db.del)(msgIDs[2])
@@ -85,6 +95,13 @@ test('del()', async (t) => {
       }
     )
   })
+
+  const stats2 = await p(log.stats)()
+  assert.deepEqual(
+    stats2,
+    { totalBytes: 2889, deletedBytes: 0 },
+    'stats after delete and compact'
+  )
 
   assert.deepEqual(
     persistedMsgs
