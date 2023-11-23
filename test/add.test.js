@@ -50,7 +50,7 @@ test('add()', async (t) => {
 
   await p(peer.db._getLog().onDrain)()
   const stats = await p(peer.db.logStats)()
-  assert.deepEqual(stats, { totalBytes: 943, deletedBytes: 0 })
+  assert.deepEqual(stats, { totalBytes: 1450, deletedBytes: 0 })
 
   await p(peer.close)(true)
 })

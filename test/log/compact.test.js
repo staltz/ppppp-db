@@ -21,7 +21,7 @@ test('Log compaction', async (t) => {
     assert('append two records')
 
     const stats2 = await p(log.stats)()
-    assert.equal(stats2.totalBytes, 15, 'stats.totalBytes (2)')
+    assert.equal(stats2.totalBytes, 25, 'stats.totalBytes (2)')
     assert.equal(stats2.deletedBytes, 0, 'stats.deletedBytes (2)')
 
     const progressArr = []
@@ -40,6 +40,10 @@ test('Log compaction', async (t) => {
       ],
       'progress events'
     )
+
+    const stats3 = await p(log.stats)()
+    assert.equal(stats3.totalBytes, 25, 'stats.totalBytes (3)')
+    assert.equal(stats3.deletedBytes, 0, 'stats.deletedBytes (3)')
 
     await new Promise((resolve, reject) => {
       const arr = []
@@ -75,6 +79,10 @@ test('Log compaction', async (t) => {
     await p(log.onDrain)()
     assert('append two records')
 
+    const stats1 = await p(log.stats)()
+    assert.equal(stats1.totalBytes, 25, 'stats.totalBytes before')
+    assert.equal(stats1.deletedBytes, 0, 'stats.deletedBytes before')
+
     await p(log.del)(offset1)
     await p(log.onOverwritesFlushed)()
     assert('delete first record')
@@ -86,10 +94,14 @@ test('Log compaction', async (t) => {
       progressArr,
       [
         { percent: 0, done: false },
-        { percent: 1, done: true, sizeDiff: 5, holesFound: 1 },
+        { percent: 1, done: true, sizeDiff: 15, holesFound: 1 },
       ],
       'progress events'
     )
+
+    const stats2 = await p(log.stats)()
+    assert.equal(stats2.totalBytes, 10, 'stats.totalBytes after')
+    assert.equal(stats2.deletedBytes, 0, 'stats.deletedBytes after')
 
     await new Promise((resolve, reject) => {
       const arr = []

@@ -66,7 +66,7 @@ test('Log basics', async function (t) {
     })
 
     await p(log.onDrain)()
-    assert.equal(log.since.value, 22)
+    assert.equal(log.lastRecOffset.value, 22)
 
     const rec1 = await p(log._get)(0)
     assert.deepEqual(rec1, json1)
