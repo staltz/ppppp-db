@@ -48,8 +48,7 @@ test('add()', async (t) => {
   const rec = await p(peer.db.add)(inputMsg, rootID)
   assert.equal(rec.msg.data.text, 'This is the first post!')
 
-  await p(peer.db._getLog().onDrain)()
-  const stats = await p(peer.db.logStats)()
+  const stats = await p(peer.db.log.stats)()
   assert.deepEqual(stats, { totalBytes: 1450, deletedBytes: 0 })
 
   await p(peer.close)(true)
