@@ -35,7 +35,7 @@ test('account.add()', async (t) => {
       account,
       keypair: keypair2,
       consent,
-      powers: ['box'],
+      powers: ['external-encryption'],
     })
     assert.ok(accountRec1, 'accountRec1 exists')
     const { id, msg } = accountRec1
@@ -50,7 +50,7 @@ test('account.add()', async (t) => {
           bytes: keypair2.public,
         },
         consent,
-        powers: ['box'],
+        powers: ['external-encryption'],
       },
       'msg.data.add NEW KEY'
     )
