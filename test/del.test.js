@@ -66,6 +66,9 @@ test('del()', async (t) => {
 
   assert.deepEqual(after, ['m0', 'm1', 'm3', 'm4'], 'msgs after the delete')
 
+  await p(peer.db.log.compact)()
+  assert('compacted')
+
   await p(peer.close)(true)
 
   const log = Log(path.join(DIR, 'db.bin'), {

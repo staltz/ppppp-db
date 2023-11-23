@@ -48,7 +48,7 @@ test('Log deletes', async (t) => {
     await p(log.close)()
   })
 
-  await t.test('Deleted records auto-compacted upon re-opening', async (t) => {
+  await t.test('Deleted records are not invalid upon re-opening', async (t) => {
     const file = '/tmp/ppppp-db-log-test-del-invalid.log'
     try {
       fs.unlinkSync(file)
@@ -94,10 +94,17 @@ test('Log deletes', async (t) => {
         },
         (err) => {
           assert.ifError(err)
-          assert.deepEqual(arr, [{ text: 'm0' }, { text: 'm2' }])
+          assert.deepEqual(arr, [{ text: 'm0' }, null, { text: 'm2' }])
           resolve()
         }
       )
+    })
+
+    await assert.rejects(p(log2._get)(offset2), (err) => {
+      assert.ok(err)
+      assert.equal(err.message, 'Record has been deleted')
+      assert.equal(err.code, 'ERR_AAOL_DELETED_RECORD')
+      return true
     })
 
     await p(log2.close)()

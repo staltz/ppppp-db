@@ -77,6 +77,9 @@ test('erase()', async (t) => {
 
   assert.deepEqual(after2, [1, 2, 3, 4, 5], '5 metadata exists after the erase')
 
+  await p(peer.db.log.compact)()
+  assert('compacted')
+
   await p(peer.close)(true)
 
   const log = Log(path.join(DIR, 'db.bin'), {
