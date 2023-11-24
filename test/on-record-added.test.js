@@ -15,11 +15,11 @@ test('onRecordAdded', async (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
-    .call(null, { keypair, path: DIR })
+    .call(null, { keypair, db: { path: DIR } })
 
   await peer.db.loaded()
 
-  const account = (await p(peer.db.account.create)({subdomain: 'person'}))
+  const account = await p(peer.db.account.create)({ subdomain: 'person' })
 
   const listened = []
   var remove = peer.db.onRecordAdded((ev) => {

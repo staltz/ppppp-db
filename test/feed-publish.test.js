@@ -25,7 +25,7 @@ test('feed.publish()', async (t) => {
     peer = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
       .use(require('ssb-box'))
-      .call(null, { keypair, path: DIR })
+      .call(null, { keypair, db: { path: DIR } })
 
     await peer.db.loaded()
 
@@ -158,5 +158,5 @@ test('feed.publish()', async (t) => {
     )
   })
 
-    await p(peer.close)(true)
+  await p(peer.close)(true)
 })

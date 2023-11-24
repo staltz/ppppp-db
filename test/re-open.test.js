@@ -16,7 +16,7 @@ test('publish some msgs, close, re-open', async (t) => {
   const peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
     .use(require('ssb-box'))
-    .call(null, { keypair, path: DIR })
+    .call(null, { keypair, db: { path: DIR } })
 
   await peer.db.loaded()
   const account = await p(peer.db.account.create)({ subdomain: 'person' })
@@ -42,7 +42,7 @@ test('publish some msgs, close, re-open', async (t) => {
   const peer2 = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
     .use(require('ssb-box'))
-    .call(null, { keypair, path: DIR })
+    .call(null, { keypair, db: { path: DIR } })
   // t.pass('re-opened')
 
   await peer2.db.loaded()

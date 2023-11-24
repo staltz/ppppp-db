@@ -15,10 +15,10 @@ test('records() iterator', async (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
-    .call(null, { keypair, path: DIR })
+    .call(null, { keypair, db: { path: DIR } })
 
   await peer.db.loaded()
-  const account = (await p(peer.db.account.create)({ subdomain: 'person' }))
+  const account = await p(peer.db.account.create)({ subdomain: 'person' })
 
   for (let i = 0; i < 6; i++) {
     await p(peer.db.feed.publish)({

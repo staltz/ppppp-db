@@ -16,7 +16,7 @@ test('ghosts.add, ghosts.get, ghosts.getMinDepth', async (t) => {
   const peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
     .use(require('ssb-box'))
-    .call(null, { keypair, path: DIR })
+    .call(null, { keypair, db: { path: DIR } })
 
   await peer.db.loaded()
 
@@ -62,7 +62,7 @@ test('ghosts.add queues very-concurrent calls', async (t) => {
   const peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
     .use(require('ssb-box'))
-    .call(null, { keypair, path: DIR })
+    .call(null, { keypair, db: { path: DIR } })
 
   await peer.db.loaded()
 

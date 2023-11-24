@@ -25,7 +25,7 @@ test('getTangle()', async (t) => {
     peer = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
       .use(require('ssb-box'))
-      .call(null, { keypair: keypairA, path: DIR })
+      .call(null, { keypair: keypairA, db: { path: DIR } })
 
     await peer.db.loaded()
 

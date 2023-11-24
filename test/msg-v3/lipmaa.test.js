@@ -28,11 +28,7 @@ test('MsgV3 lipmaa prevs', (t) => {
   const msgID1 = MsgV3.getMsgID(msg1)
   tangle.add(msgID1, msg1)
   assert.equal(msg1.metadata.tangles[mootID].depth, 1, 'msg1 depth')
-  assert.deepEqual(
-    msg1.metadata.tangles[mootID].prev,
-    [mootID],
-    'msg1 prev'
-  )
+  assert.deepEqual(msg1.metadata.tangles[mootID].prev, [mootID], 'msg1 prev')
 
   const msg2 = MsgV3.create({
     account,
@@ -47,11 +43,7 @@ test('MsgV3 lipmaa prevs', (t) => {
   const msgID2 = MsgV3.getMsgID(msg2)
   tangle.add(msgID2, msg2)
   assert.equal(msg2.metadata.tangles[mootID].depth, 2, 'msg2 depth')
-  assert.deepEqual(
-    msg2.metadata.tangles[mootID].prev,
-    [msgID1],
-    'msg2 prev'
-  )
+  assert.deepEqual(msg2.metadata.tangles[mootID].prev, [msgID1], 'msg2 prev')
 
   const msg3 = MsgV3.create({
     account,
@@ -85,11 +77,7 @@ test('MsgV3 lipmaa prevs', (t) => {
   const msgID4 = MsgV3.getMsgID(msg4)
   tangle.add(msgID4, msg4)
   assert.equal(msg4.metadata.tangles[mootID].depth, 4, 'msg4 depth')
-  assert.deepEqual(
-    msg4.metadata.tangles[mootID].prev,
-    [msgID3],
-    'msg4 prev'
-  )
+  assert.deepEqual(msg4.metadata.tangles[mootID].prev, [msgID3], 'msg4 prev')
 
   const msg5 = MsgV3.create({
     account,
@@ -104,11 +92,7 @@ test('MsgV3 lipmaa prevs', (t) => {
   const msgID5 = MsgV3.getMsgID(msg5)
   tangle.add(msgID5, msg5)
   assert.equal(msg5.metadata.tangles[mootID].depth, 5, 'msg5 depth')
-  assert.deepEqual(
-    msg5.metadata.tangles[mootID].prev,
-    [msgID4],
-    'msg5 prev'
-  )
+  assert.deepEqual(msg5.metadata.tangles[mootID].prev, [msgID4], 'msg5 prev')
 
   const msg6 = MsgV3.create({
     account,
@@ -123,11 +107,7 @@ test('MsgV3 lipmaa prevs', (t) => {
   const msgID6 = MsgV3.getMsgID(msg6)
   tangle.add(msgID6, msg6)
   assert.equal(msg6.metadata.tangles[mootID].depth, 6, 'msg6 depth')
-  assert.deepEqual(
-    msg6.metadata.tangles[mootID].prev,
-    [msgID5],
-    'msg6 prev'
-  )
+  assert.deepEqual(msg6.metadata.tangles[mootID].prev, [msgID5], 'msg6 prev')
 
   const msg7 = MsgV3.create({
     account,

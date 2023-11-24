@@ -17,7 +17,7 @@ test('account.create() ', async (t) => {
     const peer = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
       .use(require('ssb-box'))
-      .call(null, { keypair, path: DIR })
+      .call(null, { keypair, db: { path: DIR } })
 
     await peer.db.loaded()
     const account = await p(peer.db.account.create)({
@@ -59,7 +59,7 @@ test('account.create() ', async (t) => {
     const peer = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
       .use(require('ssb-box'))
-      .call(null, { keypair, path: DIR })
+      .call(null, { keypair, db: { path: DIR } })
 
     await peer.db.loaded()
     const account = await p(peer.db.account.create)({
@@ -89,7 +89,7 @@ test('account.create() ', async (t) => {
     const peer = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
       .use(require('ssb-box'))
-      .call(null, { keypair, path: DIR })
+      .call(null, { keypair, db: { path: DIR } })
 
     await peer.db.loaded()
     const account = await p(peer.db.account.create)({ keypair, subdomain })
@@ -109,7 +109,7 @@ test('account.create() ', async (t) => {
     const peer = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
       .use(require('ssb-box'))
-      .call(null, { keypair, path: DIR })
+      .call(null, { keypair, db: { path: DIR } })
 
     await peer.db.loaded()
     const account = await p(peer.db.account.create)({ keypair, subdomain })
@@ -129,7 +129,7 @@ test('account.create() ', async (t) => {
     const peer = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
       .use(require('ssb-box'))
-      .call(null, { keypair, path: DIR })
+      .call(null, { keypair, db: { path: DIR } })
 
     await peer.db.loaded()
 
@@ -140,7 +140,10 @@ test('account.create() ', async (t) => {
     })
     assert.ok(gotError, 'account not found')
 
-    const account = await p(peer.db.account.findOrCreate)({ keypair, subdomain })
+    const account = await p(peer.db.account.findOrCreate)({
+      keypair,
+      subdomain,
+    })
     assert.ok(account, 'account created')
     const msg = peer.db.get(account)
     assert.equal(msg.data.key.bytes, keypair.public, 'msg.data')

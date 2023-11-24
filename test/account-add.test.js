@@ -19,7 +19,7 @@ test('account.add()', async (t) => {
     const peer = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
       .use(require('ssb-box'))
-      .call(null, { keypair: keypair1, path: DIR })
+      .call(null, { keypair: keypair1, db: { path: DIR } })
 
     await peer.db.loaded()
     const account = await p(peer.db.account.create)({
@@ -78,7 +78,7 @@ test('account.add()', async (t) => {
     const peer1 = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
       .use(require('ssb-box'))
-      .call(null, { keypair: keypair1, path: DIR })
+      .call(null, { keypair: keypair1, db: { path: DIR } })
 
     await peer1.db.loaded()
     const id = await p(peer1.db.account.create)({
@@ -102,7 +102,7 @@ test('account.add()', async (t) => {
     const peer2 = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
       .use(require('ssb-box'))
-      .call(null, { keypair: keypair2, path: DIR })
+      .call(null, { keypair: keypair2, db: { path: DIR } })
 
     await peer2.db.loaded()
     await p(peer2.db.add)(msg1, id)
@@ -134,7 +134,7 @@ test('account.add()', async (t) => {
     const peer1again = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
       .use(require('ssb-box'))
-      .call(null, { keypair: keypair1, path: DIR })
+      .call(null, { keypair: keypair1, db: { path: DIR } })
 
     await peer1again.db.loaded()
     await p(peer1again.db.add)(msg1, id) // re-add because lost during rimraf
@@ -158,7 +158,7 @@ test('account.add()', async (t) => {
     let peer = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
       .use(require('ssb-box'))
-      .call(null, { keypair: keypair1, path: DIR })
+      .call(null, { keypair: keypair1, db: { path: DIR } })
 
     await peer.db.loaded()
 
@@ -213,7 +213,7 @@ test('account.add()', async (t) => {
     const carol = SecretStack({ appKey: caps.shse })
       .use(require('../lib'))
       .use(require('ssb-box'))
-      .call(null, { keypair: keypair3, path: DIR })
+      .call(null, { keypair: keypair3, db: { path: DIR } })
 
     await carol.db.loaded()
 

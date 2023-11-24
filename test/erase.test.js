@@ -16,7 +16,7 @@ test('erase()', async (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
-    .call(null, { keypair, path: DIR })
+    .call(null, { keypair, db: { path: DIR } })
 
   await peer.db.loaded()
 
@@ -82,7 +82,7 @@ test('erase()', async (t) => {
 
   await p(peer.close)(true)
 
-  const log = Log(path.join(DIR, 'db.bin'), {
+  const log = Log(path.join(DIR, 'log'), {
     cacheSize: 1,
     blockSize: 64 * 1024,
     codec: {
