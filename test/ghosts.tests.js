@@ -32,7 +32,7 @@ test('ghosts.add, ghosts.get, ghosts.getMinDepth', async (t) => {
     })
     msgIDs.push(rec.id)
   }
-  const tangleID = peer.db.feed.getID(account, 'post')
+  const tangleID = peer.db.feed.findMoot(account, 'post')?.id
 
   const ghosts0 = peer.db.ghosts.get(tangleID)
   assert.deepEqual(ghosts0, [], 'no ghosts so far')
@@ -78,7 +78,7 @@ test('ghosts.add queues very-concurrent calls', async (t) => {
     })
     msgIDs.push(rec.id)
   }
-  const tangleID = peer.db.feed.getID(account, 'post')
+  const tangleID = peer.db.feed.findMoot(account, 'post')?.id
 
   const ghosts0 = peer.db.ghosts.get(tangleID)
   assert.deepEqual(ghosts0, [], 'no ghosts so far')

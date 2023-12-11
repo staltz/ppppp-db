@@ -12,7 +12,7 @@ const MsgV3 = require('../lib/msg-v3')
 const DIR = path.join(os.tmpdir(), 'ppppp-db-feed-publish')
 rimraf.sync(DIR)
 
-test('feed.getID()', async (t) => {
+test('feed.findMoot()', async (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
@@ -27,8 +27,8 @@ test('feed.getID()', async (t) => {
 
   await p(peer.db.add)(moot, mootID)
 
-  const feedID = peer.db.feed.getID(id, 'post')
-  assert.equal(feedID, mootID, 'feed.getID() returns moot ID')
+  const mootRec = peer.db.feed.findMoot(id, 'post')
+  assert.equal(mootRec.id, mootID, 'feed.findMoot() returns moot ID')
 
   await p(peer.close)(true)
 })

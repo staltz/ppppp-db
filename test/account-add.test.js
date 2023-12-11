@@ -181,8 +181,8 @@ test('account.add()', async (t) => {
       keypair: keypair2,
     })
     assert.equal(postRec.msg.data.text, 'hello', 'post text correct')
-    const postsID = peer.db.feed.getID(account, 'post')
-    assert.ok(postsID, 'postsID exists')
+    const mootRec = peer.db.feed.findMoot(account, 'post')
+    assert.ok(mootRec, 'posts moot exists')
 
     const recs = [...peer.db.records()]
     assert.equal(recs.length, 4, '4 records')
@@ -219,8 +219,8 @@ test('account.add()', async (t) => {
 
     await p(carol.db.add)(accountMsg0, account)
     await p(carol.db.add)(accountRec1.msg, account)
-    await p(carol.db.add)(postsRoot.msg, postsID)
-    await p(carol.db.add)(postRec.msg, postsID)
+    await p(carol.db.add)(postsRoot.msg, mootRec.id)
+    await p(carol.db.add)(postRec.msg, mootRec.id)
     // t.pass('carol added all msgs successfully')
 
     await p(carol.close)()
