@@ -9,10 +9,10 @@ const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
 const MsgV3 = require('../lib/msg-v3')
 
-const DIR = path.join(os.tmpdir(), 'ppppp-db-feed-get-id')
+const DIR = path.join(os.tmpdir(), 'ppppp-db-feed-find-moot')
 rimraf.sync(DIR)
 
-test('feed.getID()', async (t) => {
+test('feed.findMoot()', async (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
   const peer = SecretStack({ appKey: caps.shse })
     .use(require('../lib'))
@@ -25,11 +25,10 @@ test('feed.getID()', async (t) => {
   const moot = MsgV3.createMoot(id, 'post', keypair)
   const mootID = MsgV3.getMsgID(moot)
 
-  assert.equal(
-    peer.db.feed.getID(id, 'post'),
-    mootID,
-    'feed.getID() returns moot ID'
-  )
+  await p(peer.db.add)(moot, mootID)
+
+  const mootRec = peer.db.feed.findMoot(id, 'post')
+  assert.equal(mootRec.id, mootID, 'feed.findMoot() returns moot ID')
 
   await p(peer.close)(true)
 })
