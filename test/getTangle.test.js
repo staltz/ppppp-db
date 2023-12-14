@@ -221,22 +221,19 @@ test('getTangle()', async (t) => {
     assert.deepEqual([...erasables], [reply1Lo, rootPost], 'erasables')
   })
 
-  await t.test(
-    'Tangle.getDeletablesAndErasables with many inputs again',
-    (t) => {
-      const { deletables, erasables } = tangle.getDeletablesAndErasables(
-        reply3Lo,
-        reply3Hi
-      )
+  await t.test('Tangle.getDeletablesAndErasables with many inputs (2)', (t) => {
+    const { deletables, erasables } = tangle.getDeletablesAndErasables(
+      reply3Lo,
+      reply3Hi
+    )
 
-      assert.deepEqual(
-        [...deletables],
-        [reply1Lo, reply1Hi, reply2],
-        'deletables'
-      )
-      assert.deepEqual([...erasables], [rootPost], 'erasables')
-    }
-  )
+    assert.deepEqual(
+      [...deletables],
+      [reply1Lo, reply1Hi, reply2],
+      'deletables'
+    )
+    assert.deepEqual([...erasables], [rootPost], 'erasables')
+  })
 
   await t.test('Tangle.getDeletablesAndErasables with lipmaa', (t) => {
     const { deletables, erasables } = tangle.getDeletablesAndErasables(reply3Lo)
@@ -267,24 +264,20 @@ test('getTangle()', async (t) => {
     assert.deepEqual(actual4, expected4)
   })
 
-  await t.test(
-    'Tangle.topoSort after some have been deleted and erased',
-    async (t) => {
-      const { deletables, erasables } =
-        tangle.getDeletablesAndErasables(reply3Lo)
-      for (const msgID of deletables) {
-        await p(peer.db.del)(msgID)
-      }
-      for (const msgID of erasables) {
-        await p(peer.db.erase)(msgID)
-      }
-
-      const tangle2 = peer.db.getTangle(rootPost)
-      const sorted = tangle2.topoSort()
-
-      assert.deepEqual(sorted, [rootPost, reply3Lo, reply3Hi])
+  await t.test('Tangle.topoSort after some deletes and erases', async (t) => {
+    const { deletables, erasables } = tangle.getDeletablesAndErasables(reply3Lo)
+    for (const msgID of deletables) {
+      await p(peer.db.del)(msgID)
     }
-  )
+    for (const msgID of erasables) {
+      await p(peer.db.erase)(msgID)
+    }
+
+    const tangle2 = peer.db.getTangle(rootPost)
+    const sorted = tangle2.topoSort()
+
+    assert.deepEqual(sorted, [rootPost, reply3Lo, reply3Hi])
+  })
 
   await p(peer.close)(true)
 })
