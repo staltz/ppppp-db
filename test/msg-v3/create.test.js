@@ -32,6 +32,7 @@ test('MsgV3.createAccount()', (t) => {
   assert.equal(accountMsg0.metadata.domain, 'person', 'domain')
   assert.equal(accountMsg0.metadata.v, 3, 'v')
   assert.equal(accountMsg0.pubkey, keypair.public, 'pubkey')
+  assert.equal(MsgV3.isFeedMsg(accountMsg0), false, 'not a feed msg')
 
   account = MsgV3.getMsgID(accountMsg0)
   assert.equal(account, 'UQN1Qmxr4rr9nCMQKs9u8P', 'account ID')
@@ -54,6 +55,7 @@ test('MsgV3.createMoot()', (t) => {
   assert.equal(moot.metadata.domain, 'post', 'domain')
   assert.equal(moot.metadata.v, 3, 'v')
   assert.equal(moot.pubkey, keypair.public, 'pubkey')
+  assert.equal(MsgV3.isFeedMsg(moot), false, 'not a feed msg')
 
   mootID = MsgV3.getMsgID(moot)
   assert.equal(mootID, 'AP2rJSfm9TwpNcMmbUsnRa', 'moot ID')
@@ -119,6 +121,7 @@ test('MsgV3.create()', (t) => {
     'rh8bc8QY7ju7yi4rt6y9njCyS3TVV1SBjn5dWGpKKRrC3XDMBc9KeNJgVCJLK8b8uiU5F49avAWt35P9kNaWZYH',
     'sig'
   )
+  assert.equal(MsgV3.isFeedMsg(msg1), true, 'is a feed msg')
 
   const msgID1 = 'MUvfNDk3gMPRy9CpTDEuvW'
 
