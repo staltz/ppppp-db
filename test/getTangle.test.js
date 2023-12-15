@@ -11,9 +11,15 @@ const Keypair = require('ppppp-keypair')
 const DIR = path.join(os.tmpdir(), 'ppppp-db-tangle')
 rimraf.sync(DIR)
 
+/**
+ *         /–-reply1Hi <-\            /--reply3Hi
+ * root <-<               >-reply2 <-<
+ *         \--reply1Lo <-/            \--reply3Lo
+ */
 test('getTangle()', async (t) => {
   let peer
   let rootPost, reply1Lo, reply1Hi, reply2, reply3Lo, reply3Hi
+  let reply1LoText, reply1HiText, reply3LoText, reply3HiText
   let tangle
 
   // Setup
@@ -29,7 +35,10 @@ test('getTangle()', async (t) => {
 
     await peer.db.loaded()
 
-    const id = await p(peer.db.account.create)({ subdomain: 'person' })
+    const id = await p(peer.db.account.create)({
+      subdomain: 'person',
+      _nonce: 'alice',
+    })
 
     // Slow down append so that we can trigger msg creation in parallel
     const originalAppend = peer.db._getLog().append
@@ -64,6 +73,8 @@ test('getTangle()', async (t) => {
     ])
     reply1Lo = reply1B.localeCompare(reply1C) < 0 ? reply1B : reply1C
     reply1Hi = reply1B.localeCompare(reply1C) < 0 ? reply1C : reply1B
+    reply1LoText = reply1B.localeCompare(reply1C) < 0 ? 'reply 1B' : 'reply 1C'
+    reply1HiText = reply1B.localeCompare(reply1C) < 0 ? 'reply 1C' : 'reply 1B'
 
     reply2 = (
       await p(peer.db.feed.publish)({
@@ -93,6 +104,8 @@ test('getTangle()', async (t) => {
     ])
     reply3Lo = reply3B.localeCompare(reply3C) < 0 ? reply3B : reply3C
     reply3Hi = reply3B.localeCompare(reply3C) < 0 ? reply3C : reply3B
+    reply3LoText = reply3B.localeCompare(reply3C) < 0 ? 'reply 3B' : 'reply 3C'
+    reply3HiText = reply3B.localeCompare(reply3C) < 0 ? 'reply 3C' : 'reply 3B'
 
     tangle = peer.db.getTangle(rootPost)
   }
@@ -262,6 +275,47 @@ test('getTangle()', async (t) => {
     const actual4 = tangle.getMinimumAmong([reply1Hi, reply3Lo])
     const expected4 = [reply1Hi]
     assert.deepEqual(actual4, expected4)
+  })
+
+  await t.test('Tangle.slice', (t) => {
+    {
+      const msgs = tangle.slice([], [reply2])
+      const texts = msgs.map((msg) => msg.data?.text)
+      assert.deepEqual(texts, ['root', reply1LoText, reply1HiText, 'reply 2'])
+    }
+
+    {
+      const msgs = tangle.slice([reply2], [])
+      const texts = msgs.map((msg) => msg.data?.text)
+      assert.deepEqual(texts, [
+        undefined, // root
+        undefined, // reply1Lo (no need to have a trail from reply1Hi)
+        'reply 2',
+        reply3LoText,
+        reply3HiText,
+      ])
+    }
+
+    {
+      const msgs = tangle.slice([reply2], [reply2])
+      const texts = msgs.map((msg) => msg.data?.text)
+      assert.deepEqual(texts, [
+        undefined, // root
+        undefined, // reply1Lo (no need to have a trail from reply1Hi)
+        'reply 2',
+      ])
+    }
+
+    {
+      const msgs = tangle.slice([reply2], [reply2, reply3Lo])
+      const texts = msgs.map((msg) => msg.data?.text)
+      assert.deepEqual(texts, [
+        undefined, // root
+        undefined, // reply1Lo (no need to have a trail from reply1Hi)
+        'reply 2',
+        reply3LoText,
+      ])
+    }
   })
 
   await t.test('Tangle.topoSort after some deletes and erases', async (t) => {
