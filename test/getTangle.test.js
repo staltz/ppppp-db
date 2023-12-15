@@ -279,6 +279,19 @@ test('getTangle()', async (t) => {
 
   await t.test('Tangle.slice', (t) => {
     {
+      const msgs = tangle.slice([], [])
+      const texts = msgs.map((msg) => msg.data?.text)
+      assert.deepEqual(texts, [
+        'root',
+        reply1LoText,
+        reply1HiText,
+        'reply 2',
+        reply3LoText,
+        reply3HiText,
+      ])
+    }
+
+    {
       const msgs = tangle.slice([], [reply2])
       const texts = msgs.map((msg) => msg.data?.text)
       assert.deepEqual(texts, ['root', reply1LoText, reply1HiText, 'reply 2'])
