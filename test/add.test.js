@@ -45,7 +45,7 @@ test('add()', async (t) => {
     },
   })
 
-  const rec = await p(peer.db.add)(inputMsg, rootID)
+  const rec = await p(peer.db.add)(inputMsg, null) // tangleID implicit
   assert.equal(rec.msg.data.text, 'This is the first post!')
 
   const stats = await p(peer.db.log.stats)()
