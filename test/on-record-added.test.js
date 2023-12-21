@@ -19,11 +19,20 @@ test('onRecordAdded', async (t) => {
 
   await peer.db.loaded()
 
-  const account = await p(peer.db.account.create)({ subdomain: 'person' })
+  const account = await p(peer.db.account.create)({
+    subdomain: 'person',
+    _nonce: 'alice',
+  })
 
-  const listened = []
-  var remove = peer.db.onRecordAdded((ev) => {
-    listened.push(ev)
+  let publishedRec1 = false
+  const listenedRecs = []
+
+  var remove = peer.db.onRecordAdded((rec) => {
+    listenedRecs.push(rec)
+    if (rec.msg.data?.text === 'I am hungry') {
+      console.log(rec);
+      assert.equal(publishedRec1, true, 'onRecordAdded triggered after publish')
+    }
   })
 
   const rec1 = await p(peer.db.feed.publish)({
@@ -31,15 +40,16 @@ test('onRecordAdded', async (t) => {
     domain: 'post',
     data: { text: 'I am hungry' },
   })
+  publishedRec1 = true
   assert.equal(rec1.msg.data.text, 'I am hungry', 'msg1 text correct')
 
   await p(setTimeout)(500)
 
-  assert.equal(listened.length, 3)
-  assert.equal(listened[0].msg.metadata.account, 'self', 'account root')
-  assert.equal(listened[1].msg.data, null, 'root')
-  assert.equal(listened[1].msg.metadata.dataSize, 0, 'root')
-  assert.deepEqual(listened[2], rec1, 'actual record')
+  assert.equal(listenedRecs.length, 3)
+  assert.equal(listenedRecs[0].msg.metadata.account, 'self', 'account root')
+  assert.equal(listenedRecs[1].msg.data, null, 'root')
+  assert.equal(listenedRecs[1].msg.metadata.dataSize, 0, 'root')
+  assert.deepEqual(listenedRecs[2], rec1, 'actual record')
 
   remove()
   await p(peer.close)(true)
