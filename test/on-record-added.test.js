@@ -30,17 +30,24 @@ test('onRecordAdded', async (t) => {
   var remove = peer.db.onRecordAdded((rec) => {
     listenedRecs.push(rec)
     if (rec.msg.data?.text === 'I am hungry') {
-      console.log(rec);
       assert.equal(publishedRec1, true, 'onRecordAdded triggered after publish')
     }
   })
 
-  const rec1 = await p(peer.db.feed.publish)({
-    account,
-    domain: 'post',
-    data: { text: 'I am hungry' },
+  const rec1 = await new Promise((resolve, reject) => {
+    peer.db.feed.publish(
+      {
+        account,
+        domain: 'post',
+        data: { text: 'I am hungry' },
+      },
+      (err, rec) => {
+        publishedRec1 = true
+        if (err) reject(err)
+        else resolve(rec)
+      }
+    )
   })
-  publishedRec1 = true
   assert.equal(rec1.msg.data.text, 'I am hungry', 'msg1 text correct')
 
   await p(setTimeout)(500)
