@@ -7,7 +7,7 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
-const MsgV3 = require('../lib/msg-v3')
+const MsgV4 = require('../lib/msg-v4')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-feed-get-id')
 rimraf.sync(DIR)
@@ -22,8 +22,8 @@ test('feed.getID()', async (t) => {
   await peer.db.loaded()
 
   const id = await p(peer.db.account.create)({ subdomain: 'person' })
-  const moot = MsgV3.createMoot(id, 'post', keypair)
-  const mootID = MsgV3.getMsgID(moot)
+  const moot = MsgV4.createMoot(id, 'post', keypair)
+  const mootID = MsgV4.getMsgID(moot)
 
   assert.equal(
     peer.db.feed.getID(id, 'post'),

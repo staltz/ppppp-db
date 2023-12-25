@@ -1,32 +1,32 @@
 const test = require('node:test')
 const assert = require('node:assert')
 const Keypair = require('ppppp-keypair')
-const MsgV3 = require('../../lib/msg-v3')
+const MsgV4 = require('../../lib/msg-v4')
 
-test('MsgV3.Tangle simple multi-author tangle', (t) => {
+test('MsgV4.Tangle simple multi-author tangle', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
-  const accountA = MsgV3.getMsgID(
-    MsgV3.createAccount(keypairA, 'person', 'alice')
+  const accountA = MsgV4.getMsgID(
+    MsgV4.createAccount(keypairA, 'person', 'alice')
   )
-  const accountB = MsgV3.getMsgID(
-    MsgV3.createAccount(keypairB, 'person', 'bob')
+  const accountB = MsgV4.getMsgID(
+    MsgV4.createAccount(keypairB, 'person', 'bob')
   )
 
-  const mootA = MsgV3.createMoot(accountA, 'post', keypairA)
-  const mootAID = MsgV3.getMsgID(mootA)
-  const tangleA = new MsgV3.Tangle(mootAID)
+  const mootA = MsgV4.createMoot(accountA, 'post', keypairA)
+  const mootAID = MsgV4.getMsgID(mootA)
+  const tangleA = new MsgV4.Tangle(mootAID)
   tangleA.add(mootAID, mootA)
 
   assert.equal(tangleA.id, mootAID, 'tangle.id')
   assert.equal(tangleA.root, mootA, 'tangle.root')
 
-  const mootB = MsgV3.createMoot(accountB, 'post', keypairB)
-  const mootBID = MsgV3.getMsgID(mootB)
-  const tangleB = new MsgV3.Tangle(mootBID)
+  const mootB = MsgV4.createMoot(accountB, 'post', keypairB)
+  const mootBID = MsgV4.getMsgID(mootB)
+  const tangleB = new MsgV4.Tangle(mootBID)
   tangleB.add(mootBID, mootB)
 
-  const msg1 = MsgV3.create({
+  const msg1 = MsgV4.create({
     account: accountA,
     accountTips: [accountA],
     domain: 'post',
@@ -36,17 +36,17 @@ test('MsgV3.Tangle simple multi-author tangle', (t) => {
     },
     keypair: keypairA,
   })
-  const msgID1 = MsgV3.getMsgID(msg1)
+  const msgID1 = MsgV4.getMsgID(msg1)
   assert.deepEqual(
     Object.keys(msg1.metadata.tangles),
     [mootAID],
     'msg1 has only feed tangle'
   )
 
-  const tangleX = new MsgV3.Tangle(msgID1)
+  const tangleX = new MsgV4.Tangle(msgID1)
   tangleX.add(msgID1, msg1)
 
-  const msg2 = MsgV3.create({
+  const msg2 = MsgV4.create({
     account: accountB,
     accountTips: [accountB],
     domain: 'post',
@@ -86,29 +86,29 @@ test('MsgV3.Tangle simple multi-author tangle', (t) => {
   )
 })
 
-test('MsgV3.Tangle lipmaa in multi-author tangle', (t) => {
+test('MsgV4.Tangle lipmaa in multi-author tangle', (t) => {
   const keypairA = Keypair.generate('ed25519', 'alice')
   const keypairB = Keypair.generate('ed25519', 'bob')
-  const accountA = MsgV3.getMsgID(
-    MsgV3.createAccount(keypairA, 'person', 'alice')
+  const accountA = MsgV4.getMsgID(
+    MsgV4.createAccount(keypairA, 'person', 'alice')
   )
-  const accountB = MsgV3.getMsgID(
-    MsgV3.createAccount(keypairB, 'person', 'bob')
+  const accountB = MsgV4.getMsgID(
+    MsgV4.createAccount(keypairB, 'person', 'bob')
   )
 
   const data = { text: 'Hello world!' }
 
-  const mootA = MsgV3.createMoot(accountA, 'post', keypairA)
-  const mootAID = MsgV3.getMsgID(mootA)
-  const tangleA = new MsgV3.Tangle(mootAID)
+  const mootA = MsgV4.createMoot(accountA, 'post', keypairA)
+  const mootAID = MsgV4.getMsgID(mootA)
+  const tangleA = new MsgV4.Tangle(mootAID)
   tangleA.add(mootAID, mootA)
 
-  const mootB = MsgV3.createMoot(accountB, 'post', keypairB)
-  const mootBID = MsgV3.getMsgID(mootB)
-  const tangleB = new MsgV3.Tangle(mootBID)
+  const mootB = MsgV4.createMoot(accountB, 'post', keypairB)
+  const mootBID = MsgV4.getMsgID(mootB)
+  const tangleB = new MsgV4.Tangle(mootBID)
   tangleB.add(mootBID, mootB)
 
-  const msg1 = MsgV3.create({
+  const msg1 = MsgV4.create({
     account: accountA,
     accountTips: [accountA],
     domain: 'post',
@@ -118,9 +118,9 @@ test('MsgV3.Tangle lipmaa in multi-author tangle', (t) => {
     },
     keypair: keypairA,
   })
-  const msgID1 = MsgV3.getMsgID(msg1)
+  const msgID1 = MsgV4.getMsgID(msg1)
   tangleA.add(msgID1, msg1)
-  const tangleThread = new MsgV3.Tangle(msgID1)
+  const tangleThread = new MsgV4.Tangle(msgID1)
   tangleThread.add(msgID1, msg1)
 
   assert.deepEqual(
@@ -129,7 +129,7 @@ test('MsgV3.Tangle lipmaa in multi-author tangle', (t) => {
     'A:msg1 has only feed tangle'
   )
 
-  const msg2 = MsgV3.create({
+  const msg2 = MsgV4.create({
     account: accountB,
     accountTips: [accountB],
     domain: 'post',
@@ -140,7 +140,7 @@ test('MsgV3.Tangle lipmaa in multi-author tangle', (t) => {
     },
     keypair: keypairB,
   })
-  const msgID2 = MsgV3.getMsgID(msg2)
+  const msgID2 = MsgV4.getMsgID(msg2)
   tangleB.add(msgID2, msg2)
   tangleThread.add(msgID2, msg2)
 
@@ -150,7 +150,7 @@ test('MsgV3.Tangle lipmaa in multi-author tangle', (t) => {
     'B:msg2 points to A:msg1'
   )
 
-  const msg3 = MsgV3.create({
+  const msg3 = MsgV4.create({
     account: accountB,
     accountTips: [accountB],
     domain: 'post',
@@ -161,7 +161,7 @@ test('MsgV3.Tangle lipmaa in multi-author tangle', (t) => {
     },
     keypair: keypairB,
   })
-  const msgID3 = MsgV3.getMsgID(msg3)
+  const msgID3 = MsgV4.getMsgID(msg3)
   tangleB.add(msgID3, msg3)
   tangleThread.add(msgID3, msg3)
 
@@ -171,7 +171,7 @@ test('MsgV3.Tangle lipmaa in multi-author tangle', (t) => {
     'B:msg3 points to B:msg2'
   )
 
-  const msg4 = MsgV3.create({
+  const msg4 = MsgV4.create({
     account: accountA,
     accountTips: [accountA],
     domain: 'post',
@@ -182,7 +182,7 @@ test('MsgV3.Tangle lipmaa in multi-author tangle', (t) => {
     },
     keypair: keypairA,
   })
-  const msgID4 = MsgV3.getMsgID(msg4)
+  const msgID4 = MsgV4.getMsgID(msg4)
   tangleB.add(msgID4, msg4)
   tangleThread.add(msgID4, msg4)
 

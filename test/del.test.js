@@ -51,7 +51,7 @@ test('del()', async (t) => {
   const stats1 = await p(peer.db.log.stats)()
   assert.deepEqual(
     stats1,
-    { totalBytes: 3399, deletedBytes: 0 },
+    { totalBytes: 4158, deletedBytes: 0 },
     'stats before delete and compact'
   )
 
@@ -102,7 +102,7 @@ test('del()', async (t) => {
   const stats2 = await p(log.stats)()
   assert.deepEqual(
     stats2,
-    { totalBytes: 2889, deletedBytes: 0 },
+    { totalBytes: 3495, deletedBytes: 0 },
     'stats after delete and compact'
   )
 

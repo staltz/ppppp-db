@@ -47,7 +47,7 @@ test('account.create() ', async (t) => {
       [],
       'msg.metadata.tangles'
     )
-    assert.equal(msg.pubkey, keypair.public, 'msg.pubkey')
+    assert.equal(msg.sigkey, keypair.public, 'msg.sigkey')
 
     await p(peer.close)()
   })
@@ -76,7 +76,7 @@ test('account.create() ', async (t) => {
       [],
       'msg.metadata.tangles'
     )
-    assert.equal(msg.pubkey, keypair.public, 'msg.pubkey')
+    assert.equal(msg.sigkey, keypair.public, 'msg.sigkey')
 
     await p(peer.close)()
   })
@@ -154,7 +154,7 @@ test('account.create() ', async (t) => {
       [],
       'msg.metadata.tangles'
     )
-    assert.equal(msg.pubkey, keypair.public, 'msg.pubkey')
+    assert.equal(msg.sigkey, keypair.public, 'msg.sigkey')
 
     await p(peer.close)()
   })

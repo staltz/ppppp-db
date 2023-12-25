@@ -7,7 +7,7 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
-const MsgV3 = require('../lib/msg-v3')
+const MsgV4 = require('../lib/msg-v4')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-get')
 rimraf.sync(DIR)
@@ -28,7 +28,7 @@ test('get()', async (t) => {
     domain: 'post',
     data: { text: 'I am 1st post' },
   })
-  const msgID1 = MsgV3.getMsgID(rec1.msg)
+  const msgID1 = MsgV4.getMsgID(rec1.msg)
 
   const msg = peer.db.get(msgID1)
   assert.ok(msg, 'msg exists')

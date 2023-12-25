@@ -7,7 +7,7 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
-const MsgV3 = require('../lib/msg-v3')
+const MsgV4 = require('../lib/msg-v4')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-add')
 rimraf.sync(DIR)
@@ -21,20 +21,20 @@ test('add()', async (t) => {
 
   await peer.db.loaded()
 
-  const accountMsg0 = MsgV3.createAccount(keypair, 'person', 'aliceNonce')
-  const id = MsgV3.getMsgID(accountMsg0)
+  const accountMsg0 = MsgV4.createAccount(keypair, 'person', 'aliceNonce')
+  const id = MsgV4.getMsgID(accountMsg0)
 
   await p(peer.db.add)(accountMsg0, id)
 
-  const rootMsg = MsgV3.createMoot(id, 'post', keypair)
-  const rootID = MsgV3.getMsgID(rootMsg)
+  const rootMsg = MsgV4.createMoot(id, 'post', keypair)
+  const rootID = MsgV4.getMsgID(rootMsg)
 
   const recRoot = await p(peer.db.add)(rootMsg, rootID)
   assert.equal(recRoot.msg.metadata.dataSize, 0, 'root msg added')
-  const tangle = new MsgV3.Tangle(rootID)
+  const tangle = new MsgV4.Tangle(rootID)
   tangle.add(recRoot.id, recRoot.msg)
 
-  const inputMsg = MsgV3.create({
+  const inputMsg = MsgV4.create({
     keypair,
     domain: 'post',
     data: { text: 'This is the first post!' },
@@ -49,7 +49,7 @@ test('add()', async (t) => {
   assert.equal(rec.msg.data.text, 'This is the first post!')
 
   const stats = await p(peer.db.log.stats)()
-  assert.deepEqual(stats, { totalBytes: 1450, deletedBytes: 0 })
+  assert.deepEqual(stats, { totalBytes: 1662, deletedBytes: 0 })
 
   await p(peer.close)(true)
 })

@@ -1,3 +1,181 @@
+# Msg V4
+
+Background: https://github.com/ssbc/ssb2-discussion-forum/issues/24
+
+## Terminology
+
+- **Hash** = base58 encoded string of the first 32 bytes of a sha512 hash
+- **Msg** = `{data,metadata,sigkey,sig}` published by a peer
+- **Msg ID** = `hash(msg.metadata)`
+- **Tangle** = a single-root DAG of msgs that can be replicated by peers
+- **Root** = the origin msg of a tangle
+- **Tangle Tips** = tangle msgs that are not yet referenced by any other msg in the tangle
+- **Tangle ID** = Msg ID of the tangle's root msg
+- **Account** = tangle with msgs that add (or remove?) cryptographic keys
+- **Account ID** = tangle ID of the account tangle
+- **Feed** = tangle with msgs authored by (any sigkey in) an account
+- **Moot** = the root of a feed, a msg that is deterministically predictable and empty, so to allow others to pre-know its msg ID, and thus the feed ID
+- **Feed ID** = ID of the moot of a feed (Msg ID of the feed's root msg)
+
+JSON
+
+```typescript
+interface Msg {
+  data: Record<string, any> | string | null // a plaintext object, or ciphertext string, or null
+  metadata: {
+    account: string | 'self' | 'any' // msg ID of account root, or the string 'self', or the string 'any'
+    accountTips: Array<string> | null // list (of unique items sorted lexicographically) of msg IDs of account tangle tips, or null
+    dataHash: string | null // hash of the `data` object serialized
+    dataSize: number // byte size (unsigned integer) of the `data` object serialized
+    domain: string // alphanumeric string, at least 3 chars, max 100 chars
+    tangles: {
+      // for each tangle this msg belongs to, identified by the tangle's ID
+      [tangleID: string]: {
+        depth: number // maximum distance (positive integer) from this msg to the root
+        prev: Array<MsgID> // list (of unique items sorted lexicographically) of msg IDs of existing msgs
+      }
+    }
+    v: 4 // hard-coded at 4, indicates the version of the feed format
+  }
+  sigkey: Sigkey // base58 encoded string for the author's public key
+  sig: Signature // Signs the `metadata` object
+}
+```
+
+**Depth:** we NEED this field because it is the most reliable way of calculating lipmaa distances between msgs, in the face of sliced replication. For example, given that older messages (except the certificate pool) would be deleted, the "graph depth" calculation for a msg may change over time, but we need a way of keeping this calculation stable and deterministic.
+
+## Account tangle msgs
+
+Msgs in an account tangle are special because they have empty `account` and `accountTips` fields.
+
+```typescript
+interface Msg {
+  data: AccountData
+  metadata: {
+    account: 'self' // MUST be the string 'self'
+    accountTips: null // MUST be null
+    dataHash: string
+    dataSize: number
+    domain: string // alphanumeric string, must start with "account__"
+    tangles: {
+      [accountTangleID: string]: {
+        depth: number
+        prev: Array<MsgID>
+      }
+    }
+    v: 4
+  }
+  sigkey: Sigkey
+  sig: Signature
+}
+
+type AccountData = AccountAdd | AccountDel
+
+// (if key is sig) "add" means this key can validly add more keys to the account
+// (if key is sig) "del" means this key can validly revoke keys from the account
+// (if key is shs) "internal-encryption" means this peer can get symmetric key
+// (if key is shs) "external-encryption" means this peer can get asymmetric key
+type AccountPower = 'add' | 'del' | 'internal-encryption' | 'external-encryption'
+
+type AccountAdd = {
+  action: 'add'
+  key: Key
+  nonce?: string // nonce required only on the account tangle's root
+  consent?: string // base58 encoded signature of the string `:account-add:<ID>` where `<ID>` is the account's ID, required only on non-root msgs
+  accountPowers?: Array<AccountPower> // list of powers granted to this key, defaults to []
+}
+
+type AccountDel = {
+  action: 'del'
+  key: Key
+}
+
+type Key =
+  | {
+      purpose: 'shs-and-sig' // secret-handshake and digital signatures
+      algorithm: 'ed25519' // libsodium crypto_sign_detached
+      bytes: string // base58 encoded string for the public key
+    }
+  | {
+      purpose: 'external-encryption' // asymmetric encryption
+      algorithm: 'x25519-xsalsa20-poly1305' // libsodium crypto_box_easy
+      bytes: string // base58 encoded string of the public key
+    }
+  | {
+      purpose: 'sig' // secret-handshake and digital signatures
+      algorithm: 'ed25519' // libsodium crypto_sign_detached
+      bytes: string // base58 encoded string for the public key
+    }
+```
+
+Examples of `AccountData`:
+
+- Registering the first public key:
+  ```json
+  {
+    "action": "add",
+    "key": {
+      "purpose": "shs-and-sig",
+      "algorithm": "ed25519",
+      "bytes": "3JrJiHEQzRFMzEqWawfBgq2DSZDyihP1NHXshqcL8pB9"
+    },
+    "nonce": "6GHR1ZFFSB3C5qAGwmSwVH8f7byNo8Cqwn5PcyG3qDvS"
+  }
+  ```
+- Revoking a public key:
+  ```json
+  {
+    "action": "del",
+    "key": {
+      "purpose": "shs-and-sig",
+      "algorithm": "ed25519",
+      "bytes": "3JrJiHEQzRFMzEqWawfBgq2DSZDyihP1NHXshqcL8pB9"
+    }
+  }
+  ```
+
+## Feed root
+
+The root msg for a feed is special, its `metadata` is predictable and can be constructed by any peer. It is a data-less msg with the following shape:
+
+```typescript
+interface Msg {
+  data: null // MUST be null
+  metadata: {
+    dataHash: null // MUST be null
+    dataSize: 0 // MUST be 0
+    account: string // MUST be an ID
+    accountTips: null // MUST be null
+    tangles: {} // MUST be empty object
+    domain: string
+    v: 4
+  }
+  sigkey: Sigkey
+  sig: Signature
+}
+```
+
+Thus, given a `account` and a `domain`, any peer can construct the `metadata` part of the feed root msg, and thus can derive the "msg ID" for the root based on that `metadata`.
+
+Given the root msg ID, any peer can thus refer to the feed tangle, because the root msg ID is the tangle ID for the feed tangle.
+
+Note also that _any peer_ can construct the root msg and sign it! Which renders the signatures for feed roots meaningless and ignorable. Thus the name "moot".
+
+## Prev links
+
+A msg can refer to 0 or more prev msgs. The prev links are used to build the tangle.
+
+The `prev` array for a tangle should list:
+
+- All current "tips" (msgs that are not yet listed inside any `prev`) of this tangle
+- All msgs that are at the previous "lipmaa" depth relative to this `depth`
+
+## JSON serialization
+
+Whenever we need to serialize any JSON in the context of creating a Msg V4 message, we follow the "JSON Canonicalization Scheme" (JSC) defined by [RFC 8785](https://tools.ietf.org/html/rfc8785).
+
+A serialized msg must not be larger than 65535 UTF-8 bytes.
+
 # Msg V3
 
 Background: https://github.com/ssbc/ssb2-discussion-forum/issues/24
@@ -37,7 +215,7 @@ interface Msg {
     v: 3 // hard-coded at 3, indicates the version of the feed format
   }
   pubkey: Pubkey // base58 encoded string for the author's public key
-  sig: Signature // Signs the `metadata` object
+  sig: Signature // base58 encoded string of the signature of the UTF8 string ":msg-v4:<METADATA>" where `<METADATA>` is the msg.metadata object serialized
 }
 ```
 
@@ -64,7 +242,7 @@ interface Msg {
     }
     v: 3
   }
-  pubkey: Pubkey
+  sigkey: Pubkey
   sig: Signature
 }
 

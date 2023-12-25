@@ -7,7 +7,7 @@ const rimraf = require('rimraf')
 const SecretStack = require('secret-stack')
 const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
-const MsgV3 = require('../lib/msg-v3')
+const MsgV4 = require('../lib/msg-v4')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-feed-publish')
 rimraf.sync(DIR)
@@ -30,8 +30,8 @@ test('feed.publish()', async (t) => {
     await peer.db.loaded()
 
     id = await p(peer.db.account.create)({ subdomain: 'person' })
-    moot = MsgV3.createMoot(id, 'post', keypair)
-    mootID = MsgV3.getMsgID(moot)
+    moot = MsgV4.createMoot(id, 'post', keypair)
+    mootID = MsgV4.getMsgID(moot)
   }
 
   let msgID1
@@ -56,7 +56,7 @@ test('feed.publish()', async (t) => {
       'msg1 tangle prev correct'
     )
 
-    msgID1 = MsgV3.getMsgID(rec1.msg)
+    msgID1 = MsgV4.getMsgID(rec1.msg)
 
     const rec2 = await p(peer.db.feed.publish)({
       account: id,
@@ -74,15 +74,15 @@ test('feed.publish()', async (t) => {
       [msgID1],
       'msg2 tangle prev correct'
     )
-    msgID2 = MsgV3.getMsgID(rec2.msg)
+    msgID2 = MsgV4.getMsgID(rec2.msg)
   })
 
   await t.test('merges tangle after a forked add()', async (t) => {
-    const tangle = new MsgV3.Tangle(mootID)
+    const tangle = new MsgV4.Tangle(mootID)
     tangle.add(mootID, moot)
     tangle.add(rec1.id, rec1.msg)
 
-    const msg3 = MsgV3.create({
+    const msg3 = MsgV4.create({
       keypair,
       account: id,
       accountTips: [id],
@@ -94,7 +94,7 @@ test('feed.publish()', async (t) => {
     })
 
     const rec3 = await p(peer.db.add)(msg3, mootID)
-    const msgID3 = MsgV3.getMsgID(rec3.msg)
+    const msgID3 = MsgV4.getMsgID(rec3.msg)
 
     const rec4 = await p(peer.db.feed.publish)({
       account: id,

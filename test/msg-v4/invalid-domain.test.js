@@ -1,15 +1,15 @@
 const test = require('node:test')
 const assert = require('node:assert')
 const Keypair = require('ppppp-keypair')
-const MsgV3 = require('../../lib/msg-v3')
+const MsgV4 = require('../../lib/msg-v4')
 
-test('MsgV3 domain validation', async (t) => {
+test('MsgV4 domain validation', async (t) => {
   await t.test('Not a string', (t) => {
     const keypair = Keypair.generate('ed25519', 'alice')
 
     assert.throws(
       () => {
-        MsgV3.create({
+        MsgV4.create({
           keypair,
           data: { text: 'Hello world!' },
           domain: 123,
@@ -25,7 +25,7 @@ test('MsgV3 domain validation', async (t) => {
 
     assert.throws(
       () => {
-        MsgV3.create({
+        MsgV4.create({
           keypair,
           data: { text: 'Hello world!' },
           domain: 'group/init',
@@ -41,7 +41,7 @@ test('MsgV3 domain validation', async (t) => {
 
     assert.throws(
       () => {
-        MsgV3.create({
+        MsgV4.create({
           keypair,
           data: { text: 'Hello world!' },
           domain: 'star*',
@@ -57,7 +57,7 @@ test('MsgV3 domain validation', async (t) => {
 
     assert.throws(
       () => {
-        MsgV3.create({
+        MsgV4.create({
           keypair,
           data: { text: 'Hello world!' },
           domain: 'xy',
@@ -73,7 +73,7 @@ test('MsgV3 domain validation', async (t) => {
 
     assert.throws(
       () => {
-        MsgV3.create({
+        MsgV4.create({
           keypair,
           data: { text: 'Hello world!' },
           domain: 'a'.repeat(120),

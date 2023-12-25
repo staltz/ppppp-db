@@ -49,7 +49,7 @@ test('erase()', async (t) => {
     '5 msgs before the erase'
   )
 
-  const EXPECTED_TOTAL_BYTES = 3399
+  const EXPECTED_TOTAL_BYTES = 4158
   const stats1 = await p(peer.db.log.stats)()
   assert.deepEqual(
     stats1,

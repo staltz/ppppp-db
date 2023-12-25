@@ -62,7 +62,7 @@ test('account.add()', async (t) => {
       { [account]: { depth: 1, prev: [account] } },
       'msg.metadata.tangles'
     )
-    assert.equal(msg.pubkey, keypair1.public, 'msg.pubkey OLD KEY')
+    assert.equal(msg.sigkey, keypair1.public, 'msg.sigkey OLD KEY')
 
     assert.equal(peer.db.account.has({ account, keypair: keypair2 }), true)
 
@@ -198,7 +198,7 @@ test('account.add()', async (t) => {
         accountTips: null,
         tangles: {},
         domain: 'post',
-        v: 3,
+        v: 4,
       },
       'postsRoot'
     )
