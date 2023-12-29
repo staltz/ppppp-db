@@ -4,9 +4,8 @@ const path = require('node:path')
 const os = require('node:os')
 const p = require('node:util').promisify
 const rimraf = require('rimraf')
-const SecretStack = require('secret-stack')
-const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
+const { createPeer } = require('./util')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-account-create')
 rimraf.sync(DIR)
@@ -14,10 +13,7 @@ rimraf.sync(DIR)
 test('account.create() ', async (t) => {
   await t.test('create with just "domain"', async (t) => {
     const keypair = Keypair.generate('ed25519', 'alice')
-    const peer = SecretStack({ appKey: caps.shse })
-      .use(require('../lib'))
-      .use(require('ssb-box'))
-      .call(null, { keypair, db: { path: DIR } })
+    const peer = createPeer({ keypair, path: DIR })
 
     await peer.db.loaded()
     const account = await p(peer.db.account.create)({
@@ -56,10 +52,7 @@ test('account.create() ', async (t) => {
     rimraf.sync(DIR)
     const keypair = Keypair.generate('ed25519', 'alice')
 
-    const peer = SecretStack({ appKey: caps.shse })
-      .use(require('../lib'))
-      .use(require('ssb-box'))
-      .call(null, { keypair, db: { path: DIR } })
+    const peer = createPeer({ keypair, path: DIR })
 
     await peer.db.loaded()
     const account = await p(peer.db.account.create)({
@@ -86,10 +79,7 @@ test('account.create() ', async (t) => {
     const keypair = Keypair.generate('ed25519', 'alice')
     const subdomain = 'person'
 
-    const peer = SecretStack({ appKey: caps.shse })
-      .use(require('../lib'))
-      .use(require('ssb-box'))
-      .call(null, { keypair, db: { path: DIR } })
+    const peer = createPeer({ keypair, path: DIR })
 
     await peer.db.loaded()
     const account = await p(peer.db.account.create)({ keypair, subdomain })
@@ -106,10 +96,7 @@ test('account.create() ', async (t) => {
     const keypair = Keypair.generate('ed25519', 'alice')
     const subdomain = 'person'
 
-    const peer = SecretStack({ appKey: caps.shse })
-      .use(require('../lib'))
-      .use(require('ssb-box'))
-      .call(null, { keypair, db: { path: DIR } })
+    const peer = createPeer({ keypair, path: DIR })
 
     await peer.db.loaded()
     const account = await p(peer.db.account.create)({ keypair, subdomain })
@@ -126,10 +113,7 @@ test('account.create() ', async (t) => {
     const keypair = Keypair.generate('ed25519', 'alice')
     const subdomain = 'person'
 
-    const peer = SecretStack({ appKey: caps.shse })
-      .use(require('../lib'))
-      .use(require('ssb-box'))
-      .call(null, { keypair, db: { path: DIR } })
+    const peer = createPeer({ keypair, path: DIR })
 
     await peer.db.loaded()
 

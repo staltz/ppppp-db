@@ -4,18 +4,17 @@ const path = require('node:path')
 const os = require('node:os')
 const p = require('node:util').promisify
 const rimraf = require('rimraf')
-const SecretStack = require('secret-stack')
-const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
+const { createPeer } = require('./util')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-on-msg-added')
 rimraf.sync(DIR)
 
 test('onRecordAdded', async (t) => {
-  const keypair = Keypair.generate('ed25519', 'alice')
-  const peer = SecretStack({ appKey: caps.shse })
-    .use(require('../lib'))
-    .call(null, { keypair, db: { path: DIR } })
+  const peer = createPeer({
+    keypair: Keypair.generate('ed25519', 'alice'),
+    path: DIR,
+  })
 
   await peer.db.loaded()
 

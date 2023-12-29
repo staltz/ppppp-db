@@ -4,19 +4,18 @@ const path = require('node:path')
 const os = require('node:os')
 const p = require('node:util').promisify
 const rimraf = require('rimraf')
-const SecretStack = require('secret-stack')
-const Log = require('../lib/log')
-const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
+const Log = require('../lib/log')
+const { createPeer } = require('./util')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-erase')
 rimraf.sync(DIR)
 
 test('erase()', async (t) => {
-  const keypair = Keypair.generate('ed25519', 'alice')
-  const peer = SecretStack({ appKey: caps.shse })
-    .use(require('../lib'))
-    .call(null, { keypair, db: { path: DIR } })
+  const peer = createPeer({
+    keypair: Keypair.generate('ed25519', 'alice'),
+    path: DIR,
+  })
 
   await peer.db.loaded()
 
@@ -82,7 +81,7 @@ test('erase()', async (t) => {
 
   await p(peer.close)(true)
 
-  const log = Log(path.join(DIR, 'log'), {
+  const log = Log(path.join(DIR, 'db', 'log'), {
     cacheSize: 1,
     blockSize: 64 * 1024,
     codec: {

@@ -4,9 +4,8 @@ const path = require('node:path')
 const p = require('node:util').promisify
 const os = require('node:os')
 const rimraf = require('rimraf')
-const SecretStack = require('secret-stack')
-const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
+const { createPeer } = require('./util')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-account-add')
 rimraf.sync(DIR)
@@ -16,10 +15,7 @@ test('account.add()', async (t) => {
     const keypair1 = Keypair.generate('ed25519', 'alice')
     const keypair2 = Keypair.generate('ed25519', 'bob')
 
-    const peer = SecretStack({ appKey: caps.shse })
-      .use(require('../lib'))
-      .use(require('ssb-box'))
-      .call(null, { keypair: keypair1, db: { path: DIR } })
+    const peer = createPeer({ keypair: keypair1, path: DIR })
 
     await peer.db.loaded()
     const account = await p(peer.db.account.create)({
@@ -75,10 +71,7 @@ test('account.add()', async (t) => {
     const keypair2 = Keypair.generate('ed25519', 'bob')
     const keypair3 = Keypair.generate('ed25519', 'carol')
 
-    const peer1 = SecretStack({ appKey: caps.shse })
-      .use(require('../lib'))
-      .use(require('ssb-box'))
-      .call(null, { keypair: keypair1, db: { path: DIR } })
+    const peer1 = createPeer({ keypair: keypair1, path: DIR })
 
     await peer1.db.loaded()
     const id = await p(peer1.db.account.create)({
@@ -99,10 +92,7 @@ test('account.add()', async (t) => {
     await p(peer1.close)()
     rimraf.sync(DIR)
 
-    const peer2 = SecretStack({ appKey: caps.shse })
-      .use(require('../lib'))
-      .use(require('ssb-box'))
-      .call(null, { keypair: keypair2, db: { path: DIR } })
+    const peer2 = createPeer({ keypair: keypair2, path: DIR })
 
     await peer2.db.loaded()
     await p(peer2.db.add)(msg1, id)
@@ -131,10 +121,7 @@ test('account.add()', async (t) => {
     await p(peer2.close)()
     rimraf.sync(DIR)
 
-    const peer1again = SecretStack({ appKey: caps.shse })
-      .use(require('../lib'))
-      .use(require('ssb-box'))
-      .call(null, { keypair: keypair1, db: { path: DIR } })
+    const peer1again = createPeer({ keypair: keypair1, path: DIR })
 
     await peer1again.db.loaded()
     await p(peer1again.db.add)(msg1, id) // re-add because lost during rimraf
@@ -155,10 +142,7 @@ test('account.add()', async (t) => {
     const keypair1 = Keypair.generate('ed25519', 'alice')
     const keypair2 = Keypair.generate('ed25519', 'bob')
 
-    let peer = SecretStack({ appKey: caps.shse })
-      .use(require('../lib'))
-      .use(require('ssb-box'))
-      .call(null, { keypair: keypair1, db: { path: DIR } })
+    let peer = createPeer({ keypair: keypair1, path: DIR })
 
     await peer.db.loaded()
 
@@ -210,10 +194,7 @@ test('account.add()', async (t) => {
     rimraf.sync(DIR)
     const keypair3 = Keypair.generate('ed25519', 'carol')
 
-    const carol = SecretStack({ appKey: caps.shse })
-      .use(require('../lib'))
-      .use(require('ssb-box'))
-      .call(null, { keypair: keypair3, db: { path: DIR } })
+    const carol = createPeer({ keypair: keypair3, path: DIR })
 
     await carol.db.loaded()
 

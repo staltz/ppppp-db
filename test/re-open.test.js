@@ -4,19 +4,15 @@ const path = require('node:path')
 const os = require('node:os')
 const p = require('node:util').promisify
 const rimraf = require('rimraf')
-const SecretStack = require('secret-stack')
-const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
+const { createPeer } = require('./util')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-re-open')
 rimraf.sync(DIR)
 
 test('publish some msgs, close, re-open', async (t) => {
   const keypair = Keypair.generate('ed25519', 'alice')
-  const peer = SecretStack({ appKey: caps.shse })
-    .use(require('../lib'))
-    .use(require('ssb-box'))
-    .call(null, { keypair, db: { path: DIR } })
+  const peer = createPeer({ keypair, path: DIR })
 
   await peer.db.loaded()
   const account = await p(peer.db.account.create)({ subdomain: 'person' })
@@ -39,10 +35,7 @@ test('publish some msgs, close, re-open', async (t) => {
   await p(peer.close)(true)
   // t.pass('closed')
 
-  const peer2 = SecretStack({ appKey: caps.shse })
-    .use(require('../lib'))
-    .use(require('ssb-box'))
-    .call(null, { keypair, db: { path: DIR } })
+  const peer2 = createPeer({ keypair, path: DIR })
   // t.pass('re-opened')
 
   await peer2.db.loaded()

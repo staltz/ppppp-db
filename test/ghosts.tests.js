@@ -4,19 +4,15 @@ const path = require('node:path')
 const os = require('node:os')
 const p = require('node:util').promisify
 const rimraf = require('rimraf')
-const SecretStack = require('secret-stack')
-const caps = require('ppppp-caps')
 const Keypair = require('ppppp-keypair')
+const { createPeer } = require('./util')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-ghosts')
 rimraf.sync(DIR)
 
 const keypair = Keypair.generate('ed25519', 'alice')
 test('ghosts.add, ghosts.get, ghosts.getMinDepth', async (t) => {
-  const peer = SecretStack({ appKey: caps.shse })
-    .use(require('../lib'))
-    .use(require('ssb-box'))
-    .call(null, { keypair, db: { path: DIR } })
+  const peer = createPeer({ keypair, path: DIR })
 
   await peer.db.loaded()
 
@@ -59,10 +55,7 @@ test('ghosts.add, ghosts.get, ghosts.getMinDepth', async (t) => {
 })
 
 test('ghosts.add queues very-concurrent calls', async (t) => {
-  const peer = SecretStack({ appKey: caps.shse })
-    .use(require('../lib'))
-    .use(require('ssb-box'))
-    .call(null, { keypair, db: { path: DIR } })
+  const peer = createPeer({ keypair, path: DIR })
 
   await peer.db.loaded()
 
