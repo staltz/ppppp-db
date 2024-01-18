@@ -30,7 +30,6 @@ test('Log compaction', async (t) => {
     })
 
     await p(log.compact)()
-    await p(log.onDrain)()
 
     assert.deepEqual(
       progressArr,
@@ -88,7 +87,6 @@ test('Log compaction', async (t) => {
     assert('delete first record')
 
     await p(log.compact)()
-    await p(log.onDrain)()
 
     assert.deepEqual(
       progressArr,
@@ -153,7 +151,6 @@ test('Log compaction', async (t) => {
     })
 
     await p(log.compact)()
-    await p(log.onDrain)()
 
     await new Promise((resolve, reject) => {
       const arr = []
