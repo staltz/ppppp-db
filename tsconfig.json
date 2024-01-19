@@ -1,5 +1,5 @@
 {
-  "include": ["lib/**/*.js"],
+  "include": ["declarations", "lib/**/*.js"],
   "exclude": ["coverage/", "node_modules/", "test/"],
   "compilerOptions": {
     "checkJs": true,
@@ -11,6 +11,7 @@
     "module": "node16",
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2022"
+    "target": "es2022",
+    "typeRoots": ["node_modules/@types", "declarations"]
   }
 }

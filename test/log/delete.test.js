@@ -41,7 +41,7 @@ test('Log deletes', async (t) => {
     await assert.rejects(p(log._get)(offset2), (err) => {
       assert.ok(err)
       assert.equal(err.message, 'Record has been deleted')
-      assert.equal(err.code, 'ERR_AAOL_DELETED_RECORD')
+      assert.equal(err.code, 'DELETED_RECORD')
       return true
     })
 
@@ -103,7 +103,7 @@ test('Log deletes', async (t) => {
     await assert.rejects(p(log2._get)(offset2), (err) => {
       assert.ok(err)
       assert.equal(err.message, 'Record has been deleted')
-      assert.equal(err.code, 'ERR_AAOL_DELETED_RECORD')
+      assert.equal(err.code, 'DELETED_RECORD')
       return true
     })
 
