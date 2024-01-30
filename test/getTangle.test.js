@@ -106,6 +106,13 @@ test('getTangle()', async (t) => {
     tangle = peer.db.getTangle(rootPost)
   }
 
+  await t.test('getTangle unknown ID returns null', (t) => {
+    assert.equal(
+      peer.db.getTangle('Lq6xwbdvGVmSsY3oYRugpZ3DY8chX9SLhRhjJKyZHQn'),
+      null
+    )
+  })
+
   await t.test('Tangle.has', (t) => {
     assert.equal(tangle.has(rootPost), true, 'has rootPost')
     assert.equal(tangle.has(reply1Lo), true, 'has reply1Lo')
