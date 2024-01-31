@@ -16,36 +16,49 @@ test('add()', async (t) => {
   const peer = createPeer({ keypair, path: DIR })
 
   await peer.db.loaded()
-
   const accountMsg0 = MsgV4.createAccount(keypair, 'person', 'aliceNonce')
   const id = MsgV4.getMsgID(accountMsg0)
 
-  await p(peer.db.add)(accountMsg0, id)
+  await t.test('basic use case', async () => {
+    await p(peer.db.add)(accountMsg0, id)
 
-  const rootMsg = MsgV4.createMoot(id, 'post', keypair)
-  const rootID = MsgV4.getMsgID(rootMsg)
+    const rootMsg = MsgV4.createMoot(id, 'post', keypair)
+    const rootID = MsgV4.getMsgID(rootMsg)
 
-  const recRoot = await p(peer.db.add)(rootMsg, rootID)
-  assert.equal(recRoot.msg.metadata.dataSize, 0, 'root msg added')
-  const tangle = new MsgV4.Tangle(rootID)
-  tangle.add(recRoot.id, recRoot.msg)
+    const recRoot = await p(peer.db.add)(rootMsg, rootID)
+    assert.equal(recRoot.msg.metadata.dataSize, 0, 'root msg added')
+    const tangle = new MsgV4.Tangle(rootID)
+    tangle.add(recRoot.id, recRoot.msg)
 
-  const inputMsg = MsgV4.create({
-    keypair,
-    domain: 'post',
-    data: { text: 'This is the first post!' },
-    account: id,
-    accountTips: [id],
-    tangles: {
-      [rootID]: tangle,
-    },
+    const inputMsg = MsgV4.create({
+      keypair,
+      domain: 'post',
+      data: { text: 'This is the first post!' },
+      account: id,
+      accountTips: [id],
+      tangles: {
+        [rootID]: tangle,
+      },
+    })
+
+    const rec = await p(peer.db.add)(inputMsg, null) // tangleID implicit
+    assert.equal(rec.msg.data.text, 'This is the first post!')
+
+    const stats = await p(peer.db.log.stats)()
+    assert.deepEqual(stats, { totalBytes: 1662, deletedBytes: 0 })
   })
 
-  const rec = await p(peer.db.add)(inputMsg, null) // tangleID implicit
-  assert.equal(rec.msg.data.text, 'This is the first post!')
+  await t.test('concurrent add of the same msg appends just one', async () => {
+    const rootMsg = MsgV4.createMoot(id, 'whatever', keypair)
+    const rootID = MsgV4.getMsgID(rootMsg)
+    await Promise.all([
+      p(peer.db.add)(rootMsg, rootID),
+      p(peer.db.add)(rootMsg, rootID),
+    ])
 
-  const stats = await p(peer.db.log.stats)()
-  assert.deepEqual(stats, { totalBytes: 1662, deletedBytes: 0 })
+    const stats = await p(peer.db.log.stats)()
+    assert.deepEqual(stats, { totalBytes: 2072, deletedBytes: 0 })
+  })
 
   await p(peer.close)(true)
 })
