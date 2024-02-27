@@ -34,18 +34,19 @@ test('del()', async (t) => {
     msgIDs.push(rec.id)
   }
 
-  const before = []
-  for (const msg of peer.db.msgs()) {
-    if (msg.data && msg.metadata.account?.length > 4) {
-      before.push(msg.data.text)
+  {
+    const texts = []
+    for (const msg of peer.db.msgs()) {
+      if (msg.data && msg.metadata.account?.length > 4) {
+        texts.push(msg.data.text)
+      }
     }
+    assert.deepEqual(
+      texts,
+      ['m0', 'm1', 'm2', 'm3', 'm4'],
+      'msgs before the delete'
+    )
   }
-
-  assert.deepEqual(
-    before,
-    ['m0', 'm1', 'm2', 'm3', 'm4'],
-    'msgs before the delete'
-  )
 
   const stats1 = await p(peer.db.log.stats)()
   assert.deepEqual(
@@ -55,19 +56,32 @@ test('del()', async (t) => {
   )
 
   await p(peer.db.del)(msgIDs[2])
+  await p(peer.db.del)(msgIDs[3])
 
-  const after = []
-  for (const msg of peer.db.msgs()) {
-    if (msg.data && msg.metadata.account?.length > 4) {
-      after.push(msg.data.text)
+  {
+    const texts = []
+    for (const msg of peer.db.msgs()) {
+      if (msg.data && msg.metadata.account?.length > 4) {
+        texts.push(msg.data.text)
+      }
     }
+    assert.deepEqual(texts, ['m0', 'm1', 'm4'], 'msgs after the delete')
   }
-
-  assert.deepEqual(after, ['m0', 'm1', 'm3', 'm4'], 'msgs after the delete')
 
   await p(peer.db.log.compact)()
   assert('compacted')
 
+  await p(peer.db.del)(msgIDs[4])
+
+  {
+    const texts = []
+    for (const msg of peer.db.msgs()) {
+      if (msg.data && msg.metadata.account?.length > 4) {
+        texts.push(msg.data.text)
+      }
+    }
+    assert.deepEqual(texts, ['m0', 'm1'], 'msgs when deleted after compacted')
+  }
   await p(peer.close)(true)
 
   const log = Log(path.join(DIR, 'db', 'log'), {
@@ -101,7 +115,7 @@ test('del()', async (t) => {
   const stats2 = await p(log.stats)()
   assert.deepEqual(
     stats2,
-    { totalBytes: 3495, deletedBytes: 0 },
+    { totalBytes: 2880, deletedBytes: 615 },
     'stats after delete and compact'
   )
 
@@ -109,7 +123,7 @@ test('del()', async (t) => {
     persistedMsgs
       .filter((msg) => msg.data && msg.metadata.account?.length > 4)
       .map((msg) => msg.data.text),
-    ['m0', 'm1', 'm3', 'm4'],
+    ['m0', 'm1'],
     'msgs in disk after the delete'
   )
 })
