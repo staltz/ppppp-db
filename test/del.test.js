@@ -71,6 +71,7 @@ test('del()', async (t) => {
   await p(peer.db.log.compact)()
   assert('compacted')
 
+  // Delete 4 so we can test that its log offset was updated post-compaction
   await p(peer.db.del)(msgIDs[4])
 
   {
