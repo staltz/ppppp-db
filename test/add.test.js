@@ -60,5 +60,79 @@ test('add()', async (t) => {
     assert.deepEqual(stats, { totalBytes: 2072, deletedBytes: 0 })
   })
 
+  await t.test('dataful msg replacing a dataless msg', async (t) => {
+    const rootMsg = MsgV4.createMoot(id, 'something', keypair)
+    const rootID = MsgV4.getMsgID(rootMsg)
+    await p(peer.db.add)(rootMsg, rootID)
+
+    const tangle = new MsgV4.Tangle(rootID)
+    tangle.add(rootID, rootMsg)
+
+    const msg1Dataful = MsgV4.create({
+      keypair,
+      account: id,
+      accountTips: [id],
+      domain: 'something',
+      data: { text: 'first' },
+      tangles: {
+        [rootID]: tangle,
+      },
+    })
+    const msg1Dataless = { ...msg1Dataful, data: null }
+    const msg1ID = MsgV4.getMsgID(msg1Dataful)
+
+    tangle.add(msg1ID, msg1Dataful)
+
+    const msg2 = MsgV4.create({
+      keypair,
+      account: id,
+      accountTips: [id],
+      domain: 'something',
+      data: { text: 'second' },
+      tangles: {
+        [rootID]: tangle,
+      },
+    })
+    const msg2ID = MsgV4.getMsgID(msg2)
+
+    await p(peer.db.add)(msg1Dataless, rootID)
+    await p(peer.db.add)(msg2, rootID)
+
+    // We expect there to be 3 msgs: root, dataless msg1, dataful msg2
+    {
+      const ids = []
+      const texts = []
+      for (const rec of peer.db.records()) {
+        if (rec.msg.metadata.domain === 'something') {
+          ids.push(rec.id)
+          texts.push(rec.msg.data?.text)
+        }
+      }
+      assert.deepEqual(ids, [rootID, msg1ID, msg2ID])
+      assert.deepEqual(texts, [undefined, undefined, 'second'])
+      const stats = await p(peer.db.log.stats)()
+      assert.deepEqual(stats, { totalBytes: 3718, deletedBytes: 0 })
+    }
+
+    await p(peer.db.add)(msg1Dataful, rootID)
+
+    // We expect there to be 3 msgs: root, (deleted) dataless msg1, dataful msg2
+    // and dataful msg1 appended at the end
+    {
+      const ids = []
+      const texts = []
+      for (const rec of peer.db.records()) {
+        if (rec.msg.metadata.domain === 'something') {
+          ids.push(rec.id)
+          texts.push(rec.msg.data?.text)
+        }
+      }
+      assert.deepEqual(ids, [rootID, msg2ID, msg1ID])
+      assert.deepEqual(texts, [undefined, 'second', 'first'])
+      const stats = await p(peer.db.log.stats)()
+      assert.deepEqual(stats, { totalBytes: 4340, deletedBytes: 610 })
+    }
+  })
+
   await p(peer.close)(true)
 })
