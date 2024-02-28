@@ -192,3 +192,49 @@ test('MsgV4.Tangle lipmaa in multi-author tangle', (t) => {
     'A:msg4 points to A:msg1,B:msg3'
   )
 })
+
+test('MsgV4.Tangle can add msgs in random order', (t) => {
+  const keypairA = Keypair.generate('ed25519', 'alice')
+  const accountA = MsgV4.getMsgID(
+    MsgV4.createAccount(keypairA, 'person', 'alice')
+  )
+  const mootA = MsgV4.createMoot(accountA, 'post', keypairA)
+  const mootAID = MsgV4.getMsgID(mootA)
+
+  const tangleBuilder = new MsgV4.Tangle(mootAID)
+  tangleBuilder.add(mootAID, mootA)
+
+  const msg1 = MsgV4.create({
+    account: accountA,
+    accountTips: [accountA],
+    domain: 'post',
+    data: { text: 'Hello world!' },
+    tangles: {
+      [mootAID]: tangleBuilder,
+    },
+    keypair: keypairA,
+  })
+  const msgID1 = MsgV4.getMsgID(msg1)
+  tangleBuilder.add(msgID1, msg1)
+
+  const msg2 = MsgV4.create({
+    account: accountA,
+    accountTips: [accountA],
+    domain: 'post',
+    data: { text: 'Hello world!' },
+    tangles: {
+      [mootAID]: tangleBuilder,
+    },
+    keypair: keypairA,
+  })
+  const msgID2 = MsgV4.getMsgID(msg2)
+  tangleBuilder.add(msgID1, msg1)
+
+  const tangle = new MsgV4.Tangle(mootAID)
+  tangle.add(mootAID, mootA)
+  tangle.add(msgID2, msg2)
+  tangle.add(msgID1, msg1)
+
+  assert.deepEqual(tangle.topoSort(), [mootAID, msgID1, msgID2]);
+  assert.deepEqual([...tangle.tips], [msgID2], 'tangle tips')
+})
