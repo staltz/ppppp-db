@@ -20,15 +20,16 @@ test('add()', async (t) => {
   const id = MsgV4.getMsgID(accountMsg0)
 
   await t.test('basic use case', async () => {
+    // Moot can be added without validating its account & sigkey
+    const moot = MsgV4.createMoot(id, 'post', keypair)
+    const mootID = MsgV4.getMsgID(moot)
+    const recMoot = await p(peer.db.add)(moot, mootID)
+    assert.equal(recMoot.msg.metadata.dataSize, 0, 'moot added')
+
     await p(peer.db.add)(accountMsg0, id)
 
-    const rootMsg = MsgV4.createMoot(id, 'post', keypair)
-    const rootID = MsgV4.getMsgID(rootMsg)
-
-    const recRoot = await p(peer.db.add)(rootMsg, rootID)
-    assert.equal(recRoot.msg.metadata.dataSize, 0, 'root msg added')
-    const tangle = new MsgV4.Tangle(rootID)
-    tangle.add(recRoot.id, recRoot.msg)
+    const tangle = new MsgV4.Tangle(mootID)
+    tangle.add(recMoot.id, recMoot.msg)
 
     const inputMsg = MsgV4.create({
       keypair,
@@ -37,7 +38,7 @@ test('add()', async (t) => {
       account: id,
       accountTips: [id],
       tangles: {
-        [rootID]: tangle,
+        [mootID]: tangle,
       },
     })
 
@@ -49,11 +50,11 @@ test('add()', async (t) => {
   })
 
   await t.test('concurrent add of the same msg appends just one', async () => {
-    const rootMsg = MsgV4.createMoot(id, 'whatever', keypair)
-    const rootID = MsgV4.getMsgID(rootMsg)
+    const moot = MsgV4.createMoot(id, 'whatever', keypair)
+    const mootID = MsgV4.getMsgID(moot)
     await Promise.all([
-      p(peer.db.add)(rootMsg, rootID),
-      p(peer.db.add)(rootMsg, rootID),
+      p(peer.db.add)(moot, mootID),
+      p(peer.db.add)(moot, mootID),
     ])
 
     const stats = await p(peer.db.log.stats)()
@@ -61,12 +62,12 @@ test('add()', async (t) => {
   })
 
   await t.test('dataful msg replacing a dataless msg', async (t) => {
-    const rootMsg = MsgV4.createMoot(id, 'something', keypair)
-    const rootID = MsgV4.getMsgID(rootMsg)
-    await p(peer.db.add)(rootMsg, rootID)
+    const moot = MsgV4.createMoot(id, 'something', keypair)
+    const mootID = MsgV4.getMsgID(moot)
+    await p(peer.db.add)(moot, mootID)
 
-    const tangle = new MsgV4.Tangle(rootID)
-    tangle.add(rootID, rootMsg)
+    const tangle = new MsgV4.Tangle(mootID)
+    tangle.add(mootID, moot)
 
     const msg1Dataful = MsgV4.create({
       keypair,
@@ -75,7 +76,7 @@ test('add()', async (t) => {
       domain: 'something',
       data: { text: 'first' },
       tangles: {
-        [rootID]: tangle,
+        [mootID]: tangle,
       },
     })
     const msg1Dataless = { ...msg1Dataful, data: null }
@@ -90,15 +91,15 @@ test('add()', async (t) => {
       domain: 'something',
       data: { text: 'second' },
       tangles: {
-        [rootID]: tangle,
+        [mootID]: tangle,
       },
     })
     const msg2ID = MsgV4.getMsgID(msg2)
 
-    await p(peer.db.add)(msg1Dataless, rootID)
-    await p(peer.db.add)(msg2, rootID)
+    await p(peer.db.add)(msg1Dataless, mootID)
+    await p(peer.db.add)(msg2, mootID)
 
-    // We expect there to be 3 msgs: root, dataless msg1, dataful msg2
+    // We expect there to be 3 msgs: moot, dataless msg1, dataful msg2
     {
       const ids = []
       const texts = []
@@ -108,15 +109,15 @@ test('add()', async (t) => {
           texts.push(rec.msg.data?.text)
         }
       }
-      assert.deepEqual(ids, [rootID, msg1ID, msg2ID])
+      assert.deepEqual(ids, [mootID, msg1ID, msg2ID])
       assert.deepEqual(texts, [undefined, undefined, 'second'])
       const stats = await p(peer.db.log.stats)()
       assert.deepEqual(stats, { totalBytes: 3718, deletedBytes: 0 })
     }
 
-    await p(peer.db.add)(msg1Dataful, rootID)
+    await p(peer.db.add)(msg1Dataful, mootID)
 
-    // We expect there to be 3 msgs: root, (deleted) dataless msg1, dataful msg2
+    // We expect there to be 3 msgs: moot, (deleted) dataless msg1, dataful msg2
     // and dataful msg1 appended at the end
     {
       const ids = []
@@ -127,7 +128,7 @@ test('add()', async (t) => {
           texts.push(rec.msg.data?.text)
         }
       }
-      assert.deepEqual(ids, [rootID, msg2ID, msg1ID])
+      assert.deepEqual(ids, [mootID, msg2ID, msg1ID])
       assert.deepEqual(texts, [undefined, 'second', 'first'])
       const stats = await p(peer.db.log.stats)()
       assert.deepEqual(stats, { totalBytes: 4340, deletedBytes: 610 })
