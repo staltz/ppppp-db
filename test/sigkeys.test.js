@@ -38,12 +38,15 @@ test('sigkeys', async (t) => {
 
       assert.equal(peer.db.account.has({ account, keypair: keypair2 }), true)
 
+      // TODO: change to add() since publish() doesn't run the sigkeys logic
       await p(peer.db.feed.publish)({
         account,
         domain: 'post',
         data: { text: 'potato' },
         keypair: keypair2,
       })
+
+      // TODO: check that publish errs
 
       await p(peer.close)()
     }
