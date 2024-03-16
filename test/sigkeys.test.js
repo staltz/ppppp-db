@@ -8,18 +8,24 @@ const Keypair = require('ppppp-keypair')
 const { createPeer } = require('./util')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-sigkeys')
+const DIR2 = path.join(os.tmpdir(), 'ppppp-db-sigkeys2')
 rimraf.sync(DIR)
+rimraf.sync(DIR2)
 
 test('sigkeys', async (t) => {
   await t.test(
     "Can't add msg that is signed by key newer than what accountTips points to",
     async (t) => {
       const keypair1 = Keypair.generate('ed25519', 'alice')
-      const keypair2 = Keypair.generate('ed25519', 'bob')
+      const keypair2 = Keypair.generate('ed25519', 'alice2')
+      const keypairOther = Keypair.generate('ed25519', 'bob')
 
       const peer = createPeer({ keypair: keypair1, path: DIR })
+      const peerOther = createPeer({ keypair: keypairOther, path: DIR2 })
 
       await peer.db.loaded()
+      await peerOther.db.loaded()
+
       const account = await p(peer.db.account.create)({
         keypair: keypair1,
         subdomain: 'person',
@@ -38,17 +44,31 @@ test('sigkeys', async (t) => {
 
       assert.equal(peer.db.account.has({ account, keypair: keypair2 }), true)
 
-      // TODO: change to add() since publish() doesn't run the sigkeys logic
-      await p(peer.db.feed.publish)({
+      // you're allowed to self-publish bad msgs
+      const badMsg = await p(peer.db.feed.publish)({
         account,
         domain: 'post',
         data: { text: 'potato' },
         keypair: keypair2,
       })
 
-      // TODO: check that publish errs
+      await p(peerOther.db.add)(
+        badMsg.msg,
+        peer.db.feed.getID(badMsg.msg.metadata.account, 'post')
+      )
+        .then(() => {
+          throw "Shouldn't be able to add() bad msg"
+        })
+        .catch((err) => {
+          assert.match(
+            err.message,
+            /add\(\) failed to verify msg/,
+            "Couldn't add() bad msg"
+          )
+        })
 
       await p(peer.close)()
+      await p(peerOther.close)()
     }
   )
 })
