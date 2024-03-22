@@ -6,6 +6,7 @@ const os = require('node:os')
 const rimraf = require('rimraf')
 const Keypair = require('ppppp-keypair')
 const { createPeer } = require('./util')
+const MsgV4 = require('../lib/msg-v4')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-account-add')
 rimraf.sync(DIR)
@@ -243,10 +244,18 @@ test('account.add()', async (t) => {
       const postMootRec = peer.db.feed.findMoot(account, 'post')
 
       const accountRoot = peer.db.get(account)
-      const delRec = await p(peer.db.feed.publish)({
-        account,
+
+      const tangle = new MsgV4.Tangle(account)
+      tangle.add(account, accountRoot)
+      // can't publish() account msgs. and creating this manually for now until we have a .del() fn
+      const delMsg = MsgV4.create({
+        account: 'self',
+        accountTips: null,
         domain: accountRoot.metadata.domain,
         keypair: keypair1,
+        tangles: {
+          [account]: tangle,
+        },
         data: {
           action: 'del',
           key: {
@@ -256,6 +265,7 @@ test('account.add()', async (t) => {
           },
         },
       })
+      await p(peer.db.add)(delMsg, account)
 
       const badRec = await p(peer.db.feed.publish)({
         account,
@@ -274,16 +284,9 @@ test('account.add()', async (t) => {
 
       await p(carol.db.add)(accountMsg0, account)
       await p(carol.db.add)(accountRec1.msg, account)
-      console.log(
-        'rec',
-        goodRec,
-        'rectangle',
-        goodRec.msg.metadata.tangles,
-        'moot',
-        postMootRec
-      )
+      await p(carol.db.add)(postMootRec.msg, postMootRec.id)
       await p(carol.db.add)(goodRec.msg, postMootRec.id)
-      await p(carol.db.add)(delRec.msg, account)
+      await p(carol.db.add)(delMsg, account)
       await assert.rejects(
         p(carol.db.add)(badRec.msg, postMootRec.id),
         /add\(\) failed to verify msg/,
