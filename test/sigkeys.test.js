@@ -71,15 +71,15 @@ test('sigkeys', async (t) => {
         "Shouldn't be able to add() own bad msg"
       )
 
-      await p(peerOther.db.add)(accountMsg0, account),
-        await p(peerOther.db.add)(accountRec1.msg, account),
-        await p(peerOther.db.add)(postMootMsg, postMootId),
-        await p(peerOther.db.add)(goodRec.msg, postMootId),
-        await assert.rejects(
-          p(peerOther.db.add)(badMsg, postMootId),
-          /add\(\) failed to verify msg/,
-          "Shouldn't be able to add() someone else's bad msg"
-        )
+      await p(peerOther.db.add)(accountMsg0, account)
+      await p(peerOther.db.add)(accountRec1.msg, account)
+      await p(peerOther.db.add)(postMootMsg, postMootId)
+      await p(peerOther.db.add)(goodRec.msg, postMootId)
+      await assert.rejects(
+        p(peerOther.db.add)(badMsg, postMootId),
+        /add\(\) failed to verify msg/,
+        "Shouldn't be able to add() someone else's bad msg"
+      )
 
       await p(peer.close)()
       await p(peerOther.close)()

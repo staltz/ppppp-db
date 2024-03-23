@@ -235,6 +235,6 @@ test('MsgV4.Tangle can add msgs in random order', (t) => {
   tangle.add(msgID2, msg2)
   tangle.add(msgID1, msg1)
 
-  assert.deepEqual(tangle.topoSort(), [mootAID, msgID1, msgID2]);
+  assert.deepEqual(tangle.topoSort(), [mootAID, msgID1, msgID2])
   assert.deepEqual([...tangle.tips], [msgID2], 'tangle tips')
 })
