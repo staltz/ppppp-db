@@ -210,7 +210,7 @@ test('account.add()', async (t) => {
 
   await t.test(
     "Can't publish with a key if the key has been del'd",
-    async (t) => {
+    async () => {
       rimraf.sync(DIR)
 
       const keypair1 = Keypair.generate('ed25519', 'alice')
@@ -243,15 +243,14 @@ test('account.add()', async (t) => {
       })
       const postMootRec = peer.db.feed.findMoot(account, 'post')
 
-      const accountRoot = peer.db.get(account)
-
       const tangle = new MsgV4.Tangle(account)
-      tangle.add(account, accountRoot)
+      tangle.add(account, accountMsg0)
+      tangle.add(accountRec1.id, accountRec1.msg)
       // can't publish() account msgs. and creating this manually for now until we have a .del() fn
       const delMsg = MsgV4.create({
         account: 'self',
         accountTips: null,
-        domain: accountRoot.metadata.domain,
+        domain: accountMsg0.metadata.domain,
         keypair: keypair1,
         tangles: {
           [account]: tangle,
