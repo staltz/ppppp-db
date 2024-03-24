@@ -243,28 +243,10 @@ test('account.add()', async (t) => {
       })
       const postMootRec = peer.db.feed.findMoot(account, 'post')
 
-      const tangle = new MsgV4.Tangle(account)
-      tangle.add(account, accountMsg0)
-      tangle.add(accountRec1.id, accountRec1.msg)
-      // can't publish() account msgs. and creating this manually for now until we have a .del() fn
-      const delMsg = MsgV4.create({
-        account: 'self',
-        accountTips: null,
-        domain: accountMsg0.metadata.domain,
-        keypair: keypair1,
-        tangles: {
-          [account]: tangle,
-        },
-        data: {
-          action: 'del',
-          key: {
-            purpose: 'sig',
-            algorithm: 'ed25519',
-            bytes: keypair2.public,
-          },
-        },
+      const delRec = await p(peer.db.account.del)({
+        account,
+        keypair: keypair2,
       })
-      await p(peer.db.add)(delMsg, account)
 
       const badRec = await p(peer.db.feed.publish)({
         account,
@@ -285,7 +267,7 @@ test('account.add()', async (t) => {
       await p(carol.db.add)(accountRec1.msg, account)
       await p(carol.db.add)(postMootRec.msg, postMootRec.id)
       await p(carol.db.add)(goodRec.msg, postMootRec.id)
-      await p(carol.db.add)(delMsg, account)
+      await p(carol.db.add)(delRec.msg, account)
       await assert.rejects(
         p(carol.db.add)(badRec.msg, postMootRec.id),
         /add\(\) failed to verify msg/,
