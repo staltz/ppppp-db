@@ -6,6 +6,7 @@ const os = require('node:os')
 const rimraf = require('rimraf')
 const Keypair = require('ppppp-keypair')
 const { createPeer } = require('./util')
+const MsgV4 = require('../lib/msg-v4')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-account-add')
 rimraf.sync(DIR)
@@ -206,4 +207,92 @@ test('account.add()', async (t) => {
 
     await p(carol.close)()
   })
+
+  await t.test(
+    "Can't publish with a key if the key has been del'd",
+    async () => {
+      rimraf.sync(DIR)
+
+      const keypair1 = Keypair.generate('ed25519', 'alice')
+      const keypair2 = Keypair.generate('ed25519', 'bob')
+
+      let peer = createPeer({ keypair: keypair1, path: DIR })
+
+      await peer.db.loaded()
+
+      const account = await p(peer.db.account.create)({
+        keypair: keypair1,
+        subdomain: 'person',
+      })
+      const accountMsg0 = peer.db.get(account)
+
+      const consent = peer.db.account.consent({ account, keypair: keypair2 })
+
+      const accountRec1 = await p(peer.db.account.add)({
+        account,
+        keypair: keypair2,
+        consent,
+        powers: ['external-encryption'],
+      })
+
+      const goodRec = await p(peer.db.feed.publish)({
+        account,
+        domain: 'post',
+        data: { text: 'potato' },
+        keypair: keypair2,
+      })
+      const postMootRec = peer.db.feed.findMoot(account, 'post')
+
+      const tangle = new MsgV4.Tangle(account)
+      tangle.add(account, accountMsg0)
+      tangle.add(accountRec1.id, accountRec1.msg)
+      // can't publish() account msgs. and creating this manually for now until we have a .del() fn
+      const delMsg = MsgV4.create({
+        account: 'self',
+        accountTips: null,
+        domain: accountMsg0.metadata.domain,
+        keypair: keypair1,
+        tangles: {
+          [account]: tangle,
+        },
+        data: {
+          action: 'del',
+          key: {
+            purpose: 'sig',
+            algorithm: 'ed25519',
+            bytes: keypair2.public,
+          },
+        },
+      })
+      await p(peer.db.add)(delMsg, account)
+
+      const badRec = await p(peer.db.feed.publish)({
+        account,
+        domain: 'post',
+        data: { text: 'potato2' },
+        keypair: keypair2,
+      })
+
+      // Re-load as Carol, add the msgs to validate them
+      rimraf.sync(DIR)
+      const keypair3 = Keypair.generate('ed25519', 'carol')
+
+      const carol = createPeer({ keypair: keypair3, path: DIR })
+
+      await carol.db.loaded()
+
+      await p(carol.db.add)(accountMsg0, account)
+      await p(carol.db.add)(accountRec1.msg, account)
+      await p(carol.db.add)(postMootRec.msg, postMootRec.id)
+      await p(carol.db.add)(goodRec.msg, postMootRec.id)
+      await p(carol.db.add)(delMsg, account)
+      await assert.rejects(
+        p(carol.db.add)(badRec.msg, postMootRec.id),
+        /add\(\) failed to verify msg/,
+        "Adding msg with del'd keypair is supposed to fail"
+      )
+
+      await p(carol.close)()
+    }
+  )
 })
