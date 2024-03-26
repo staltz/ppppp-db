@@ -280,9 +280,9 @@ test('getTangle()', async (t) => {
     assert.deepEqual(actual4, expected4)
   })
 
-  await t.test('Tangle.slice', (t) => {
+  await t.test('Tangle.slice', async (t) => {
     {
-      const msgs = tangle.slice()
+      const msgs = await tangle.slice()
       const texts = msgs.map((msg) => msg.data?.text)
       assert.deepEqual(texts, [
         'root',
@@ -295,13 +295,13 @@ test('getTangle()', async (t) => {
     }
 
     {
-      const msgs = tangle.slice([], [reply2])
+      const msgs = await tangle.slice([], [reply2])
       const texts = msgs.map((msg) => msg.data?.text)
       assert.deepEqual(texts, ['root', reply1LoText, reply1HiText, 'reply 2'])
     }
 
     {
-      const msgs = tangle.slice([reply2], [])
+      const msgs = await tangle.slice([reply2], [])
       const texts = msgs.map((msg) => msg.data?.text)
       assert.deepEqual(texts, [
         undefined, // root
@@ -313,7 +313,7 @@ test('getTangle()', async (t) => {
     }
 
     {
-      const msgs = tangle.slice([reply2], [reply2])
+      const msgs = await tangle.slice([reply2], [reply2])
       const texts = msgs.map((msg) => msg.data?.text)
       assert.deepEqual(texts, [
         undefined, // root
@@ -323,7 +323,7 @@ test('getTangle()', async (t) => {
     }
 
     {
-      const msgs = tangle.slice([reply2], [reply2, reply3Lo])
+      const msgs = await tangle.slice([reply2], [reply2, reply3Lo])
       const texts = msgs.map((msg) => msg.data?.text)
       assert.deepEqual(texts, [
         undefined, // root

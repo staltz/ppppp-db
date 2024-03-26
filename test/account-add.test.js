@@ -24,7 +24,10 @@ test('account.add()', async (t) => {
       subdomain: 'person',
     })
 
-    assert.equal(peer.db.account.has({ account, keypair: keypair2 }), false)
+    assert.equal(
+      await p(peer.db.account.has)({ account, keypair: keypair2 }),
+      false
+    )
 
     const consent = peer.db.account.consent({ account, keypair: keypair2 })
 
@@ -61,7 +64,10 @@ test('account.add()', async (t) => {
     )
     assert.equal(msg.sigkey, keypair1.public, 'msg.sigkey OLD KEY')
 
-    assert.equal(peer.db.account.has({ account, keypair: keypair2 }), true)
+    assert.equal(
+      await p(peer.db.account.has)({ account, keypair: keypair2 }),
+      true
+    )
 
     await p(peer.close)()
   })
@@ -79,7 +85,7 @@ test('account.add()', async (t) => {
       keypair: keypair1,
       subdomain: 'account',
     })
-    const msg1 = peer1.db.get(id)
+    const msg1 = await p(peer1.db.get)(id)
 
     const { msg: msg2 } = await p(peer1.db.account.add)({
       account: id,
@@ -88,7 +94,10 @@ test('account.add()', async (t) => {
     })
     assert.equal(msg2.data.key.bytes, keypair2.public)
 
-    assert.equal(peer1.db.account.has({ account: id, keypair: keypair2 }), true)
+    assert.equal(
+      await p(peer1.db.account.has)({ account: id, keypair: keypair2 }),
+      true
+    )
 
     await p(peer1.close)()
     rimraf.sync(DIR)
@@ -151,7 +160,7 @@ test('account.add()', async (t) => {
       keypair: keypair1,
       subdomain: 'person',
     })
-    const accountMsg0 = peer.db.get(account)
+    const accountMsg0 = await p(peer.db.get)(account)
 
     // Consent is implicitly created because keypair2 has .private
     const accountRec1 = await p(peer.db.account.add)({
@@ -224,7 +233,7 @@ test('account.add()', async (t) => {
         keypair: keypair1,
         subdomain: 'person',
       })
-      const accountMsg0 = peer.db.get(account)
+      const accountMsg0 = await p(peer.db.get)(account)
 
       const consent = peer.db.account.consent({ account, keypair: keypair2 })
 

@@ -31,7 +31,7 @@ test('sigkeys', async (t) => {
         keypair: keypair1,
         subdomain: 'person',
       })
-      const accountMsg0 = peer.db.get(account)
+      const accountMsg0 = await p(peer.db.get)(account)
 
       const consent = peer.db.account.consent({ account, keypair: keypair2 })
 
@@ -50,7 +50,7 @@ test('sigkeys', async (t) => {
       })
 
       const postMootId = peer.db.feed.getID(account, 'post')
-      const postMootMsg = peer.db.get(postMootId)
+      const postMootMsg = await p(peer.db.get)(postMootId)
 
       const tangle = new MsgV4.Tangle(postMootId)
       tangle.add(postMootId, postMootMsg)

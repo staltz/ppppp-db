@@ -21,7 +21,7 @@ test('account.create() ', async (t) => {
       _nonce: 'MYNONCE',
     })
     assert.ok(account, 'accountRec0 exists')
-    const msg = peer.db.get(account)
+    const msg = await p(peer.db.get)(account)
     assert.deepEqual(
       msg.data,
       {
@@ -60,7 +60,7 @@ test('account.create() ', async (t) => {
       subdomain: 'person',
     })
     assert.ok(account, 'account created')
-    const msg = peer.db.get(account)
+    const msg = await p(peer.db.get)(account)
     assert.equal(msg.data.key.bytes, keypair.public, 'msg.data')
     assert.equal(msg.metadata.account, 'self', 'msg.metadata.account')
     assert.equal(msg.metadata.accountTips, null, 'msg.metadata.accountTips')
@@ -129,7 +129,7 @@ test('account.create() ', async (t) => {
       subdomain,
     })
     assert.ok(account, 'account created')
-    const msg = peer.db.get(account)
+    const msg = await p(peer.db.get)(account)
     assert.equal(msg.data.key.bytes, keypair.public, 'msg.data')
     assert.equal(msg.metadata.account, 'self', 'msg.metadata.account')
     assert.equal(msg.metadata.accountTips, null, 'msg.metadata.accountTips')
