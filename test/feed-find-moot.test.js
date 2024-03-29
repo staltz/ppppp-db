@@ -23,7 +23,7 @@ test('feed.findMoot()', async (t) => {
 
   await p(peer.db.add)(moot, mootID)
 
-  const mootRec = peer.db.feed.findMoot(id, 'post')
+  const mootRec = await p(peer.db.feed.findMoot)(id, 'post')
   assert.equal(mootRec.id, mootID, 'feed.findMoot() returns moot ID')
 
   await p(peer.close)(true)

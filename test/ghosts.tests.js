@@ -6,6 +6,7 @@ const p = require('node:util').promisify
 const rimraf = require('rimraf')
 const Keypair = require('ppppp-keypair')
 const { createPeer } = require('./util')
+const MsgV4 = require('../lib/msg-v4')
 
 const DIR = path.join(os.tmpdir(), 'ppppp-db-ghosts')
 rimraf.sync(DIR)
@@ -28,7 +29,8 @@ test('ghosts.add, ghosts.get, ghosts.getMinDepth', async (t) => {
     })
     msgIDs.push(rec.id)
   }
-  const tangleID = peer.db.feed.findMoot(account, 'post')?.id
+  const moot = MsgV4.createMoot(account, 'post', keypair)
+  const tangleID = MsgV4.getMsgID(moot)
 
   const ghosts0 = peer.db.ghosts.get(tangleID)
   assert.deepEqual(ghosts0, [], 'no ghosts so far')
@@ -71,7 +73,8 @@ test('ghosts.add queues very-concurrent calls', async (t) => {
     })
     msgIDs.push(rec.id)
   }
-  const tangleID = peer.db.feed.findMoot(account, 'post')?.id
+  const moot = MsgV4.createMoot(account, 'post', keypair)
+  const tangleID = MsgV4.getMsgID(moot)
 
   const ghosts0 = peer.db.ghosts.get(tangleID)
   assert.deepEqual(ghosts0, [], 'no ghosts so far')

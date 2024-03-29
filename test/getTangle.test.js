@@ -103,12 +103,12 @@ test('getTangle()', async (t) => {
     reply3LoText = reply3B.localeCompare(reply3C) < 0 ? 'reply 3B' : 'reply 3C'
     reply3HiText = reply3B.localeCompare(reply3C) < 0 ? 'reply 3C' : 'reply 3B'
 
-    tangle = peer.db.getTangle(rootPost)
+    tangle = await p(peer.db.getTangle)(rootPost)
   }
 
-  await t.test('getTangle unknown ID returns null', (t) => {
+  await t.test('getTangle unknown ID returns null', async (t) => {
     assert.equal(
-      peer.db.getTangle('Lq6xwbdvGVmSsY3oYRugpZ3DY8chX9SLhRhjJKyZHQn'),
+      await p(peer.db.getTangle)('Lq6xwbdvGVmSsY3oYRugpZ3DY8chX9SLhRhjJKyZHQn'),
       null
     )
   })
@@ -343,7 +343,7 @@ test('getTangle()', async (t) => {
       await p(peer.db.erase)(msgID)
     }
 
-    const tangle2 = peer.db.getTangle(rootPost)
+    const tangle2 = await p(peer.db.getTangle)(rootPost)
     const sorted = tangle2.topoSort()
 
     assert.deepEqual(sorted, [rootPost, reply3Lo, reply3Hi])

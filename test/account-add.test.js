@@ -175,10 +175,13 @@ test('account.add()', async (t) => {
       keypair: keypair2,
     })
     assert.equal(postRec.msg.data.text, 'hello', 'post text correct')
-    const mootRec = peer.db.feed.findMoot(account, 'post')
+    const mootRec = await p(peer.db.feed.findMoot)(account, 'post')
     assert.ok(mootRec, 'posts moot exists')
 
-    const recs = [...peer.db.records()]
+    const recs = []
+    for await (rec of peer.db.records()) {
+      recs.push(rec)
+    }
     assert.equal(recs.length, 4, '4 records')
     const [_accountRec0, _accountRec1, postsRoot, _post] = recs
     assert.deepEqual(_accountRec0.msg, accountMsg0, 'accountMsg0')
@@ -250,7 +253,7 @@ test('account.add()', async (t) => {
         data: { text: 'potato' },
         keypair: keypair2,
       })
-      const postMootRec = peer.db.feed.findMoot(account, 'post')
+      const postMootRec = await p(peer.db.feed.findMoot)(account, 'post')
 
       const delRec = await p(peer.db.account.del)({
         account,
