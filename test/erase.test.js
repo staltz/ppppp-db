@@ -36,7 +36,7 @@ test('erase()', async (t) => {
   const SAVED_UPON_ERASE = '{"text":"m*"}'.length - 'null'.length
 
   const before = []
-  for (const msg of peer.db.msgs()) {
+  for await (const msg of peer.db.msgs()) {
     if (msg.data && msg.metadata.account?.length > 4) {
       before.push(msg.data.text)
     }
@@ -59,7 +59,7 @@ test('erase()', async (t) => {
   await p(peer.db.erase)(msgIDs[2])
 
   const after = []
-  for (const msg of peer.db.msgs()) {
+  for await (const msg of peer.db.msgs()) {
     if (msg.data && msg.metadata.account?.length > 4) {
       after.push(msg.data.text)
     }
@@ -68,7 +68,7 @@ test('erase()', async (t) => {
   assert.deepEqual(after, ['m0', 'm1', 'm3', 'm4'], '4 msgs after the erase')
 
   const after2 = []
-  for (const msg of peer.db.msgs()) {
+  for await (const msg of peer.db.msgs()) {
     for (const tangleID in msg.metadata.tangles) {
       after2.push(msg.metadata.tangles[tangleID].depth)
     }

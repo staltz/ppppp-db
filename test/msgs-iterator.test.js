@@ -31,7 +31,7 @@ test('msgs() iterator', async (t) => {
 
   const posts = []
   const abouts = []
-  for (const msg of peer.db.msgs()) {
+  for await (const msg of peer.db.msgs()) {
     if (!msg.data) continue
     if (msg.metadata.domain === 'post') posts.push(msg.data.text)
     else if (msg.metadata.domain === 'about') abouts.push(msg.data.name)
