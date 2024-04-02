@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "@types/b4a": "^1.6.0",
+    "@types/pull-stream": "^3.6.7",
     "c8": "^7.11.0",
     "flumecodec": "~0.0.1",
     "husky": "^4.3.0",
