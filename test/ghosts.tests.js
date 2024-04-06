@@ -29,8 +29,7 @@ test('ghosts.add, ghosts.get, ghosts.getMinDepth', async (t) => {
     })
     msgIDs.push(rec.id)
   }
-  const moot = MsgV4.createMoot(account, 'post', keypair)
-  const tangleID = MsgV4.getMsgID(moot)
+  const tangleID = (await p(peer.db.feed.findMoot)(account, 'post'))?.id
 
   const ghosts0 = peer.db.ghosts.get(tangleID)
   assert.deepEqual(ghosts0, [], 'no ghosts so far')
