@@ -103,7 +103,7 @@ test('add()', async (t) => {
     {
       const ids = []
       const texts = []
-      for (const rec of peer.db.records()) {
+      for await (const rec of peer.db.records()) {
         if (rec.msg.metadata.domain === 'something') {
           ids.push(rec.id)
           texts.push(rec.msg.data?.text)
@@ -122,7 +122,7 @@ test('add()', async (t) => {
     {
       const ids = []
       const texts = []
-      for (const rec of peer.db.records()) {
+      for await (const rec of peer.db.records()) {
         if (rec.msg.metadata.domain === 'something') {
           ids.push(rec.id)
           texts.push(rec.msg.data?.text)

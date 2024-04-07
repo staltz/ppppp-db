@@ -28,7 +28,7 @@ test('get()', async (t) => {
   })
   const msgID1 = MsgV4.getMsgID(rec1.msg)
 
-  const msg = peer.db.get(msgID1)
+  const msg = await p(peer.db.get)(msgID1)
   assert.ok(msg, 'msg exists')
   assert.equal(msg.data.text, 'I am 1st post')
 

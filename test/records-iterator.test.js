@@ -29,7 +29,7 @@ test('records() iterator', async (t) => {
   }
 
   let count = 0
-  for (const rec of peer.db.records()) {
+  for await (const rec of peer.db.records()) {
     if (!rec.msg.data) continue
     if (rec.msg.metadata.account === 'self') continue
     assert.ok(rec.received, 'received')

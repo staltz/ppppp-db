@@ -29,8 +29,8 @@
   "dependencies": {
     "@alloc/quick-lru": "^5.2.0",
     "atomic-file-rw": "~0.3.0",
-    "blake3": "~2.1.7",
     "b4a": "~1.6.4",
+    "blake3": "~2.1.7",
     "bs58": "~5.0.0",
     "debug": "^4.3.0",
     "is-buffer-zero": "^1.0.0",
@@ -39,15 +39,17 @@
     "multicb": "~1.2.2",
     "mutexify": "~1.4.0",
     "obz": "~1.1.0",
-    "ppppp-keypair": "github:staltz/ppppp-keypair#61ef4420578f450dc2cc7b1efc1c5a691a871c74",
     "polyraf": "^1.1.0",
+    "ppppp-keypair": "github:staltz/ppppp-keypair#61ef4420578f450dc2cc7b1efc1c5a691a871c74",
     "promisify-4loc": "~1.0.0",
     "promisify-tuple": "~1.2.0",
+    "pull-stream": "^3.7.0",
     "push-stream": "~11.2.0",
     "set.prototype.union": "~1.0.2"
   },
   "devDependencies": {
     "@types/b4a": "^1.6.0",
+    "@types/pull-stream": "^3.6.7",
     "c8": "^7.11.0",
     "flumecodec": "~0.0.1",
     "husky": "^4.3.0",
@@ -55,8 +57,8 @@
     "prettier": "^2.6.2",
     "pretty-quick": "^3.1.3",
     "rimraf": "^4.4.0",
-    "secret-stack": "8.0.0",
     "secret-handshake-ext": "0.0.10",
+    "secret-stack": "8.0.0",
     "ssb-box": "^1.0.1",
     "typescript": "^5.1.3"
   },

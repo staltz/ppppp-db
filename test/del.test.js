@@ -36,7 +36,7 @@ test('del()', async (t) => {
 
   {
     const texts = []
-    for (const msg of peer.db.msgs()) {
+    for await (const msg of peer.db.msgs()) {
       if (msg.data && msg.metadata.account?.length > 4) {
         texts.push(msg.data.text)
       }
@@ -60,7 +60,7 @@ test('del()', async (t) => {
 
   {
     const texts = []
-    for (const msg of peer.db.msgs()) {
+    for await (const msg of peer.db.msgs()) {
       if (msg.data && msg.metadata.account?.length > 4) {
         texts.push(msg.data.text)
       }
@@ -76,7 +76,7 @@ test('del()', async (t) => {
 
   {
     const texts = []
-    for (const msg of peer.db.msgs()) {
+    for await (const msg of peer.db.msgs()) {
       if (msg.data && msg.metadata.account?.length > 4) {
         texts.push(msg.data.text)
       }

@@ -24,7 +24,10 @@ test('account.add()', async (t) => {
       subdomain: 'person',
     })
 
-    assert.equal(peer.db.account.has({ account, keypair: keypair2 }), false)
+    assert.equal(
+      await p(peer.db.account.has)({ account, keypair: keypair2 }),
+      false
+    )
 
     const consent = peer.db.account.consent({ account, keypair: keypair2 })
 
@@ -61,7 +64,10 @@ test('account.add()', async (t) => {
     )
     assert.equal(msg.sigkey, keypair1.public, 'msg.sigkey OLD KEY')
 
-    assert.equal(peer.db.account.has({ account, keypair: keypair2 }), true)
+    assert.equal(
+      await p(peer.db.account.has)({ account, keypair: keypair2 }),
+      true
+    )
 
     await p(peer.close)()
   })
@@ -79,7 +85,7 @@ test('account.add()', async (t) => {
       keypair: keypair1,
       subdomain: 'account',
     })
-    const msg1 = peer1.db.get(id)
+    const msg1 = await p(peer1.db.get)(id)
 
     const { msg: msg2 } = await p(peer1.db.account.add)({
       account: id,
@@ -88,7 +94,10 @@ test('account.add()', async (t) => {
     })
     assert.equal(msg2.data.key.bytes, keypair2.public)
 
-    assert.equal(peer1.db.account.has({ account: id, keypair: keypair2 }), true)
+    assert.equal(
+      await p(peer1.db.account.has)({ account: id, keypair: keypair2 }),
+      true
+    )
 
     await p(peer1.close)()
     rimraf.sync(DIR)
@@ -151,7 +160,7 @@ test('account.add()', async (t) => {
       keypair: keypair1,
       subdomain: 'person',
     })
-    const accountMsg0 = peer.db.get(account)
+    const accountMsg0 = await p(peer.db.get)(account)
 
     // Consent is implicitly created because keypair2 has .private
     const accountRec1 = await p(peer.db.account.add)({
@@ -166,10 +175,13 @@ test('account.add()', async (t) => {
       keypair: keypair2,
     })
     assert.equal(postRec.msg.data.text, 'hello', 'post text correct')
-    const mootRec = peer.db.feed.findMoot(account, 'post')
+    const mootRec = await p(peer.db.feed.findMoot)(account, 'post')
     assert.ok(mootRec, 'posts moot exists')
 
-    const recs = [...peer.db.records()]
+    const recs = []
+    for await (rec of peer.db.records()) {
+      recs.push(rec)
+    }
     assert.equal(recs.length, 4, '4 records')
     const [_accountRec0, _accountRec1, postsRoot, _post] = recs
     assert.deepEqual(_accountRec0.msg, accountMsg0, 'accountMsg0')
@@ -224,7 +236,7 @@ test('account.add()', async (t) => {
         keypair: keypair1,
         subdomain: 'person',
       })
-      const accountMsg0 = peer.db.get(account)
+      const accountMsg0 = await p(peer.db.get)(account)
 
       const consent = peer.db.account.consent({ account, keypair: keypair2 })
 
@@ -241,7 +253,7 @@ test('account.add()', async (t) => {
         data: { text: 'potato' },
         keypair: keypair2,
       })
-      const postMootRec = peer.db.feed.findMoot(account, 'post')
+      const postMootRec = await p(peer.db.feed.findMoot)(account, 'post')
 
       const delRec = await p(peer.db.account.del)({
         account,

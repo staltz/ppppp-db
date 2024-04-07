@@ -127,7 +127,7 @@ test('feed.publish()', async (t) => {
     assert.equal(typeof recEncrypted.msg.data, 'string')
     assert.ok(recEncrypted.msg.data.endsWith('.box'), '.box')
 
-    const msgDecrypted = peer.db.get(recEncrypted.id)
+    const msgDecrypted = await p(peer.db.get)(recEncrypted.id)
     assert.equal(msgDecrypted.data.text, 'I am chewing food')
   })
 

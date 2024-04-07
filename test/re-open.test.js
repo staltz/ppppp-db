@@ -41,7 +41,7 @@ test('publish some msgs, close, re-open', async (t) => {
   await peer2.db.loaded()
 
   const texts = []
-  for (const msg of peer2.db.msgs()) {
+  for await (const msg of peer2.db.msgs()) {
     if (!msg.data || !(msg.metadata.account?.length > 4)) continue
     texts.push(msg.data.text)
   }
