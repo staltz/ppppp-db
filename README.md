@@ -23,7 +23,7 @@ const p = require('node:util').promisify
 const keypair = Keypair.generate('ed25519', 'alice')
 const DIR = path.join(os.tmpdir(), 'ppppp-db-temp')
 
-const peer = require('secret-stack/bare')()
+const pzp = require('secret-stack/bare')()
   .use(require('secret-stack/plugins/net'))
   .use(require('secret-handshake-ext/secret-stack'))
   .use(require('ppppp-db'))
@@ -38,14 +38,14 @@ const peer = require('secret-stack/bare')()
     })
 
 
-await peer.db.loaded()
+await pzp.db.loaded()
 
-const account = await p(peer.db.account.create)({
+const account = await p(pzp.db.account.create)({
   keypair,
   subdomain: 'person',
 })
 
-const record = await p(peer.db.feed.publish)({
+const record = await p(pzp.db.feed.publish)({
   account,
   domain: 'post',
   data: { text: 'I am 1st post' },
@@ -86,8 +86,99 @@ console.log("account:", account, "record:", JSON.stringify(record, null, 2))
 
 ## API
 
+NOTE: All functions that take a callback (cb) return a promise instead if you omit the callback.
+
+### `pzp.db.installEncryptionFormat(encryptionFormat)`
+
+If `encryptionFormat` conforms to the [ssb-encryption-format](https://github.com/ssbc/ssb-encryption-format) spec, then this method will install the `encryptionFormat` in this database instance, meaning that you can now encrypt and decrypt messages using that encryption format.
+
+### `pzp.db.loaded(cb)
+
+Calls back when the database is ready to be used.
+
+### `pzp.db.add(msg: Msg, tangleID: MsgId | null, cb: CB<RecPresent>)
+
+Adds a message to the database. Usually performed automatically when you do other things like publishing messages or syncing from other peers.
+
+### `pzp.db.account.find({ keypair?: KeypairPublicSlice, subdomain: string}, cb: CB<string>)`
+
+Find the account that contains this `keypair` (or the implicit `config.global.keypair`) under the given `subdomain` (will be converted to an actual msg domain).
+
+### `pzp.db.account.create({ keypair?: Keypair, subdomain: string }, cb: CB<string>)`
+
+Create an account (root msg) for the given `keypair` (or the implicit `config.global.keypair`) under the given `subdomain` (will be converted to an actual msg domain).
+
+### `pzp.db.account.findOrCreate({ keypair?: Keypair, subdomain: string }, cb: CB<string>)`
+
+Find or create an account (root msg) for the given `keypair` (or the implicit `config.global.keypair`) under the given `domain` (will be converted to an actual msg domain).
+
+### `pzp.db.account.add({ account: string, keypair: Keypair | KeypairPublicSlice, powers?: Array<AccountPower>, consent?: string }, cb: CB<RecPresent>)`
+
+Add the given `keypair` to the given `account`, authorized by the given `consent` (or implicitly created on the fly if the `keypair` contains the private key) with the specified `powers` (defaulting to no powers).
+
+### `pzp.db.account.del({ account: string, keypair: KeypairPublicSlice }, cb: CB<RecPresent>)`
+
+Remove the given `keypair` from the given `account`.
+
+### `pzp.db.account.consent({ keypair?: KeypairPrivateSlice, account: string }) => string`
+
+Create a consent signature for the given `keypair` (or the implicit `config.global.keypair`) to be added to the given `account`.
+
+### `pzp.db.account.has({ keypair?: KeypairPublicSlice, account: string }, cb: CB<boolean>)
+    
+Does this `account` have this `keypair` (or the implicit `config.global.keypair`)?
+
+    feed: {
+### `pzp.db.feed.publish({ keypair?: Keypair, encryptionFormat?: string, data: object, domain: string, account: string, tangles?: Array<MsgID> }, cb: CB<RecPresent>)`
+
+Publishes a message to the feed of the given `domain`.
+
+### `pzp.db.feed.getID(accountId: string, domain: string) => string`
+
+Gets the moot ID (the ID of an account's domain's root message) for a given account and domain. That message is deterministic so you can calculate its ID even if you e.g. haven't been given it directly.
+
+### `pzp.db.feed.findMoot(accountId: string, domain: string, cb: CB<RecPresent | null>)`
+
+Gets the moot for the specified account and domain from the database. A moot is the root message for an account's domain.
+
+### `pzp.db.getRecord(msgID: MsgID, cb: CB<RecPresent | null>)`
+
+Gets a message's record using its message ID, if you have it in your database. The record has the shape `{ id: string, msg: Msg, received: number }`.
+
+### `pzp.db.get(msgID: MsgID, cb: CB<Msg | null>)`
+
+Gets a message using its message ID, if you have it in your database.
+
+### `pzp.db.del(msgID: MsgID, cb: CB<void>)`
+
+Deletes a specific message from your database.
+
+### `pzp.db.erase(msgID: MsgID, cb: CB<void>)
+
+Erases a specific message in your database. Erasing, as opposed to deleting, only removes a message's `data`. Metadata is kept and the message integrity can still be verified.
+
+    ghosts: {
+### `pzp.db.ghosts.add(todo)`
+
+Adds a [ghost][ghost] todo
+
+
+      get: getGhosts,
+      getMinDepth: getMinGhostDepth,
+    },
+    onRecordAdded,
+    onRecordDeletedOrErased,
+    getTangle,
+    msgs,
+    records,
+    log: {
+      stats: log.stats.bind(log),
+      compact,
+    },
 
 
 ## License
 
 TODO
+
+[ghost]: https://www.manyver.se/blog/2023-11-05
