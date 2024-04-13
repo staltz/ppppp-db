@@ -157,28 +157,50 @@ Deletes a specific message from your database.
 
 Erases a specific message in your database. Erasing, as opposed to deleting, only removes a message's `data`. Metadata is kept and the message integrity can still be verified.
 
-    ghosts: {
-### `pzp.db.ghosts.add(todo)`
+### `pzp.db.ghosts.add({ tangleID: MsgID, msgID: MsgID, span: number }, cb: CB<void>)`
 
-Adds a [ghost][ghost] todo
+Adds a [ghost][ghost] to the database.
 
+### `pzp.db.ghosts.get(tangleID: MsgID) => Array<string>`
 
-      get: getGhosts,
-      getMinDepth: getMinGhostDepth,
-    },
-    onRecordAdded,
-    onRecordDeletedOrErased,
-    getTangle,
-    msgs,
-    records,
-    log: {
-      stats: log.stats.bind(log),
-      compact,
-    },
+Gets a [ghost][ghost] from the database.
+
+### `pzp.db.ghosts.getMinDepth(tangleID: MsgID) => number`
+
+Gets the depth of the ghost in the tangle with the lowest depth.
+
+### `pzp.db.onRecordAdded`
+
+An [obz][obz] observable that triggers when a record is added to the database.
+
+### `pzp.db.onRecordDeletedOrErased`
+
+An [obz][obz] observable that triggers when a record is either deleted or erased. Erasing means that only the `data` field of the message has been cleared.
+
+### `pzp.db.getTangle(tangleID: MsgID, cb: CB<DBTangle | null>)`
+
+Tries to get a `DBTangle` object representing an entire tangle in the database.
+
+### `pzp.db.msgs() => AsyncGenerator<Msg>`
+
+Returns an async generator letting you iterate over all messages in the database.
+
+### `pzp.db.records() => AsyncGenerator<Rec>`
+
+Returns an async generator letting you iterate over all records in the database.  The records have the shape `{ id: string, msg: Msg, received: number }` if they exist but they might also be deleted.
+
+### `pzp.db.log.stats(cb: CB<{ totalBytes: number; deletedBytes: number }>)`
+
+Returns some size stats on the log file, where messages are stored.
+
+### `pzp.db.log.compact(cb: CB<void>)`
+
+Makes the log file (the message store) take up less space by compacting it into the space freed by messages that have been deleted.
 
 
 ## License
 
-TODO
+Copyright © 2023-2024 Andre 'Staltz' Medeiros <contact@staltz.com> and contributors. Licensed under the MIT license.
 
 [ghost]: https://www.manyver.se/blog/2023-11-05
+[obz]: https://www.npmjs.com/package/obz
